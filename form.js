@@ -16,6 +16,27 @@ const formulario = document.getElementById('formulario');
 const caixaMensagem = document.getElementById('mensagem');
 
 /* ======================================
+   PRÉ-PREENCHIMENTO VIA CHATBOT
+   Se o usuário chegou do chatbot com um tipo de ensaio já
+   escolhido (ex: form.html?ensaio=Casamento), preenche o select.
+====================================== */
+(function preencherDoChatbot() {
+    const params = new URLSearchParams(window.location.search);
+    const ensaioParam = params.get('ensaio');
+    if (!ensaioParam) return;
+
+    const selectEnsaio = document.getElementById('ensaio');
+    if (!selectEnsaio) return;
+
+    const match = Array.from(selectEnsaio.options).find(
+        opt => opt.value.toLowerCase() === ensaioParam.toLowerCase()
+    );
+    if (match) {
+        selectEnsaio.value = match.value;
+    }
+})();
+
+/* ======================================
    RESTRIÇÕES DE DATA E HORÁRIO
 ====================================== */
 

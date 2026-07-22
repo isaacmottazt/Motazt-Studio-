@@ -14,9 +14,22 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #e0b73f;
+            --primary-dark: #a8801f;
+            --primary-light: #f4d374;
+            --dark: #0f0f0f;
+            --darker: #000;
+            --light: #f5f5f5;
+            --gray: #2a2a2a;
+            --gray-light: #3a3a3a;
+            --text: #e0e0e0;
+            --text-muted: #999;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: var(--darker);
             color: #fff;
             min-height: 100vh;
             display: flex;
@@ -30,18 +43,18 @@
             max-width: 500px;
             height: 90vh;
             max-height: 700px;
-            background: rgba(20, 20, 20, 0.95);
+            background: var(--dark);
             border-radius: 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(224, 183, 63, 0.15);
             overflow: hidden;
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #d6a04c 0%, #c9933d 100%);
-            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 14px 16px;
             color: #000;
             display: flex;
             align-items: center;
@@ -58,12 +71,20 @@
         .avatar {
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.3);
+            background: #000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .header-text h3 {
@@ -73,24 +94,46 @@
 
         .header-text p {
             font-size: 11px;
-            opacity: 0.8;
+            font-weight: 500;
             margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .btn-close {
-            width: 32px;
-            height: 32px;
-            background: rgba(0, 0, 0, 0.2);
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.online { background: #1f9d55; }
+        .status-dot.offline { background: #8a8a8a; }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.15);
             border: none;
             border-radius: 50%;
             color: #000;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 14px;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-close:hover {
-            background: rgba(0, 0, 0, 0.3);
+        .btn-icon:hover {
+            background: rgba(0, 0, 0, 0.28);
         }
 
         .chat-messages {
@@ -99,108 +142,86 @@
             padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            background: var(--dark);
         }
 
         .message {
             display: flex;
             gap: 8px;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.25s ease;
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message.usuario {
-            justify-content: flex-end;
-        }
+        .message.bot { justify-content: flex-start; }
+        .message.usuario { justify-content: flex-end; }
 
         .message-content {
-            max-width: 70%;
+            max-width: 74%;
             padding: 10px 14px;
             border-radius: 12px;
             font-size: 13px;
-            line-height: 1.4;
+            line-height: 1.45;
             word-wrap: break-word;
         }
 
         .message.bot .message-content {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 3px solid #d6a04c;
+            background: var(--gray);
+            border-left: 3px solid var(--primary);
         }
 
         .message.usuario .message-content {
-            background: #d6a04c;
+            background: var(--primary);
             color: #000;
         }
 
         .message-time {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 3px;
+            align-self: flex-end;
+        }
+
+        .system-note {
             text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 4px 0;
         }
 
         /* SUGESTÕES RÁPIDAS */
-        .quick-replies {
+        .quick-replies-wrap {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin: 8px 0;
+            margin: 2px 0 8px 0;
         }
 
         .quick-reply-btn {
             padding: 10px 12px;
-            background: rgba(214, 160, 76, 0.15);
-            border: 1px solid rgba(214, 160, 76, 0.3);
-            color: #d6a04c;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            text-align: left;
-        }
-
-        .quick-reply-btn:hover {
-            background: rgba(214, 160, 76, 0.25);
-            border-color: #d6a04c;
-        }
-
-        /* OPÇÕES MÚLTIPLAS */
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 8px 0;
-        }
-
-        .option-btn {
-            padding: 12px;
-            background: rgba(214, 160, 76, 0.15);
-            border: 1px solid rgba(214, 160, 76, 0.3);
-            color: #d6a04c;
+            background: rgba(224, 183, 63, 0.1);
+            border: 1px solid rgba(224, 183, 63, 0.35);
+            color: var(--primary-light);
             border-radius: 8px;
             cursor: pointer;
             font-size: 12px;
             font-weight: 500;
             transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
         }
 
-        .option-btn:hover {
-            background: rgba(214, 160, 76, 0.25);
-            border-color: #d6a04c;
+        .quick-reply-btn:hover {
+            background: rgba(224, 183, 63, 0.22);
+            border-color: var(--primary);
+        }
+
+        .quick-reply-btn.human {
+            border-style: dashed;
         }
 
         /* INDICADOR DE DIGITAÇÃO */
@@ -209,7 +230,7 @@
             gap: 4px;
             align-items: center;
             padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--gray);
             border-radius: 12px;
             width: fit-content;
         }
@@ -217,18 +238,13 @@
         .typing-dot {
             width: 6px;
             height: 6px;
-            background: #d6a04c;
+            background: var(--primary);
             border-radius: 50%;
             animation: bounce 1.4s ease-in-out infinite;
         }
 
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes bounce {
             0%, 60%, 100% { transform: translateY(0); }
@@ -236,19 +252,20 @@
         }
 
         .chat-input-area {
-            padding: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 16px;
+            border-top: 1px solid rgba(224, 183, 63, 0.12);
             display: flex;
             gap: 8px;
-            align-items: flex-end;
+            align-items: center;
+            background: var(--dark);
         }
 
         .input-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: var(--gray);
+            border: 1px solid rgba(224, 183, 63, 0.2);
             border-radius: 20px;
             padding: 8px 14px;
         }
@@ -263,14 +280,12 @@
             outline: none;
         }
 
-        .chat-input::placeholder {
-            color: #666;
-        }
+        .chat-input::placeholder { color: var(--text-muted); }
 
         .btn-send {
             width: 36px;
             height: 36px;
-            background: #d6a04c;
+            background: var(--primary);
             border: none;
             border-radius: 50%;
             color: #000;
@@ -278,30 +293,62 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
 
         .btn-send:hover {
-            background: #c9933d;
+            background: var(--primary-dark);
             transform: scale(1.05);
         }
 
-        .btn-send:active {
-            transform: scale(0.95);
+        .btn-send:active { transform: scale(0.95); }
+
+        /* Contact capture form dentro do chat */
+        .contact-form {
+            background: var(--gray);
+            border: 1px solid rgba(224, 183, 63, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 2px 0 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        /* BADGE STATUS */
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            background: rgba(52, 211, 153, 0.2);
-            color: #34d399;
-            border-radius: 3px;
+        .contact-form label {
             font-size: 11px;
-            font-weight: 600;
-            margin-top: 4px;
+            color: var(--text-muted);
         }
+
+        .contact-form input {
+            background: var(--dark);
+            border: 1px solid rgba(224, 183, 63, 0.25);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .contact-form input:focus { border-color: var(--primary); }
+
+        .contact-form button {
+            margin-top: 2px;
+            padding: 9px;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .contact-form button:hover { background: var(--primary-dark); }
+        .contact-form .erro { color: #e77; font-size: 11px; }
 
         @media (max-width: 480px) {
             .chat-container {
@@ -309,28 +356,13 @@
                 height: 100vh;
                 border-radius: 0;
             }
-
-            .message-content {
-                max-width: 85%;
-            }
+            .message-content { max-width: 85%; }
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(224, 183, 63, 0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(224, 183, 63, 0.3); }
     </style>
 </head>
 <body>
@@ -338,116 +370,193 @@
         <!-- HEADER -->
         <div class="chat-header">
             <div class="chat-header-info">
-                <div class="avatar">📸</div>
+                <div class="avatar"><img src="img/logo.png" alt="Motazt Studio"></div>
                 <div class="header-text">
                     <h3>Motazt Studio</h3>
-                    <p>🟢 Online</p>
+                    <p><span class="status-dot" id="statusDot"></span><span id="statusTexto">Online</span></p>
                 </div>
             </div>
-            <button class="btn-close" onclick="fecharChat()">×</button>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="chatbot.reiniciarConversa()" title="Reiniciar conversa">↻</button>
+                <button class="btn-icon" onclick="fecharChat()" title="Fechar">×</button>
+            </div>
         </div>
 
         <!-- MENSAGENS -->
-        <div class="chat-messages" id="chatMessages">
-            <!-- Carregadas dinamicamente -->
-        </div>
+        <div class="chat-messages" id="chatMessages"></div>
 
         <!-- INPUT -->
         <div class="chat-input-area">
             <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    class="chat-input" 
-                    id="inputMsg" 
+                <input
+                    type="text"
+                    class="chat-input"
+                    id="inputMsg"
                     placeholder="Digite sua mensagem..."
                     onkeypress="enviarSeEnter(event)"
                 >
             </div>
-            <button class="btn-send" onclick="enviarMensagem()">📤</button>
+            <button class="btn-send" onclick="enviarMensagem()" title="Enviar">➤</button>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        /* ======================================
+           SUPABASE (mesmas credenciais do resto do site)
+           Usado para gravar contatos capturados no fallback,
+           para que a promessa "nossa equipe responde em 2h"
+           realmente chegue em algum lugar.
+        ====================================== */
+        const SUPABASE_URL = "https://tbwmsgztpyyratambgqs.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_yqH30kXsSD7nmwdlgPj93Q_pw1QrcQd";
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.warn('Supabase indisponível no chatbot:', e);
+        }
+
+        /* ======================================
+           HORÁRIO DE ATENDIMENTO
+           Mesma janela usada no form.js (07:00–22:00, todos os dias).
+           Ajuste aqui se o horário real do estúdio mudar.
+        ====================================== */
+        const HORARIO_ATENDIMENTO = { abreHora: 7, fechaHora: 22 };
+
+        function dentroDoHorario() {
+            const agora = new Date();
+            const hora = agora.getHours();
+            return hora >= HORARIO_ATENDIMENTO.abreHora && hora < HORARIO_ATENDIMENTO.fechaHora;
+        }
+
+        function atualizarStatusOnline() {
+            const online = dentroDoHorario();
+            const dot = document.getElementById('statusDot');
+            const texto = document.getElementById('statusTexto');
+            if (online) {
+                dot.className = 'status-dot online';
+                texto.textContent = 'Online';
+            } else {
+                dot.className = 'status-dot offline';
+                texto.textContent = `Fora do horário — retornamos às ${String(HORARIO_ATENDIMENTO.abreHora).padStart(2,'0')}h`;
+            }
+        }
+
         // ===== BOT DE CONVERSAÇÃO =====
         class ChatbotMotazt {
             constructor() {
-                this.conversas = [];
                 this.mensagens = [];
-                this.usuarioInfo = {};
                 this.fluxo = 'menu_inicial';
+                this.tipoEnsaioEscolhido = null; // usado para pré-preencher o formulário
+                this.aguardandoContato = false;
+                this.perguntaOriginal = null;
             }
 
-            /**
-             * Inicia chat com mensagem de boas-vindas
-             */
             iniciar() {
+                atualizarStatusOnline();
                 this.carregarHistorico();
-                
+
+                const visitaAnterior = localStorage.getItem('motaztChatVisitou') === '1';
+
                 if (this.mensagens.length === 0) {
-                    this.enviarMensagem({
-                        texto: `Olá! 👋 Bem-vindo ao Motazt Studio!\n\nCom o que posso ajudar?`,
-                        tipo: 'bot'
-                    });
+                    if (visitaAnterior) {
+                        this.enviarMensagem({
+                            texto: `Bem-vindo de volta! Com o que posso ajudar hoje?`,
+                            tipo: 'bot'
+                        });
+                    } else {
+                        this.enviarMensagem({
+                            texto: `Olá! Bem-vindo ao Motazt Studio.\n\nCom o que posso ajudar?`,
+                            tipo: 'bot'
+                        });
+                    }
 
                     setTimeout(() => {
                         this.mostrarOpcoes([
-                            { id: 'info', label: '📸 Saber mais sobre nossos serviços' },
-                            { id: 'valores', label: '💰 Conhecer valores' },
-                            { id: 'agendar', label: '📅 Agendar agora' },
-                            { id: 'faq', label: '❓ Dúvidas frequentes' }
-                        ]);
+                            { id: 'info', label: 'Saber mais sobre nossos serviços' },
+                            { id: 'valores', label: 'Conhecer valores' },
+                            { id: 'agendar', label: 'Agendar agora' },
+                            { id: 'faq', label: 'Dúvidas frequentes' }
+                        ], { comHumano: true });
                     }, 500);
+                } else {
+                    this.mostrarOpcaoHumanoFixa();
                 }
 
+                localStorage.setItem('motaztChatVisitou', '1');
                 this.renderizar();
             }
 
-            /**
-             * Processa respostas do usuário
-             */
-            processarResposta(entrada) {
-                // Adiciona mensagem do usuário
-                this.enviarMensagem({
-                    texto: entrada,
-                    tipo: 'usuario'
-                });
+            reiniciarConversa() {
+                if (!confirm('Reiniciar a conversa? O histórico será apagado.')) return;
+                this.mensagens = [];
+                this.tipoEnsaioEscolhido = null;
+                this.aguardandoContato = false;
+                localStorage.removeItem('chatHistorico');
+                this.renderizar();
+                this.iniciar();
+            }
 
-                // Simula delay de digitação
+            processarResposta(entrada) {
+                if (this.aguardandoContato) {
+                    // Se o usuário digitar em vez de usar o formulário de contato,
+                    // apenas orienta a preencher o formulário mostrado.
+                    this.enviarMensagem({ texto: entrada, tipo: 'usuario' });
+                    setTimeout(() => {
+                        this.enviarMensagem({
+                            texto: `Pode preencher seus dados no formulário acima para que nossa equipe entre em contato.`,
+                            tipo: 'bot'
+                        });
+                    }, 500);
+                    return;
+                }
+
+                this.enviarMensagem({ texto: entrada, tipo: 'usuario' });
+
                 setTimeout(() => {
                     this.gerarResposta(entrada);
                 }, 800);
             }
 
-            /**
-             * Gera resposta baseada no contexto
-             */
             gerarResposta(entrada) {
-                const entrada_lower = entrada.toLowerCase();
+                const e = entrada.toLowerCase();
 
-                // Tenta match com palavras-chave
-                if (entrada_lower.includes('valor') || entrada_lower.includes('preço') || entrada_lower.includes('quanto')) {
+                if (e.includes('valor') || e.includes('preço') || e.includes('preco') || e.includes('quanto custa')) {
                     this.fluxo = 'valores';
                     this.responderValores();
-                } 
-                else if (entrada_lower.includes('casamento') || entrada_lower.includes('wedding')) {
-                    this.fluxo = 'tipo_ensaio';
+                }
+                else if (e.includes('casamento') || e.includes('wedding')) {
+                    this.tipoEnsaioEscolhido = 'Casamento';
                     this.responderCasamento();
                 }
-                else if (entrada_lower.includes('individual') || entrada_lower.includes('retrato')) {
-                    this.fluxo = 'tipo_ensaio';
+                else if (e.includes('individual') || e.includes('retrato')) {
+                    this.tipoEnsaioEscolhido = 'Ensaio Individual';
                     this.responderIndividual();
                 }
-                else if (entrada_lower.includes('agendar') || entrada_lower.includes('booking')) {
+                else if (e.includes('casal')) {
+                    this.tipoEnsaioEscolhido = 'Ensaio de Casal';
+                    this.responderGenerico('Ensaio de Casal', 'R$ 400-600', '1h30 a 2h');
+                }
+                else if (e.includes('família') || e.includes('familia')) {
+                    this.tipoEnsaioEscolhido = 'Ensaio Familiar';
+                    this.responderGenerico('Ensaio Familiar', 'R$ 500-800', '1h30 a 3h');
+                }
+                else if (e.includes('gestante') || e.includes('grávida') || e.includes('gravida')) {
+                    this.tipoEnsaioEscolhido = 'Gestante';
+                    this.responderGenerico('Gestante', 'R$ 350-550', '1h a 2h');
+                }
+                else if (e.includes('agendar') || e.includes('booking') || e.includes('marcar')) {
                     this.fluxo = 'agendamento';
                     this.ofrecerAgendamento();
                 }
-                else if (entrada_lower.includes('cancelamento') || entrada_lower.includes('cancelar')) {
+                else if (e.includes('cancelamento') || e.includes('cancelar')) {
                     this.responderCancelamento();
                 }
-                else if (entrada_lower.includes('quanto tempo') || entrada_lower.includes('entrega')) {
+                else if (e.includes('quanto tempo') || e.includes('entrega') || e.includes('prazo')) {
                     this.responderEntrega();
                 }
-                else if (entrada_lower.includes('oi') || entrada_lower.includes('olá') || entrada_lower.includes('opa')) {
+                else if (e.includes('oi') || e.includes('olá') || e.includes('ola') || e.includes('opa') || e.includes('bom dia') || e.includes('boa tarde') || e.includes('boa noite')) {
                     this.responderSaudacao();
                 }
                 else {
@@ -456,152 +565,239 @@
             }
 
             responderSaudacao() {
-                this.enviarMensagem({
-                    texto: '😊 Oi! Tudo bem?\n\nComo posso ajudar?',
-                    tipo: 'bot'
-                });
-
+                this.enviarMensagem({ texto: 'Oi! Tudo bem?\n\nComo posso ajudar?', tipo: 'bot' });
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'info', label: '📸 Serviços' },
-                        { id: 'valores', label: '💰 Valores' },
-                        { id: 'agendar', label: '📅 Agendar' }
-                    ]);
+                        { id: 'info', label: 'Serviços' },
+                        { id: 'valores', label: 'Valores' },
+                        { id: 'agendar', label: 'Agendar' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             responderValores() {
                 this.enviarMensagem({
-                    texto: `💰 Nossos Valores\n\n✅ Ensaio Individual: R$ 300-500\n✅ Casal: R$ 400-600\n✅ Familiar: R$ 500-800\n✅ Casamento: Sob consulta\n✅ Gestante: R$ 350-550\n✅ Evento: R$ 800-2000\n\nOs preços variam conforme a duração, local e pacote escolhido.`,
+                    texto: `Nossos Valores\n\n• Ensaio Individual: R$ 300-500\n• Casal: R$ 400-600\n• Familiar: R$ 500-800\n• Casamento: Sob consulta\n• Gestante: R$ 350-550\n• Evento: R$ 800-2000\n\nOs preços variam conforme duração, local e pacote escolhido.`,
                     tipo: 'bot'
                 });
-
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'agendar', label: '📅 Quer agendar?' },
-                        { id: 'pacotes', label: '📦 Ver pacotes' },
-                        { id: 'menu', label: '🏠 Voltar ao menu' }
-                    ]);
+                        { id: 'agendar', label: 'Quer agendar?' },
+                        { id: 'menu', label: 'Voltar ao menu' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             responderCasamento() {
                 this.enviarMensagem({
-                    texto: `💍 Casamento\n\nNosso pacote completo inclui:\n✅ Cobertura de 8 horas\n✅ Edição profissional de todas as fotos\n✅ Álbum digital\n✅ Prévias em 48h\n✅ Fotos finalizadas em 30 dias\n✅ Direito de impressão ilimitado\n\nValor: Sob consulta (depende do escopo)`,
+                    texto: `Casamento\n\nNosso pacote completo inclui:\n• Cobertura de 8 horas\n• Edição profissional de todas as fotos\n• Álbum digital\n• Prévias em 48h\n• Fotos finalizadas em 30 dias\n• Direito de impressão ilimitado\n\nValor: sob consulta (depende do escopo)`,
                     tipo: 'bot'
                 });
-
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'agendar', label: '📅 Agendar consulta' },
-                        { id: 'galeria', label: '🖼️ Ver galeria' },
-                        { id: 'menu', label: '🏠 Menu' }
-                    ]);
+                        { id: 'agendar', label: 'Agendar consulta' },
+                        { id: 'galeria', label: 'Ver galeria', link: 'index.html#galeria' },
+                        { id: 'menu', label: 'Menu' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             responderIndividual() {
                 this.enviarMensagem({
-                    texto: `👤 Ensaio Individual\n\nPerfecto para:\n✅ Redes sociais e portfólio\n✅ Fotos profissionais\n✅ Cartão de visita\n✅ LinkedIn\n✅ Presentes especiais\n\nDuração: 1h30min a 2h\nValor: R$ 300-500\nEdição incluída!\n\nDesde a primeira hora, você já leva as fotos prontas.`,
+                    texto: `Ensaio Individual\n\nPerfeito para:\n• Redes sociais e portfólio\n• Fotos profissionais\n• Cartão de visita\n• LinkedIn\n• Presentes especiais\n\nDuração: 1h30 a 2h\nValor: R$ 300-500 (edição incluída)`,
                     tipo: 'bot'
                 });
-
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'agendar', label: '📅 Agendar agora' },
-                        { id: 'galeria', label: '🖼️ Ver exemplos' }
-                    ]);
+                        { id: 'agendar', label: 'Agendar agora' },
+                        { id: 'galeria', label: 'Ver exemplos', link: 'index.html#galeria' }
+                    ], { comHumano: true });
+                }, 500);
+            }
+
+            responderGenerico(nome, faixa, duracao) {
+                this.enviarMensagem({
+                    texto: `${nome}\n\nDuração: ${duracao}\nValor: ${faixa} (edição incluída)`,
+                    tipo: 'bot'
+                });
+                setTimeout(() => {
+                    this.mostrarOpcoes([
+                        { id: 'agendar', label: 'Agendar agora' },
+                        { id: 'menu', label: 'Menu' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             responderEntrega() {
                 this.enviarMensagem({
-                    texto: `⏳ Tempo de Entrega\n\n📸 Prévias (Seleta)\n→ 24-48 horas\n\n✨ Entrega Parcial (50% fotos)\n→ 7-10 dias\n\n🎉 Entrega Final (100% fotos)\n→ 20-30 dias\n\nTodas as fotos recebem edição profissional!\n\nVocê acompanha tudo pela sua galeria privada.`,
+                    texto: `Tempo de Entrega\n\nPrévias (seleta): 24-48 horas\nEntrega parcial (50%): 7-10 dias\nEntrega final (100%): 20-30 dias\n\nTodas as fotos recebem edição profissional. Acompanhamento pela galeria privada.`,
                     tipo: 'bot'
                 });
-
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'agendar', label: '📅 Ótimo! Vou agendar' },
-                        { id: 'menu', label: '🏠 Voltar' }
-                    ]);
+                        { id: 'agendar', label: 'Vou agendar' },
+                        { id: 'menu', label: 'Voltar' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             responderCancelamento() {
                 this.enviarMensagem({
-                    texto: `📋 Política de Cancelamento\n\n✅ Até 24h antes: REEMBOLSO TOTAL\n⚠️ Menos de 24h: MULTA de 30-50%\n\nOpciones de reembolso:\n💳 Crédito no cartão (5-7 dias)\n🔄 PIX (2-3 dias)\n🎁 Crédito para futuro agendamento\n\nVocê pode reagendar sem multa se avisar com antecedência!`,
+                    texto: `Política de Cancelamento\n\nAté 24h antes: reembolso total\nMenos de 24h: multa de 30-50%\n\nOpções de reembolso: crédito no cartão (5-7 dias), PIX (2-3 dias) ou crédito para futuro agendamento.\n\nVocê pode reagendar sem multa avisando com antecedência.`,
                     tipo: 'bot'
                 });
-
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'agendar', label: '📅 Agendar' },
-                        { id: 'menu', label: '🏠 Menu' }
-                    ]);
+                        { id: 'agendar', label: 'Agendar' },
+                        { id: 'menu', label: 'Menu' }
+                    ], { comHumano: true });
                 }, 500);
             }
 
             ofrecerAgendamento() {
                 this.enviarMensagem({
-                    texto: `📅 Perfeito!\n\nPara agendar seu ensaio, clique no botão abaixo e preencha o formulário rápido.\n\nDúvidas durante o agendamento? Estarei aqui! 😊`,
+                    texto: `Perfeito!\n\nPara agendar seu ensaio, clique no botão abaixo e preencha o formulário rápido.`,
+                    tipo: 'bot'
+                });
+                setTimeout(() => {
+                    const params = new URLSearchParams();
+                    if (this.tipoEnsaioEscolhido) params.set('ensaio', this.tipoEnsaioEscolhido);
+                    const link = params.toString() ? `form.html?${params.toString()}` : 'form.html';
+
+                    this.mostrarOpcoes([
+                        { id: 'go_form', label: '→ Ir para o formulário', link },
+                        { id: 'menu', label: 'Mais dúvidas' }
+                    ], { comHumano: true });
+                }, 500);
+            }
+
+            responderDuvida(entrada) {
+                this.perguntaOriginal = entrada;
+                this.mostrarIndicadorDigitacao();
+
+                setTimeout(() => {
+                    this.apagarIndicadorDigitacao();
+
+                    this.enviarMensagem({
+                        texto: `Não tenho essa resposta pronta aqui.\n\nMe deixa seu nome e um contato que nossa equipe te responde em até 2 horas.`,
+                        tipo: 'bot'
+                    });
+
+                    setTimeout(() => this.mostrarFormularioContato(), 400);
+                }, 1200);
+            }
+
+            /**
+             * Formulário de captura de contato — grava no Supabase para que
+             * a promessa de resposta em 2h realmente chegue a alguém.
+             */
+            mostrarFormularioContato() {
+                this.aguardandoContato = true;
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = 'contact-form';
+                div.id = 'contactFormBox';
+                div.innerHTML = `
+                    <label>Nome</label>
+                    <input type="text" id="cfNome" placeholder="Seu nome">
+                    <label>Telefone ou e-mail</label>
+                    <input type="text" id="cfContato" placeholder="(00) 00000-0000 ou e-mail">
+                    <div class="erro" id="cfErro" style="display:none;"></div>
+                    <button onclick="chatbot.enviarContato()">Enviar</button>
+                `;
+                container.appendChild(div);
+                this.scrollParaFinal();
+            }
+
+            async enviarContato() {
+                const nome = document.getElementById('cfNome').value.trim();
+                const contato = document.getElementById('cfContato').value.trim();
+                const erroEl = document.getElementById('cfErro');
+
+                if (!nome || !contato) {
+                    erroEl.textContent = 'Preencha nome e um contato (telefone ou e-mail).';
+                    erroEl.style.display = 'block';
+                    return;
+                }
+
+                const registro = {
+                    nome,
+                    contato,
+                    pergunta: this.perguntaOriginal || null,
+                    origem: 'chatbot',
+                    criado_em: new Date().toISOString()
+                };
+
+                let salvo = false;
+                if (supabaseClient) {
+                    try {
+                        const { error } = await supabaseClient.from('contatos_chatbot').insert([registro]);
+                        salvo = !error;
+                        if (error) console.error('Erro ao salvar contato:', error);
+                    } catch (err) {
+                        console.error('Erro ao salvar contato:', err);
+                    }
+                }
+
+                document.getElementById('contactFormBox').remove();
+                this.aguardandoContato = false;
+
+                this.enviarMensagem({
+                    texto: salvo
+                        ? `Obrigado, ${nome}! Recebemos seus dados — nossa equipe entra em contato em até 2 horas.`
+                        : `Obrigado, ${nome}! Anotei seus dados aqui, mas se puder, chame também no WhatsApp para garantir uma resposta rápida.`,
                     tipo: 'bot'
                 });
 
                 setTimeout(() => {
                     this.mostrarOpcoes([
-                        { id: 'go_form', label: '→ Ir para Formulário', link: 'form.html' },
-                        { id: 'menu', label: 'Mais dúvidas' }
-                    ]);
+                        { id: 'agendar', label: 'Agendar' },
+                        { id: 'menu', label: 'Menu' }
+                    ], { comHumano: true });
                 }, 500);
-            }
-
-            responderDuvida(entrada) {
-                this.mostrarIndicadorDigitacao();
-
-                // Simula processamento
-                setTimeout(() => {
-                    this.apagarIndicadorDigitacao();
-                    
-                    this.enviarMensagem({
-                        texto: `Que legal! 🤔\n\n"${entrada}"\n\nSe não conseguir encontrar a resposta aqui, deixe sua mensagem e nossa equipe responde em até 2 horas!\n\n📧 Email: contato@motaztstudio.com\n📱 WhatsApp: [link direto]`,
-                        tipo: 'bot'
-                    });
-
-                    setTimeout(() => {
-                        this.mostrarOpcoes([
-                            { id: 'agendar', label: '📅 Agendar' },
-                            { id: 'menu', label: '🏠 Menu' },
-                            { id: 'whatsapp', label: '💬 Falar no WhatsApp', link: 'https://wa.me/5585999999999' }
-                        ]);
-                    }, 500);
-                }, 1500);
             }
 
             /**
              * UI Helpers
              */
             enviarMensagem(msg) {
-                this.mensagens.push({
-                    ...msg,
-                    timestamp: new Date()
-                });
+                this.mensagens.push({ ...msg, timestamp: new Date() });
                 this.salvarHistorico();
                 this.renderizar();
             }
 
-            mostrarOpcoes(opcoes) {
-                const optionsHtml = opcoes.map(op => `
-                    <button class="quick-reply-btn" onclick="chatbot.selecionarOpcao('${op.id}', '${op.label}', '${op.link || ''}')" 
-                            style="display: block; width: 100%; margin: 4px 0;">
-                        ${op.label}
-                    </button>
-                `).join('');
+            mostrarOpcoes(opcoes, config) {
+                config = config || {};
+                const container = document.getElementById('chatMessages');
+                const wrap = document.createElement('div');
+                wrap.className = 'quick-replies-wrap';
 
-                const div = document.createElement('div');
-                div.innerHTML = optionsHtml;
-                document.getElementById('chatMessages').appendChild(div);
+                opcoes.forEach(op => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quick-reply-btn';
+                    btn.textContent = op.label;
+                    btn.onclick = () => this.selecionarOpcao(op.id, op.label, op.link || '');
+                    wrap.appendChild(btn);
+                });
+
+                if (config.comHumano) {
+                    const btnHumano = document.createElement('button');
+                    btnHumano.className = 'quick-reply-btn human';
+                    btnHumano.textContent = 'Falar com um humano no WhatsApp';
+                    btnHumano.onclick = () => window.open('https://wa.me/5585999999999', '_blank');
+                    wrap.appendChild(btnHumano);
+                }
+
+                container.appendChild(wrap);
                 this.scrollParaFinal();
+            }
+
+            mostrarOpcaoHumanoFixa() {
+                // usado quando retomamos uma conversa já em andamento,
+                // garante que o botão de humano sempre reapareça
+                this.mostrarOpcoes([
+                    { id: 'menu', label: 'Ver menu principal' }
+                ], { comHumano: true });
             }
 
             mostrarIndicadorDigitacao() {
@@ -620,22 +816,33 @@
 
             apagarIndicadorDigitacao() {
                 const indicator = document.getElementById('typingIndicator');
-                if (indicator) {
-                    indicator.closest('.message').remove();
-                }
+                if (indicator) indicator.closest('.message').remove();
             }
 
             selecionarOpcao(id, label, link) {
-                // Remove botões anteriores
-                document.querySelectorAll('.quick-reply-btn').forEach(btn => btn.remove());
+                document.querySelectorAll('.quick-replies-wrap').forEach(el => el.remove());
 
                 if (link && link.startsWith('http')) {
                     window.open(link, '_blank');
                     return;
                 }
-
-                if (link && link.endsWith('.html')) {
+                if (link && (link.includes('.html'))) {
                     window.location.href = link;
+                    return;
+                }
+                if (id === 'menu') {
+                    this.enviarMensagem({ texto: label, tipo: 'usuario' });
+                    setTimeout(() => {
+                        this.enviarMensagem({ texto: 'Com o que posso ajudar?', tipo: 'bot' });
+                        setTimeout(() => {
+                            this.mostrarOpcoes([
+                                { id: 'info', label: 'Saber mais sobre nossos serviços' },
+                                { id: 'valores', label: 'Conhecer valores' },
+                                { id: 'agendar', label: 'Agendar agora' },
+                                { id: 'faq', label: 'Dúvidas frequentes' }
+                            ], { comHumano: true });
+                        }, 500);
+                    }, 600);
                     return;
                 }
 
@@ -654,13 +861,6 @@
                 this.mensagens = saved ? JSON.parse(saved) : [];
             }
 
-            limparHistorico() {
-                this.mensagens = [];
-                localStorage.removeItem('chatHistorico');
-                this.renderizar();
-                this.iniciar();
-            }
-
             /**
              * Renderização
              */
@@ -671,17 +871,11 @@
                 this.mensagens.forEach(msg => {
                     const div = document.createElement('div');
                     div.className = `message ${msg.tipo}`;
-
-                    const hora = new Date(msg.timestamp).toLocaleTimeString('pt-BR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-
+                    const hora = new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                     div.innerHTML = `
                         <div class="message-content">${this.escapeHtml(msg.texto)}</div>
                         <div class="message-time">${hora}</div>
                     `;
-
                     container.appendChild(div);
                 });
 
@@ -700,13 +894,11 @@
             }
         }
 
-        // ===== INSTÂNCIA GLOBAL =====
         const chatbot = new ChatbotMotazt();
 
         function enviarMensagem() {
             const input = document.getElementById('inputMsg');
             const texto = input.value.trim();
-
             if (texto) {
                 chatbot.processarResposta(texto);
                 input.value = '';
@@ -726,7 +918,9 @@
             }
         }
 
-        // Iniciar
+        // Atualiza o status online/offline periodicamente
+        setInterval(atualizarStatusOnline, 60000);
+
         window.addEventListener('DOMContentLoaded', () => {
             chatbot.iniciar();
         });
