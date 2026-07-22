@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Agende seu ensaio fotográfico no Motazt Studio. Preencha o formulário e confirme seu agendamento.">
+
+    <title>Agendamento — Motazt Studio</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Agendamento — Motazt Studio">
+    <meta property="og:description" content="Agende seu ensaio fotográfico no Motazt Studio. Preencha o formulário e confirme seu agendamento.">
+    <meta property="og:image" content="img/og-image.jpg">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Agendamento — Motazt Studio">
+    <meta name="twitter:image" content="img/og-image.jpg">
+
+    <link rel="stylesheet" href="form.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://tbwmsgztpyyratambgqs.supabase.co">
+</head>
+<body>
+    <!-- HEADER / NAVBAR -->
+    <header class="topo">
+        <div class="logo">
+            <img src="img/logo.png" alt="Logo Motazt Studio">
+            <h1>Motazt Studio</h1>
+        </div>
+
+        <ul class="menu" id="menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#sobre">Sobre</a></li>
+            <li><a href="index.html#servicos">Serviços</a></li>
+            <li><a href="index.html#galeria">Galeria</a></li>
+        </ul>
+
+        <div class="menu-right">
+            <a href="form.html" class="btn-agendamento">Agendar</a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- SEÇÃO DE AGENDAMENTO -->
+    <section class="agendamento">
+        <div class="container">
+            <h1>Agende seu Ensaio</h1>
+            <p>Preencha o formulário abaixo e entraremos em contato para confirmar seu agendamento.</p>
+
+            <form id="formulario">
+                <div class="input-box">
+                    <label for="nome">Nome Completo *</label>
+                    <input type="text" id="nome" placeholder="Digite seu nome completo" required>
+                </div>
+
+                <div class="input-box">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" placeholder="seu.email@exemplo.com" required>
+                </div>
+
+                <div class="input-box">
+                    <label for="telefone">Telefone *</label>
+                    <input type="tel" id="telefone" placeholder="(00) 00000-0000" required>
+                </div>
+
+                <div class="input-box">
+                    <label for="ensaio">Tipo de Ensaio *</label>
+                    <select id="ensaio" required>
+                        <option value="">— Selecione um tipo —</option>
+                        <option>Casamento</option>
+                        <option>Ensaio Individual</option>
+                        <option>Ensaio de Casal</option>
+                        <option>Ensaio Familiar</option>
+                        <option>Gestante</option>
+                        <option>Aniversário</option>
+                        <option>Evento</option>
+                        <option>Produção / Comercial</option>
+                    </select>
+                </div>
+
+                <div class="input-box">
+                    <label for="data">Data Desejada *</label>
+                    <input type="date" id="data" required>
+                </div>
+
+                <div class="input-box">
+                    <label>Horário Preferido *</label>
+                    <small class="aviso-horario">Atendemos das 7h às 22h. Selecione a data e o tipo de ensaio para ver os horários disponíveis.</small>
+                    <input type="hidden" id="horario">
+                    <div id="gradeHorarios" class="grade-horarios">
+                        <p class="grade-horarios-vazia">Selecione o tipo de ensaio e a data para ver os horários.</p>
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <label for="mensagem">Mensagem Adicional</label>
+                    <textarea 
+                        id="mensagem"
+                        placeholder="Conte-nos mais sobre seu ensaio, conceitual, local, etc..."
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="btn">
+                    Enviar Agendamento
+                </button>
+            </form>
+
+            <div id="mensagem"></div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/lista-espera-cancelamento.js"></script>
+    <script src="form.js"></script>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const menu = document.getElementById('menu');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                menu.classList.toggle('active');
+            });
+
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    menuToggle.classList.remove('active');
+                    menu.classList.remove('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

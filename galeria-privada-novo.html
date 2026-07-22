@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria Privada — Motazt Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* ===== TELA DE LOGIN ===== */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #d6a04c;
+        }
+
+        .login-card p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #d6a04c;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-acessar {
+            width: 100%;
+            padding: 12px;
+            background: #d6a04c;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-acessar:hover {
+            background: #e8b85c;
+            transform: translateY(-2px);
+        }
+
+        .btn-acessar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .mensagem-erro {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 77, 77, 0.2);
+            border-left: 3px solid #ff4d4d;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #ff9999;
+            display: none;
+        }
+
+        /* ===== TELA DE GALERIA ===== */
+        .galeria-screen {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .galeria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .galeria-header h1 {
+            color: #d6a04c;
+        }
+
+        .galeria-info {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        .btn-voltar {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-voltar:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Filtros */
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .filtro-btn.ativo {
+            background: #d6a04c;
+            color: #1a1a1a;
+            border-color: #d6a04c;
+        }
+
+        .filtro-btn:hover {
+            border-color: #d6a04c;
+        }
+
+        /* Grid de fotos */
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .foto-card {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .foto-card:hover {
+            transform: scale(1.02);
+        }
+
+        .foto-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .foto-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .foto-card:hover .foto-overlay {
+            opacity: 1;
+        }
+
+        .btn-favoritar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-favoritar:hover {
+            background: #d6a04c;
+        }
+
+        .btn-favoritar.favorita {
+            background: #ffd700;
+        }
+
+        .btn-ampliar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-ampliar:hover {
+            background: #d6a04c;
+        }
+
+        /* Modal de visualização */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.ativa {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .modal-fechar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-fechar:hover {
+            background: #d6a04c;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .modal-nav:hover {
+            background: #d6a04c;
+        }
+
+        .modal-nav.prev {
+            left: 10px;
+        }
+
+        .modal-nav.next {
+            right: 10px;
+        }
+
+        /* Stats */
+        .galeria-stats {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .vazio p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .vazio small {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA 1: LOGIN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>📸 Minha Galeria</h1>
+            <p>Acesse suas fotos com ID e senha únicos</p>
+
+            <form id="formLogin" onsubmit="validarAcesso(event)">
+                <div class="form-group">
+                    <label for="galeriaId">ID da Galeria</label>
+                    <input type="text" id="galeriaId" placeholder="abc123xyz" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-acessar">Acessar Galeria</button>
+            </form>
+
+            <div id="mensagemErro" class="mensagem-erro"></div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 12px; color: rgba(255,255,255,0.5);">Receba seu ID e senha por email após o agendamento</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA 2: GALERIA -->
+    <div id="galeraScreen" class="galeria-screen">
+        <div class="galeria-header">
+            <div>
+                <h1>📸 Suas Fotos</h1>
+                <div class="galeria-info" id="infoGaleria"></div>
+            </div>
+            <button class="btn-voltar" onclick="voltarAoLogin()">← Sair</button>
+        </div>
+
+        <div class="filtros">
+            <button class="filtro-btn ativo" data-filtro="todas" onclick="filtrarFotos('todas', this)">
+                📷 Todas (<span id="totalFotos">0</span>)
+            </button>
+            <button class="filtro-btn" data-filtro="favoritas" onclick="filtrarFotos('favoritas', this)">
+                ⭐ Favoritas (<span id="totalFavoritas">0</span>)
+            </button>
+        </div>
+
+        <div id="galeriaGrid" class="galeria-grid"></div>
+
+        <div id="mensagemVazia" class="vazio" style="display:none;">
+            <p>Nenhuma foto encontrada</p>
+            <small>As fotos serão adicionadas em breve. Volte mais tarde!</small>
+        </div>
+    </div>
+
+    <!-- MODAL DE VISUALIZAÇÃO -->
+    <div id="modalVisualizacao" class="modal">
+        <div class="modal-content">
+            <button class="modal-fechar" onclick="fecharModal()">×</button>
+            <button class="modal-nav prev" onclick="fotoAnterior()">‹</button>
+            <img id="modalImg" class="modal-img" src="" alt="">
+            <button class="modal-nav next" onclick="proximaFoto()">›</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/galerias-sistema-completo.js"></script>
+    <script>
+        // Estado da galeria
+        let galeriaId = null;
+        let todasFotos = [];
+        let fotosExibidas = [];
+        let fotoAtualModal = 0;
+        let filtroAtual = 'todas';
+
+        // Ao carregar, verifica se há ID na URL
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) {
+                document.getElementById('galeriaId').value = id;
+            }
+        });
+
+        // ===== LOGIN =====
+        async function validarAcesso(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('galeriaId').value.trim();
+            const senha = document.getElementById('senha').value;
+            const btnSubmit = event.target.querySelector('button[type="submit"]');
+            const msgErro = document.getElementById('mensagemErro');
+
+            msgErro.style.display = 'none';
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Validando...';
+
+            try {
+                // Validar senha
+                const valida = await GaleriaPrivada.validarSenhaGaleria(id, senha);
+
+                if (!valida) {
+                    msgErro.textContent = '❌ ID ou senha incorretos';
+                    msgErro.style.display = 'block';
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = 'Acessar Galeria';
+                    return;
+                }
+
+                // Sucesso - carregar galeria
+                galeriaId = id;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('galeraScreen').style.display = 'block';
+
+                await carregarGaleria();
+
+            } catch (erro) {
+                console.error('Erro:', erro);
+                msgErro.textContent = '⚠️ Erro ao validar. Tente novamente.';
+                msgErro.style.display = 'block';
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Acessar Galeria';
+            }
+        }
+
+        // ===== CARREGAR GALERIA =====
+        async function carregarGaleria() {
+            try {
+                // Info da galeria
+                const info = await GaleriaPrivada.obterInfoGaleria(galeriaId);
+                if (info) {
+                    document.getElementById('infoGaleria').innerHTML = `
+                        <small>
+                            ${info.total_fotos} fotos • 
+                            Válida por ${info.diasRestantes} dias •
+                            Criada em ${new Date(info.data_criacao).toLocaleDateString('pt-BR')}
+                        </small>
+                    `;
+                }
+
+                // Carregar fotos
+                todasFotos = await GaleriaPrivada.listarFotosDaGaleria(galeriaId);
+                
+                // Atualizar contadores
+                document.getElementById('totalFotos').textContent = todasFotos.length;
+                const favoritas = todasFotos.filter(f => f.favorita).length;
+                document.getElementById('totalFavoritas').textContent = favoritas;
+
+                // Mostrar todas
+                filtrarFotos('todas');
+
+            } catch (erro) {
+                console.error('Erro ao carregar galeria:', erro);
+                alert('Erro ao carregar galeria. Tente novamente.');
+            }
+        }
+
+        // ===== FILTRAR FOTOS =====
+        function filtrarFotos(tipo, botaoClicado) {
+            filtroAtual = tipo;
+
+            // Atualizar botões
+            document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('ativo'));
+
+            // botaoClicado vem do onclick (ex: filtrarFotos('favoritas', this)).
+            // Quando a função é chamada programaticamente (ex: ao carregar a
+            // galeria pela primeira vez), não há botão clicado — nesse caso,
+            // ativa o botão correspondente ao tipo, se existir.
+            const btnAlvo = botaoClicado || document.querySelector(`.filtro-btn[data-filtro="${tipo}"]`);
+            if (btnAlvo) btnAlvo.classList.add('ativo');
+
+            // Filtrar
+            if (tipo === 'favoritas') {
+                fotosExibidas = todasFotos.filter(f => f.favorita);
+            } else {
+                fotosExibidas = todasFotos;
+            }
+
+            renderizarGaleria();
+        }
+
+        // ===== RENDERIZAR GRID =====
+        function renderizarGaleria() {
+            const grid = document.getElementById('galeriaGrid');
+            const vazio = document.getElementById('mensagemVazia');
+
+            if (fotosExibidas.length === 0) {
+                grid.innerHTML = '';
+                vazio.style.display = 'block';
+                return;
+            }
+
+            vazio.style.display = 'none';
+
+            grid.innerHTML = fotosExibidas.map((foto, idx) => `
+                <div class="foto-card" onclick="abrirModal(${idx})">
+                    <img src="${foto.arquivo_preview}" alt="Foto ${idx + 1}" loading="lazy">
+                    <div class="foto-overlay">
+                        <button class="btn-favoritar ${foto.favorita ? 'favorita' : ''}" 
+                                onclick="toggleFavorita(event, '${foto.id}', ${foto.favorita})">
+                            ${foto.favorita ? '⭐' : '☆'}
+                        </button>
+                        <button class="btn-ampliar">🔍</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== FAVORITA =====
+        async function toggleFavorita(event, fotoId, jEhFavorita) {
+            event.stopPropagation();
+
+            const nova = !jEhFavorita;
+            const sucesso = await GaleriaPrivada.marcarFavorita(fotoId, nova);
+
+            if (sucesso) {
+                // Atualizar em memória
+                const foto = todasFotos.find(f => f.id === fotoId);
+                foto.favorita = nova;
+
+                // Re-renderizar se necessário
+                if (filtroAtual === 'todas') {
+                    renderizarGaleria();
+                } else {
+                    filtrarFotos('favoritas');
+                }
+
+                // Atualizar contador
+                const favoritas = todasFotos.filter(f => f.favorita).length;
+                document.getElementById('totalFavoritas').textContent = favoritas;
+            }
+        }
+
+        // ===== MODAL =====
+        function abrirModal(indice) {
+            fotoAtualModal = indice;
+            const modal = document.getElementById('modalVisualizacao');
+            const img = document.getElementById('modalImg');
+            img.src = fotosExibidas[indice].arquivo_full;
+            modal.classList.add('ativa');
+        }
+
+        function fecharModal() {
+            document.getElementById('modalVisualizacao').classList.remove('ativa');
+        }
+
+        function proximaFoto() {
+            fotoAtualModal = (fotoAtualModal + 1) % fotosExibidas.length;
+            document.getElementById('modalImg').src = fotosExibidas[fotoAtualModal].arquivo_full;
+        }
+
+        function fotoAnterior() {
+            fotoAtualModal = (fotoAtualModal - 1 + fotosExibidas.length) % fotosExibidas.length;
+            document.getElementById('modalImg').src = fotosExibidas[fotoAtualModal].arquivo_full;
+        }
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fecharModal();
+            if (e.key === 'ArrowRight') proximaFoto();
+            if (e.key === 'ArrowLeft') fotoAnterior();
+        });
+
+        // ===== SAIR =====
+        function voltarAoLogin() {
+            galeriaId = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('galeraScreen').style.display = 'none';
+            document.getElementById('formLogin').reset();
+            document.getElementById('mensagemErro').style.display = 'none';
+            todasFotos = [];
+            fotosExibidas = [];
+        }
+    </script>
+
+</body>
+</html>

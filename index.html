@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Motazt Studio — Fotografia profissional e artística para casamentos, ensaios e eventos. Portfólio premium com galeria interativa.">
+    <meta name="theme-color" content="#000000">
+    <title>Motazt Studio — Fotografia Profissional</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Motazt Studio — Fotografia Profissional">
+    <meta property="og:description" content="Fotografia profissional e artística para casamentos, ensaios e eventos. Portfólio premium com galeria interativa.">
+    <meta property="og:image" content="img/og-image.jpg">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Motazt Studio — Fotografia Profissional">
+    <meta name="twitter:description" content="Fotografia profissional e artística para casamentos, ensaios e eventos.">
+    <meta name="twitter:image" content="img/og-image.jpg">
+
+    <!-- Fonte -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox">
+        <span class="fechar" aria-label="Fechar galeria">&times;</span>
+        <img class="lightbox-img" alt="Imagem ampliada">
+        <button class="anterior" aria-label="Foto anterior">&#10094;</button>
+        <button class="proximo" aria-label="Próxima foto">&#10095;</button>
+    </div>
+
+    <!-- Supabase -->
+    <link rel="preconnect" href="https://tbwmsgztpyyratambgqs.supabase.co">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <!-- HEADER / NAVBAR -->
+    <header class="topo">
+        <div class="logo">
+            <img src="img/logo.png" alt="Logo Motazt Studio">
+            <h1>Motazt Studio</h1>
+        </div>
+
+        <ul class="menu" id="menu">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#sobre">Sobre</a></li>
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#galeria">Galeria</a></li>
+        </ul>
+
+        <div class="menu-right">
+            <a href="form.html" class="btn-agendamento">Agendar</a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="overlay"></div>
+
+        <div class="hero-content">
+            <h2>Capturando <span>Momentos Eternos</span></h2>
+
+            <p>
+                Fotografia profissional que transforma instantes em memórias inesquecíveis.
+            </p>
+
+            <a href="#galeria" class="btn">Explorar Portfólio</a>
+        </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section class="sobre" id="sobre">
+        <div class="titulo">
+            <h2>Sobre Nós</h2>
+        </div>
+
+        <div class="sobre-conteudo">
+            <div class="sobre-foto">
+                <img src="img/fotografo.jpg" alt="Fotógrafo do Motazt Studio">
+            </div>
+
+            <div class="sobre-texto">
+                <p>
+                    Somos especialistas em registrar momentos com qualidade, emoção e criatividade.
+                    Trabalhamos com ensaios fotográficos, casamentos, eventos corporativos e produções comerciais,
+                    transformando cada clique em uma obra de arte que perdura através dos anos.
+                </p>
+                <p>
+                    Por trás de cada foto, existe um olhar atento aos detalhes e uma paixão genuína por
+                    contar histórias através da imagem. Cada ensaio é conduzido com cuidado, para que
+                    você se sinta à vontade e o resultado seja autêntico.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVIÇOS -->
+    <section class="servicos" id="servicos">
+        <div class="titulo">
+            <h2>Nossos Serviços</h2>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Casamentos</h3>
+                <p>Registros emocionantes e artísticos do seu grande dia, captando cada momento especial com elegância.</p>
+            </div>
+
+            <div class="card">
+                <h3>Ensaios</h3>
+                <p>Sessões fotográficas personalizadas: individual, casal, família ou temático. Criatividade sem limites.</p>
+            </div>
+
+            <div class="card">
+                <h3>Eventos</h3>
+                <p>Cobertura completa para eventos corporativos, aniversários e celebrações especiais com qualidade profissional.</p>
+            </div>
+
+            <div class="card">
+                <h3>Produção</h3>
+                <p>Trabalhos comerciais, editoriais e publicitários com conceitual único e acabamento premium.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALERIA -->
+    <section class="galeria-section" id="galeria">
+        <div class="titulo">
+            <h2>Galeria</h2>
+        </div>
+
+        <div class="galeria" id="galeria-container">
+            <p class="galeria-carregando">Carregando portfólio...</p>
+        </div>
+    </section>
+
+    <!-- MINI PORTFÓLIO -->
+    <section class="destaque-section">
+        <div class="titulo">
+            <h2>Alguns Momentos Capturados</h2>
+        </div>
+
+        <div class="destaque-grid" id="destaque-container">
+            <p class="destaque-carregando">Carregando destaques...</p>
+        </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="contato" id="contato">
+        <div class="titulo">
+            <h2>Contato</h2>
+        </div>
+
+        <p>Pronto para transformar seus momentos em arte?</p>
+
+        <div class="info-contato">
+            <p>
+                <strong>Email</strong>
+                contato@motaestudio.com
+            </p>
+            <p>
+                <strong>Telefone</strong>
+                (73) 98165-6986
+            </p>
+            <p>
+                <strong>Instagram</strong>
+                @motazt_studio
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 Motazt Studio. Todos os direitos reservados.</p>
+        <p><a href="galeria-privada.html" style="color:inherit;">Acessar galeria privada do meu ensaio</a></p>
+    </footer>
+
+    <!-- BOTÃO FLUTUANTE DE CHAT -->
+    <button id="chatBotBtn" onclick="window.open('chatbot-whatsapp.html', 'chatMotazt', 'width=520,height=700')" title="Fale conosco" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: #d6a04c;
+        border-radius: 50%;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 999;
+    ">💬</button>
+
+</body>
+</html>
