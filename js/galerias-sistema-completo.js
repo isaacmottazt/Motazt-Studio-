@@ -242,6 +242,17 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
 
         if (erroFoto) throw erroFoto;
 
+        // Atualizar contagem de fotos na galeria
+        const { count: totalFotos } = await supabaseClient
+            .from('fotos')
+            .select('id', { count: 'exact', head: true })
+            .eq('galeria_id', galeriaId);
+
+        await supabaseClient
+            .from('galerias')
+            .update({ total_fotos: totalFotos || 0 })
+            .eq('id', galeriaId);
+
         return {
             sucesso: true,
             foto_id: fotoRecord[0].id,
