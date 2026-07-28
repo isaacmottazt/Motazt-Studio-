@@ -73,30 +73,114 @@ async function carregarGaleria() {
         }
 
         galeriaContainer.innerHTML = '';
+        estadoMosaico = null; // reseta o estado a cada carregamento da galeria
 
         data.forEach((item, index) => {
             const img = document.createElement('img');
-            img.src = item.imagem_url;
             img.alt = 'Foto ' + (index + 1);
-            // Primeiras fotos carregam na hora, o resto carrega sob demanda
-            img.loading = index < 6 ? 'eager' : 'lazy';
             img.decoding = 'async';
-
-            // Formato definido manualmente no admin (auto/paisagem/retrato/quadrado)
-            const formato = item.formato || 'auto';
-            if (formato !== 'auto') {
-                img.classList.add('formato-' + formato);
-            }
+            // Nota: não usamos loading="lazy" aqui porque o mosaico usa
+            // position:absolute — o navegador não consegue calcular
+            // corretamente quais fotos estão "fora da tela" nesse caso,
+            // o que travava o carregamento das imagens mais abaixo.
 
             galeriaContainer.appendChild(img);
+
+            // Assim que ESTA foto carregar, ela já entra no mosaico —
+            // não espera as outras, então a galeria não trava/congela
+            img.addEventListener('load', () => posicionarFoto(img));
+            img.addEventListener('error', () => posicionarFoto(img));
+
+            img.src = item.imagem_url;
         });
 
         ativarLightbox();
+        window.addEventListener('resize', debounce(montarMosaico, 200));
 
     } catch (erroFatal) {
         console.error('Erro fatal ao carregar galeria:', erroFatal);
         galeriaContainer.innerHTML = '<p class="galeria-erro">Erro ao carregar as fotos.</p>';
     }
+}
+
+
+/* ======================================
+   MOSAICO DINÂMICO (masonry real por colunas,
+   compacto no celular e sem espaços vazios)
+====================================== */
+
+// Guarda o estado atual do mosaico (colunas, larguras e alturas acumuladas)
+// para não precisar reler o DOM a cada foto que termina de carregar
+let estadoMosaico = null;
+
+function getConfigMosaico() {
+    const largura = window.innerWidth;
+    if (largura <= 480) return { colunas: 2, gap: 6 };
+    if (largura <= 768) return { colunas: 2, gap: 8 };
+    if (largura <= 1100) return { colunas: 3, gap: 12 };
+    return { colunas: 4, gap: 14 };
+}
+
+function iniciarEstadoMosaico() {
+    const { colunas, gap } = getConfigMosaico();
+    const larguraTotal = galeriaContainer.clientWidth;
+    const larguraColuna = (larguraTotal - gap * (colunas - 1)) / colunas;
+
+    estadoMosaico = {
+        colunas,
+        gap,
+        larguraColuna,
+        alturas: new Array(colunas).fill(0)
+    };
+}
+
+// Posiciona só a foto que acabou de carregar, direto na coluna mais curta.
+// O mosaico cresce suavemente foto a foto, sem travar esperando tudo carregar.
+function posicionarFoto(img) {
+    if (!estadoMosaico) iniciarEstadoMosaico();
+    const { colunas, gap, larguraColuna, alturas } = estadoMosaico;
+
+    const proporcao = (img.naturalWidth && img.naturalHeight)
+        ? img.naturalWidth / img.naturalHeight
+        : 1;
+    const alturaFoto = larguraColuna / proporcao;
+
+    let colunaMenor = 0;
+    for (let i = 1; i < colunas; i++) {
+        if (alturas[i] < alturas[colunaMenor]) colunaMenor = i;
+    }
+
+    const x = colunaMenor * (larguraColuna + gap);
+    const y = alturas[colunaMenor];
+
+    img.style.width = larguraColuna + 'px';
+    img.style.height = alturaFoto + 'px';
+    img.style.transform = `translate(${x}px, ${y}px)`;
+    img.classList.add('pronta');
+
+    alturas[colunaMenor] += alturaFoto + gap;
+
+    const maiorAltura = Math.max(...alturas) - gap;
+    galeriaContainer.style.height = Math.max(0, maiorAltura) + 'px';
+}
+
+// Reorganiza tudo do zero — usado no resize da tela (mudança de
+// orientação do celular, redimensionar janela, etc.)
+function montarMosaico() {
+    const imgs = Array.from(galeriaContainer.querySelectorAll('img'))
+        .filter(img => img.naturalWidth);
+    if (imgs.length === 0) return;
+
+    iniciarEstadoMosaico();
+    imgs.forEach(posicionarFoto);
+}
+
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
 }
 
 

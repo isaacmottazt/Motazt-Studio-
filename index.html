@@ -45,6 +45,10 @@
     <link rel="preconnect" href="https://tbwmsgztpyyratambgqs.supabase.co">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js" defer></script>
+    <!-- NOVO: Chatbot v4.0 com Validações + Reinicio -->
+    <script src="js/chatbot-v4.js" defer></script>
+    <!-- Script para Galeria com Lazy Loading -->
+    <script src="js/galeria-otimizada.js" defer></script>
 </head>
 <body>
 
@@ -194,21 +198,39 @@
         <p><a href="galeria-privada.html" style="color:inherit;">Acessar galeria privada do meu ensaio</a></p>
     </footer>
 
-    <!-- BOTÃO FLUTUANTE DE CHAT -->
-    <button id="chatBotBtn" onclick="window.open('chatbot-whatsapp.html', 'chatMotazt', 'width=520,height=700')" title="Fale conosco" style="
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        background: #d6a04c;
-        border-radius: 50%;
-        border: none;
-        font-size: 28px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 999;
-    ">💬</button>
+    <!-- CHATBOT EMBUTIDO -->
+    <div id="chatbotOverlay" class="chatbot-overlay"></div>
+
+    <div id="chatbotPainel" class="chatbot-painel" role="dialog" aria-label="Chat Motazt Studio" aria-hidden="true">
+        <div class="chatbot-header">
+            <div class="chatbot-header-info">
+                <div class="chatbot-avatar">📸</div>
+                <div class="chatbot-header-texto">
+                    <h3>Motazt Studio</h3>
+                    <p><span class="chatbot-status-dot"></span> Online agora</p>
+                </div>
+            </div>
+            <div class="chatbot-header-buttons">
+                <button id="chatbotReiniciar" class="chatbot-btn-reiniciar" title="Reiniciar chat" aria-label="Reiniciar chat">🔄</button>
+                <button id="chatbotFechar" class="chatbot-btn-fechar" aria-label="Fechar chat">&times;</button>
+            </div>
+        </div>
+
+        <div id="chatbotMensagens" class="chatbot-mensagens"></div>
+
+        <div class="chatbot-sugestoes" id="chatbotSugestoes"></div>
+
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button id="chatbotEnviar" class="chatbot-btn-enviar" aria-label="Enviar mensagem">&#10148;</button>
+        </div>
+    </div>
+
+    <button id="chatBotBtn" class="chatbot-fab" title="Fale conosco" aria-label="Abrir chat">
+        <span class="chatbot-fab-icon">💬</span>
+        <span class="chatbot-fab-badge" id="chatbotBadge">1</span>
+    </button>
 
 </body>
 </html>
+

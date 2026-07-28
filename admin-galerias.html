@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Galerias — Motazt Studio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ouro: #d6a04c;
+            --ouro-claro: #e8c07d;
+            --ouro-escuro: #b88536;
+            --vidro: rgba(14, 14, 14, 0.82);
+            --vidro-alt: rgba(22, 22, 22, 0.92);
+            --borda: rgba(255, 255, 255, 0.08);
+            --borda-hover: rgba(214, 160, 76, 0.5);
+            --texto-mudo: #999;
+            --raio: 20px;
+            --raio-sm: 12px;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #111;
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-shell {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            gap: 0;
+        }
+
+        .faixa {
+            width: 80px;
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.95));
+            border-right: 1px solid var(--borda);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .faixa-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--ouro), var(--ouro-escuro));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        .faixa-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .faixa-linha {
+            width: 30px;
+            height: 1px;
+            background: var(--borda);
+            margin: 4px 0;
+        }
+
+        .faixa-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--borda);
+            color: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .faixa-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--borda-hover);
+            transform: translateY(-2px);
+        }
+
+        .faixa-btn--ativo {
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            color: #1a1200;
+        }
+
+        .faixa-btn--ativo:hover {
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            border-color: transparent;
+            transform: none;
+        }
+
+        .faixa-espaco {
+            flex: 1;
+        }
+
+        .faixa-btn--sair {
+            color: #ff8a80;
+            border-color: rgba(244, 67, 54, 0.3);
+        }
+
+        .faixa-btn--sair:hover {
+            background: rgba(244, 67, 54, 0.15);
+            border-color: rgba(244, 67, 54, 0.4);
+        }
+
+        .conteudo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        .cabecalho {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--borda);
+            background: var(--vidro);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .cabecalho-titulo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--ouro-claro);
+            margin-bottom: 6px;
+        }
+
+        .cabecalho-titulo p {
+            font-size: 14px;
+            color: var(--texto-mudo);
+        }
+
+        .conteudo-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+        }
+
+        .galerias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .galeria-card {
+            background: var(--vidro-alt);
+            border: 1px solid var(--borda);
+            border-radius: var(--raio-sm);
+            padding: 20px;
+            transition: all 0.25s ease;
+        }
+
+        .galeria-card:hover {
+            border-color: var(--borda-hover);
+        }
+
+        .galeria-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .galeria-nome {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ouro-claro);
+        }
+
+        .galeria-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .galeria-status.ativa {
+            background: rgba(76, 175, 80, 0.18);
+            color: #4caf50;
+        }
+
+        .galeria-status.expirada {
+            background: rgba(255, 152, 0, 0.18);
+            color: #ffa726;
+        }
+
+        .galeria-status.inativa {
+            background: rgba(244, 67, 54, 0.18);
+            color: #ff8a80;
+        }
+
+        .galeria-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            display: block;
+            color: var(--texto-mudo);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .galeria-fotos-preview {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            min-height: 60px;
+            align-content: flex-start;
+        }
+
+        .foto-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--borda);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .foto-thumb:hover {
+            transform: scale(1.05);
+            border-color: var(--borda-hover);
+        }
+
+        .foto-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .fotos-vazio {
+            color: var(--texto-mudo);
+            font-size: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .galeria-controles {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .controle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .controle-label {
+            font-size: 12px;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .controle-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--borda);
+            color: #fff;
+            border-radius: var(--raio-sm);
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.25s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--borda-hover);
+            background: rgba(214, 160, 76, 0.06);
+        }
+
+        .toggle-status {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--borda);
+            background: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.25s ease;
+            font-weight: 500;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--borda-hover);
+        }
+
+        .toggle-btn.ativo {
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            color: #1a1200;
+            border-color: transparent;
+        }
+
+        .galeria-acoes {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            color: #1a1200;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(214, 160, 76, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+            border: 1px solid var(--borda);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--borda-hover);
+        }
+
+        .btn-pequeno {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .mensagem {
+            padding: 14px 16px;
+            border-radius: var(--raio-sm);
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .mensagem.sucesso {
+            background: rgba(76, 175, 80, 0.15);
+            color: #8fd39a;
+            border-left: 3px solid #4caf50;
+        }
+
+        .mensagem.erro {
+            background: rgba(244, 67, 54, 0.15);
+            color: #ff8a80;
+            border-left: 3px solid #f44336;
+        }
+
+        .mensagem.mostrar {
+            display: block;
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--texto-mudo);
+        }
+
+        .vazio-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Modal de fotos */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal.ativo {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-conteudo {
+            background: var(--vidro-alt);
+            border: 1px solid var(--borda);
+            border-radius: var(--raio);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: var(--ouro-claro);
+        }
+
+        .modal-fechar {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.25s ease;
+        }
+
+        .modal-fechar:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .foto-card {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--borda);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .foto-card:hover {
+            transform: scale(1.02);
+            border-color: var(--borda-hover);
+        }
+
+        .foto-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 1024px) {
+            .galerias-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .faixa {
+                width: 60px;
+                padding: 12px 0;
+                gap: 8px;
+            }
+
+            .faixa-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .faixa-logo {
+                width: 44px;
+                height: 44px;
+            }
+
+            .cabecalho {
+                padding: 16px 20px;
+            }
+
+            .cabecalho-titulo h1 {
+                font-size: 22px;
+            }
+
+            .conteudo-area {
+                padding: 16px 20px;
+            }
+
+            .galerias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .galeria-info {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-conteudo {
+                max-width: 95vw;
+                max-height: 95vh;
+                padding: 16px;
+            }
+
+            .fotos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- FAIXA LATERAL -->
+    <aside class="faixa">
+        <div class="faixa-logo">📸</div>
+        <div class="faixa-linha"></div>
+        <a class="faixa-btn faixa-btn--ativo" href="admin-galerias.html" title="Galerias">📸</a>
+        <a class="faixa-btn" href="index.html" title="Site">🏠</a>
+        <div class="faixa-espaco"></div>
+        <button class="faixa-btn faixa-btn--sair" onclick="fazerLogout()" title="Sair">⎋</button>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <div class="conteudo">
+        <header class="cabecalho">
+            <div class="cabecalho-titulo">
+                <h1>Gerenciador de Galerias</h1>
+                <p>Ative, desative e gerencie as galerias privadas dos clientes</p>
+            </div>
+        </header>
+
+        <div class="conteudo-area">
+            <div id="msgGeral" class="mensagem"></div>
+
+            <div id="listaGalerias" class="galerias-grid"></div>
+            <div id="galeriaVazia" class="vazio" style="display: none;">
+                <div class="vazio-icon">📸</div>
+                <p>Nenhuma galeria criada ainda</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL DE FOTOS -->
+<div id="modalFotos" class="modal">
+    <div class="modal-conteudo">
+        <div class="modal-header">
+            <h2 id="modalTitulo">Fotos da Galeria</h2>
+            <button class="modal-fechar" onclick="fecharModalFotos()">✕</button>
+        </div>
+        <div id="modalFotosGrid" class="fotos-grid"></div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/galerias-sistema-completo.js"></script>
+<script src="js/admin-galerias.js"></script>
+
+</body>
+</html>

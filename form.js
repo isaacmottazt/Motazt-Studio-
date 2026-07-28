@@ -16,27 +16,6 @@ const formulario = document.getElementById('formulario');
 const caixaMensagem = document.getElementById('mensagem');
 
 /* ======================================
-   PRÉ-PREENCHIMENTO VIA CHATBOT
-   Se o usuário chegou do chatbot com um tipo de ensaio já
-   escolhido (ex: form.html?ensaio=Casamento), preenche o select.
-====================================== */
-(function preencherDoChatbot() {
-    const params = new URLSearchParams(window.location.search);
-    const ensaioParam = params.get('ensaio');
-    if (!ensaioParam) return;
-
-    const selectEnsaio = document.getElementById('ensaio');
-    if (!selectEnsaio) return;
-
-    const match = Array.from(selectEnsaio.options).find(
-        opt => opt.value.toLowerCase() === ensaioParam.toLowerCase()
-    );
-    if (match) {
-        selectEnsaio.value = match.value;
-    }
-})();
-
-/* ======================================
    RESTRIÇÕES DE DATA E HORÁRIO
 ====================================== */
 
@@ -271,9 +250,9 @@ formulario.addEventListener('submit', async function (event) {
         }
     }
 
-    const nome = document.querySelector('input[type="text"]').value.trim();
-    const email = document.querySelector('input[type="email"]').value.trim();
+    const nome = document.querySelector('input[type="text"]:nth-of-type(1)').value.trim();
     const telefone = document.querySelector('input[type="tel"]').value.trim();
+    const cidade = document.querySelector('input[type="text"]:nth-of-type(2)').value.trim();
     const ensaio = document.querySelector('select').value;
     const data = document.querySelector('input[type="date"]').value;
     const horario = campoHorario.value;
@@ -359,8 +338,8 @@ formulario.addEventListener('submit', async function (event) {
                     const listaEspera = new ListaEspera();
                     const entrada = listaEspera.adicionarALista({
                         nome: nome,
-                        email: email,
                         telefone: telefone,
+                        cidade: cidade,
                         tipoEnsaio: ensaio,
                         dataDesejada: data
                     });
@@ -389,8 +368,8 @@ formulario.addEventListener('submit', async function (event) {
             .from('agendamentos')
             .insert({
                 nome: nome,
-                email: email,
                 telefone: telefone,
+                cidade: cidade,
                 ensaio: ensaio,
                 data: data,
                 horario: horario,
@@ -425,8 +404,8 @@ formulario.addEventListener('submit', async function (event) {
 `Olá, gostaria de fazer um agendamento!
 
 Nome: ${nome}
-Email: ${email}
 Telefone: ${telefone}
+Cidade: ${cidade}
 
 Tipo de Ensaio: ${ensaio}
 
