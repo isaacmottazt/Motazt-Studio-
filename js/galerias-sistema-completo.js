@@ -24,17 +24,10 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  * @param {string} agendamentoId - ID do agendamento (UUID)
  * @param {string} clienteNome - Nome do cliente (para referência)
  * @param {string} clienteEmail - Email do cliente (para enviar o link)
+ * @param {string} titulo - Título da galeria (nome do evento/ensaio), exibido para o cliente
  * @returns {Promise} { galeria_id, mensagem }
- *
- * @example
- * const resultado = await criarGaleriaParaAgendamento(
- *   '123e4567-e89b-12d3-a456-426614174000',
- *   'João Silva',
- *   'joao@email.com'
- * );
- * // Enviar por email ou WhatsApp: "Sua galeria: https://site.com/galeria-privada.html?id=xyz"
  */
-async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEmail) {
+async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEmail, titulo = '') {
     try {
         const dataExpiracao = new Date();
         dataExpiracao.setDate(dataExpiracao.getDate() + 30); // válida por 30 dias
@@ -45,6 +38,7 @@ async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEm
                 agendamento_id: agendamentoId,
                 cliente_nome: clienteNome,
                 cliente_email: clienteEmail,
+                titulo: titulo || null,
                 data_criacao: new Date().toISOString(),
                 data_expiracao: dataExpiracao.toISOString(),
                 status: 'ativa',
@@ -172,12 +166,11 @@ async function listarFotosDaGaleria(galeriaId) {
  * Armazena no Supabase Storage e registra na tabela 'fotos'
  *
  * @param {string} galeriaId - ID da galeria
- * @param {File} arquivo - Arquivo da imagem (JPG)
+ * @param {File} arquivo - Arquivo da imagem
  * @param {boolean} temMarcaDagua - se deve ter marca d'água (default: true)
- * @param {File|null} arquivoRaw - Arquivo RAW (.cr3) vinculado a essa foto, opcional
- * @returns {Promise} { foto_id, url_preview, url_full, url_raw }
+ * @returns {Promise} { foto_id, url_preview, url_full }
  */
-async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true, arquivoRaw = null) {
+async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
     try {
         // Gerar nome único para o arquivo
         const timestamp = Date.now();
@@ -199,27 +192,6 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true, arquivoRaw =
             .from('fotos')
             .getPublicUrl(nomeArquivo);
 
-        // Upload do RAW vinculado (se houver)
-        let urlRaw = null;
-        if (arquivoRaw) {
-            const nomeArquivoRaw = `${galeriaId}/${timestamp}-${arquivoRaw.name}`;
-            const { error: erroUploadRaw } = await supabaseClient
-                .storage
-                .from('fotos')
-                .upload(nomeArquivoRaw, arquivoRaw);
-
-            if (erroUploadRaw) {
-                console.error('Erro no upload do RAW:', erroUploadRaw);
-                // não interrompe o envio do JPG por causa do RAW falhar
-            } else {
-                const { data: { publicUrl: publicUrlRaw } } = supabaseClient
-                    .storage
-                    .from('fotos')
-                    .getPublicUrl(nomeArquivoRaw);
-                urlRaw = publicUrlRaw;
-            }
-        }
-
         // Calcular a próxima posição sequencial (evita estourar o
         // tipo "integer" do banco, que Date.now() ultrapassaria)
         const { count: totalAtual } = await supabaseClient
@@ -237,7 +209,6 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true, arquivoRaw =
                 arquivo_original: nomeArquivo,
                 arquivo_preview: publicUrl, // pode ser redimensionado depois
                 arquivo_full: publicUrl,
-                arquivo_raw: urlRaw,
                 tem_marca_agua: temMarcaDagua,
                 posicao: proximaPosicao
             })
@@ -261,7 +232,6 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true, arquivoRaw =
             foto_id: fotoRecord[0].id,
             url_preview: publicUrl,
             url_full: publicUrl,
-            url_raw: urlRaw,
             mensagem: 'Foto enviada com sucesso!'
         };
 
