@@ -3,9 +3,9 @@
  * Motazt Studio
  *
  * Funciona em 3 momentos:
- * 1. Admin confirma agendamento → gera galeria + senha única
+ * 1. Admin confirma agendamento → gera galeria (identificada só pelo ID)
  * 2. Admin faz upload de fotos → vincula à galeria específica
- * 3. Cliente acessa galeria-privada.html?id=xyz → digita senha → vê só suas fotos
+ * 3. Cliente acessa galeria-privada.html?id=xyz → vê só suas fotos
  *
  * Requer supabase-js via CDN:
  * <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,21 +18,13 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ===== 1. CRIAR GALERIA (chamado quando admin confirma agendamento) =====
 
 /**
- * Gera uma senha aleatória única para a galeria
- * @returns {string} Senha de 8 caracteres (ex: a3f5d2e1)
- */
-function gerarSenhaAleatoria() {
-    return Math.random().toString(36).substring(2, 10);
-}
-
-/**
  * Cria uma galeria privada para um agendamento
  * Chamado no painel admin quando confirma/aceita um agendamento
  *
  * @param {string} agendamentoId - ID do agendamento (UUID)
  * @param {string} clienteNome - Nome do cliente (para referência)
- * @param {string} clienteEmail - Email do cliente (para enviar a senha)
- * @returns {Promise} { galeria_id, senha, mensagem }
+ * @param {string} clienteEmail - Email do cliente (para enviar o link)
+ * @returns {Promise} { galeria_id, mensagem }
  *
  * @example
  * const resultado = await criarGaleriaParaAgendamento(
@@ -40,13 +32,10 @@ function gerarSenhaAleatoria() {
  *   'João Silva',
  *   'joao@email.com'
  * );
- * console.log(resultado.senha); // 'a3f5d2e1'
  * // Enviar por email ou WhatsApp: "Sua galeria: https://site.com/galeria-privada.html?id=xyz"
- * // Senha: a3f5d2e1
  */
 async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEmail) {
     try {
-        const senhaUnica = gerarSenhaAleatoria();
         const dataExpiracao = new Date();
         dataExpiracao.setDate(dataExpiracao.getDate() + 30); // válida por 30 dias
 
@@ -54,7 +43,8 @@ async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEm
             .from('galerias')
             .insert({
                 agendamento_id: agendamentoId,
-                senha: senhaUnica,
+                cliente_nome: clienteNome,
+                cliente_email: clienteEmail,
                 data_criacao: new Date().toISOString(),
                 data_expiracao: dataExpiracao.toISOString(),
                 status: 'ativa',
@@ -66,7 +56,7 @@ async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEm
 
         const galeriaId = data[0].id;
 
-        // TODO: enviar email/WhatsApp para o cliente com a senha
+        // TODO: enviar email/WhatsApp para o cliente com o link
         console.log(`📧 ENVIAR PARA ${clienteEmail}:
 ---
 Olá ${clienteNome}!
@@ -74,7 +64,6 @@ Olá ${clienteNome}!
 Sua galeria privada está pronta!
 
 🔗 Link: https://seusite.com/galeria-privada.html?id=${galeriaId}
-🔐 Senha: ${senhaUnica}
 
 Suas fotos estarão disponíveis por 30 dias.
 ---`);
@@ -82,8 +71,7 @@ Suas fotos estarão disponíveis por 30 dias.
         return {
             sucesso: true,
             galeria_id: galeriaId,
-            senha: senhaUnica,
-            mensagem: `Galeria criada! Envie a senha "${senhaUnica}" ao cliente por email/WhatsApp.`
+            mensagem: 'Galeria criada! Envie o link ao cliente por email/WhatsApp.'
         };
 
     } catch (erro) {
@@ -92,25 +80,24 @@ Suas fotos estarão disponíveis por 30 dias.
     }
 }
 
-// ===== 2. VALIDAR ACESSO (cliente digita a senha) =====
+// ===== 2. VALIDAR SE A GALERIA EXISTE E ESTÁ ATIVA =====
 
 /**
- * Valida a senha de acesso à galeria
- * Chamado quando cliente digita a senha em galeria-privada.html
+ * Valida se a galeria existe, está ativa e não expirou
+ * Chamado quando o cliente acessa galeria-privada.html?id=xyz
  *
  * @param {string} galeriaId - ID da galeria (do ?id=xyz na URL)
- * @param {string} senhaDigitada - Senha que o cliente digitou
- * @returns {Promise<boolean>} true se válida, false se inválida
+ * @returns {Promise<object|null>} os dados da galeria se válida, ou null
  *
  * @example
- * const valida = await validarSenhaGaleria('123e4567', 'a3f5d2e1');
- * if (valida) {
+ * const galeria = await validarGaleria('123e4567');
+ * if (galeria) {
  *   // mostra as fotos
  * } else {
- *   // mostra "senha incorreta"
+ *   // mostra "galeria não encontrada"
  * }
  */
-async function validarSenhaGaleria(galeriaId, senhaDigitada) {
+async function validarGaleria(galeriaId) {
     try {
         const { data: galeria, error } = await supabaseClient
             .from('galerias')
@@ -120,30 +107,28 @@ async function validarSenhaGaleria(galeriaId, senhaDigitada) {
 
         if (error) {
             console.error('Galeria não encontrada:', error);
-            return false;
+            return null;
         }
 
-        if (!galeria) return false;
+        if (!galeria) return null;
 
         // Verificar se expirou
         if (galeria.data_expiracao && new Date() > new Date(galeria.data_expiracao)) {
             console.log('Galeria expirada');
-            return false;
+            return null;
         }
 
         // Verificar se foi bloqueada
         if (galeria.status !== 'ativa') {
             console.log('Galeria bloqueada ou inativa');
-            return false;
+            return null;
         }
 
-        // Comparar senha em texto simples
-        // ⚠️ Ver aviso de segurança em supabase-integration.js
-        return galeria.senha === senhaDigitada;
+        return galeria;
 
     } catch (erro) {
-        console.error('Erro ao validar senha:', erro);
-        return false;
+        console.error('Erro ao validar galeria:', erro);
+        return null;
     }
 }
 
@@ -151,7 +136,7 @@ async function validarSenhaGaleria(galeriaId, senhaDigitada) {
 
 /**
  * Carrega todas as fotos de uma galeria
- * Chamado quando cliente já validou a senha
+ * Chamado depois que a galeria foi validada
  *
  * @param {string} galeriaId - ID da galeria
  * @returns {Promise<Array>} Array de fotos ordenadas por posição
@@ -427,7 +412,7 @@ async function obterInfoGaleria(galeriaId) {
 // Deixa disponível globalmente no window
 window.GaleriaPrivada = {
     criarGaleriaParaAgendamento,
-    validarSenhaGaleria,
+    validarGaleria,
     listarFotosDaGaleria,
     uploadFoto,
     marcarFavorita,

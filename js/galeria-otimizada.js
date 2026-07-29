@@ -54,7 +54,7 @@
             const { data: galerias, error } = await supabase
                 .from('galerias')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('data_criacao', { ascending: false });
 
             if (error) throw error;
 
@@ -184,7 +184,7 @@
             const { data: galerias, error } = await supabase
                 .from('galerias')
                 .select('*')
-                .order('created_at', { ascending: false })
+                .order('data_criacao', { ascending: false })
                 .limit(6);
 
             if (error) throw error;
