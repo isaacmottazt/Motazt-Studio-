@@ -172,16 +172,12 @@ async function listarFotosDaGaleria(galeriaId) {
  * Armazena no Supabase Storage e registra na tabela 'fotos'
  *
  * @param {string} galeriaId - ID da galeria
- * @param {File} arquivo - Arquivo da imagem
+ * @param {File} arquivo - Arquivo da imagem (JPG)
  * @param {boolean} temMarcaDagua - se deve ter marca d'água (default: true)
- * @returns {Promise} { foto_id, url_preview, url_full }
- *
- * @example
- * const input = document.getElementById('fotoInput');
- * const resultado = await uploadFoto(galeriaId, input.files[0], true);
- * console.log(resultado.url_preview); // URL para mostrar no preview
+ * @param {File|null} arquivoRaw - Arquivo RAW (.cr3) vinculado a essa foto, opcional
+ * @returns {Promise} { foto_id, url_preview, url_full, url_raw }
  */
-async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
+async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true, arquivoRaw = null) {
     try {
         // Gerar nome único para o arquivo
         const timestamp = Date.now();
@@ -203,6 +199,27 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
             .from('fotos')
             .getPublicUrl(nomeArquivo);
 
+        // Upload do RAW vinculado (se houver)
+        let urlRaw = null;
+        if (arquivoRaw) {
+            const nomeArquivoRaw = `${galeriaId}/${timestamp}-${arquivoRaw.name}`;
+            const { error: erroUploadRaw } = await supabaseClient
+                .storage
+                .from('fotos')
+                .upload(nomeArquivoRaw, arquivoRaw);
+
+            if (erroUploadRaw) {
+                console.error('Erro no upload do RAW:', erroUploadRaw);
+                // não interrompe o envio do JPG por causa do RAW falhar
+            } else {
+                const { data: { publicUrl: publicUrlRaw } } = supabaseClient
+                    .storage
+                    .from('fotos')
+                    .getPublicUrl(nomeArquivoRaw);
+                urlRaw = publicUrlRaw;
+            }
+        }
+
         // Calcular a próxima posição sequencial (evita estourar o
         // tipo "integer" do banco, que Date.now() ultrapassaria)
         const { count: totalAtual } = await supabaseClient
@@ -220,6 +237,7 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
                 arquivo_original: nomeArquivo,
                 arquivo_preview: publicUrl, // pode ser redimensionado depois
                 arquivo_full: publicUrl,
+                arquivo_raw: urlRaw,
                 tem_marca_agua: temMarcaDagua,
                 posicao: proximaPosicao
             })
@@ -243,6 +261,7 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
             foto_id: fotoRecord[0].id,
             url_preview: publicUrl,
             url_full: publicUrl,
+            url_raw: urlRaw,
             mensagem: 'Foto enviada com sucesso!'
         };
 
