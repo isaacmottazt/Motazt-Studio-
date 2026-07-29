@@ -1014,9 +1014,18 @@
             }
         }
 
+        // Baixa o JPG da foto e, se houver RAW (.cr3) vinculado, baixa ele também
+        async function baixarFotoComRaw(foto, indice) {
+            await baixarImagem(foto.arquivo_full, `motazt-studio-foto-${indice + 1}.jpg`);
+            if (foto.arquivo_raw) {
+                await new Promise(res => setTimeout(res, 300));
+                await baixarImagem(foto.arquivo_raw, `motazt-studio-foto-${indice + 1}.cr3`);
+            }
+        }
+
         function baixarFotoAtual() {
             const foto = fotosExibidas[fotoAtualModal];
-            baixarImagem(foto.arquivo_full, `motazt-studio-foto-${fotoAtualModal + 1}.jpg`);
+            baixarFotoComRaw(foto, fotoAtualModal);
         }
 
         async function baixarSelecionadas() {
@@ -1031,7 +1040,7 @@
             contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''}...`;
 
             for (let i = 0; i < fotos.length; i++) {
-                await baixarImagem(fotos[i].arquivo_full, `motazt-studio-foto-${i + 1}.jpg`);
+                await baixarFotoComRaw(fotos[i], i);
                 await new Promise(res => setTimeout(res, 400));
             }
 
