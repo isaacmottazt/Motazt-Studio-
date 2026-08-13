@@ -49,6 +49,38 @@ if (menuToggle) {
 
 
 /* ======================================
+   HELPERS DE IMAGEM (thumbnail via Supabase)
+====================================== */
+
+// Pede ao Supabase uma versão redimensionada/comprimida da imagem
+// em vez da foto original (que pode ter vários MB). Se a URL não for
+// do Storage do Supabase, devolve a URL original sem alterações.
+function urlThumbnail(url, largura) {
+    if (!url || !url.includes('/storage/v1/object/public/')) return url;
+    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+        + `?width=${largura}&quality=70`;
+}
+
+/* ======================================
+   LAZY LOADING (funciona com position:absolute
+   do mosaico, diferente do atributo loading="lazy")
+====================================== */
+
+const lazyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const img = entry.target;
+        const src = img.dataset.src;
+        if (src) {
+            img.src = src;
+            img.removeAttribute('data-src');
+        }
+        lazyObserver.unobserve(img);
+    });
+}, { rootMargin: '600px 0px' }); // começa a carregar bem antes de entrar na tela
+
+
+/* ======================================
    CARREGAR GALERIA DO SUPABASE
 ====================================== */
 
@@ -79,23 +111,33 @@ async function carregarGaleria() {
             const img = document.createElement('img');
             img.alt = 'Foto ' + (index + 1);
             img.decoding = 'async';
-            // Nota: não usamos loading="lazy" aqui porque o mosaico usa
-            // position:absolute — o navegador não consegue calcular
-            // corretamente quais fotos estão "fora da tela" nesse caso,
-            // o que travava o carregamento das imagens mais abaixo.
+            img.dataset.full = item.imagem_url; // usada no lightbox, em resolução alta
+            img.dataset.src = urlThumbnail(item.imagem_url, 700); // thumbnail leve pro grid
+            // Nota: não usamos o atributo loading="lazy" aqui porque o mosaico
+            // usa position:absolute — o navegador não calcula corretamente
+            // quais fotos estão fora da tela nesse caso. Em vez disso, usamos
+            // o IntersectionObserver (lazyObserver) para o lazy loading.
 
             galeriaContainer.appendChild(img);
 
             // Assim que ESTA foto carregar, ela já entra no mosaico —
             // não espera as outras, então a galeria não trava/congela
             img.addEventListener('load', () => posicionarFoto(img));
-            img.addEventListener('error', () => posicionarFoto(img));
+            img.addEventListener('error', () => {
+                // Se o thumbnail falhar (ex: transformação de imagem não
+                // habilitada no projeto Supabase), cai para a foto original
+                if (img.src !== img.dataset.full && img.dataset.full) {
+                    img.src = img.dataset.full;
+                } else {
+                    posicionarFoto(img);
+                }
+            });
 
-            img.src = item.imagem_url;
+            lazyObserver.observe(img);
         });
 
         ativarLightbox();
-        window.addEventListener('resize', debounce(montarMosaico, 200));
+        window.addEventListener('resize', debounce(aoRedimensionar, 200));
 
     } catch (erroFatal) {
         console.error('Erro fatal ao carregar galeria:', erroFatal);
@@ -113,11 +155,27 @@ async function carregarGaleria() {
 // para não precisar reler o DOM a cada foto que termina de carregar
 let estadoMosaico = null;
 
+// Detecta celular pelo tipo de dispositivo (ponteiro grosso = toque),
+// não pela largura da janela. A largura da janela no mobile "treme"
+// nos primeiros instantes (barra de endereço recolhendo/expandindo),
+// e isso fazia o mosaico ser montado errado e depois se corrigir
+// sozinho — dando a impressão de que o site "recarregava" o layout.
+function isCelular() {
+    return window.matchMedia('(pointer: coarse)').matches
+        || window.matchMedia('(max-width: 600px)').matches;
+}
+
+// Guarda a orientação atual (retrato/paisagem) para só remontar o
+// mosaico no celular quando ela realmente mudar — ignora os "tremores"
+// de resize que não mudam a orientação (ex: barra de endereço do navegador).
+let orientacaoAtual = window.innerWidth > window.innerHeight ? 'paisagem' : 'retrato';
+
 function getConfigMosaico() {
+    if (isCelular()) return { colunas: 2, gap: 6 };
+
     const largura = window.innerWidth;
-    if (largura <= 480) return { colunas: 2, gap: 6 };
-    if (largura <= 768) return { colunas: 2, gap: 8 };
-    if (largura <= 1100) return { colunas: 3, gap: 12 };
+    if (largura <= 1024) return { colunas: 3, gap: 8 };
+    if (largura <= 1300) return { colunas: 3, gap: 12 };
     return { colunas: 4, gap: 14 };
 }
 
@@ -175,6 +233,18 @@ function montarMosaico() {
     imgs.forEach(posicionarFoto);
 }
 
+// No celular, só remonta se a orientação da tela mudou de verdade
+// (retrato -> paisagem ou vice-versa). Em telas maiores (desktop/tablet
+// sem toque), continua recalculando normalmente a cada resize.
+function aoRedimensionar() {
+    if (isCelular()) {
+        const novaOrientacao = window.innerWidth > window.innerHeight ? 'paisagem' : 'retrato';
+        if (novaOrientacao === orientacaoAtual) return;
+        orientacaoAtual = novaOrientacao;
+    }
+    montarMosaico();
+}
+
 function debounce(fn, delay) {
     let timer;
     return function (...args) {
@@ -195,7 +265,7 @@ function ativarLightbox() {
     imagens.forEach((img, index) => {
         img.addEventListener('click', () => {
             lightbox.classList.add('active');
-            lightboxImg.src = img.src;
+            lightboxImg.src = img.dataset.full || img.src;
             indexAtual = index;
         });
     });
@@ -211,7 +281,7 @@ proximo.addEventListener('click', () => {
     if (indexAtual >= imagens.length) {
         indexAtual = 0;
     }
-    lightboxImg.src = imagens[indexAtual].src;
+    lightboxImg.src = imagens[indexAtual].dataset.full || imagens[indexAtual].src;
 });
 
 anterior.addEventListener('click', () => {
@@ -220,7 +290,7 @@ anterior.addEventListener('click', () => {
     if (indexAtual < 0) {
         indexAtual = imagens.length - 1;
     }
-    lightboxImg.src = imagens[indexAtual].src;
+    lightboxImg.src = imagens[indexAtual].dataset.full || imagens[indexAtual].src;
 });
 
 
@@ -260,10 +330,13 @@ async function carregarDestaques() {
             div.className = 'destaque-item';
 
             const img = document.createElement('img');
-            img.src = item.imagem_url;
+            img.src = urlThumbnail(item.imagem_url, 900);
             img.alt = 'Trabalho em destaque';
             img.loading = 'lazy';
             img.decoding = 'async';
+            img.addEventListener('error', () => {
+                if (img.src !== item.imagem_url) img.src = item.imagem_url;
+            }, { once: true });
 
             div.appendChild(img);
             destaqueContainer.appendChild(div);

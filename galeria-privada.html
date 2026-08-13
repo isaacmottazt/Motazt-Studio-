@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria Privada — Motazt Studio</title>
+    <title>Galeria Privada — Motaz Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -18,13 +18,15 @@
             --black: #000000;
             --panel: #0c0c0c;
             --panel-light: #161513;
-            --hairline: rgba(224, 183, 63, 0.16);
-            --gold: #e0b73f;
-            --gold-light: #f4d374;
-            --gold-dim: rgba(224, 183, 63, 0.12);
+            --hairline: rgba(91, 122, 140, 0.16);
+            --gold: #5b7a8c;
+            --gold-light: #8aa5b3;
+            --gold-dim: rgba(91, 122, 140, 0.12);
             --ivory: #f2efe6;
             --muted: #8c8a83;
             --danger: #ff6b6b;
+            --display: 'Archivo Black', 'Arial Black', sans-serif;
+            --sans: 'Space Grotesk', 'Poppins', sans-serif;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -39,7 +41,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background:
-                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(224, 183, 63, 0.07), transparent 60%),
+                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(91, 122, 140, 0.07), transparent 60%),
                 var(--black);
             color: var(--ivory);
             min-height: 100vh;
@@ -98,10 +100,12 @@
         }
 
         .login-card h2 {
-            font-size: 28px;
-            font-weight: 600;
+            font-family: var(--display);
+            text-transform: uppercase;
+            font-size: 26px;
+            font-weight: 400;
             margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.01em;
         }
 
         .login-card p {
@@ -135,25 +139,25 @@
         .login-form input:focus {
             outline: none;
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(224, 183, 63, 0.1);
+            box-shadow: 0 0 0 3px rgba(91, 122, 140, 0.1);
         }
 
         .login-form button {
-            background: var(--gold);
+            background: var(--ivory);
             border: none;
-            border-radius: 3px;
-            padding: 12px 24px;
-            font-family: 'Poppins', sans-serif;
+            border-radius: 999px;
+            padding: 13px 24px;
+            font-family: var(--sans);
             font-size: 14px;
             font-weight: 600;
             color: #000;
             cursor: pointer;
             transition: all 0.25s;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.02em;
         }
 
         .login-form button:hover {
-            background: var(--gold-light);
+            background: var(--gold);
             transform: translateY(-2px);
         }
 
@@ -213,10 +217,12 @@
         }
 
         .error-card h1 {
-            font-size: 22px;
-            font-weight: 600;
+            font-family: var(--display);
+            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 400;
             margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.01em;
         }
 
         .error-card p {
@@ -228,18 +234,19 @@
 
         .btn-voltar {
             display: inline-block;
-            background: var(--gold);
+            background: var(--ivory);
             color: #000;
             text-decoration: none;
-            padding: 10px 24px;
-            border-radius: 3px;
+            padding: 11px 26px;
+            border-radius: 999px;
+            font-family: var(--sans);
             font-size: 13px;
             font-weight: 600;
             transition: all 0.25s;
         }
 
         .btn-voltar:hover {
-            background: var(--gold-light);
+            background: var(--gold);
             transform: translateY(-2px);
         }
 
@@ -260,9 +267,11 @@
         }
 
         .galeria-header h1 {
-            font-size: 36px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
+            font-family: var(--display);
+            text-transform: uppercase;
+            font-size: 34px;
+            font-weight: 400;
+            letter-spacing: -0.01em;
             margin-bottom: 8px;
         }
 
@@ -294,15 +303,15 @@
         .btn-acao {
             background: var(--panel-light);
             border: 1px solid var(--hairline);
-            border-radius: 3px;
-            padding: 10px 16px;
-            font-family: 'Poppins', sans-serif;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-family: var(--sans);
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--ivory);
             cursor: pointer;
             transition: all 0.25s;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.04em;
         }
 
         .filtro-btn:hover,
@@ -331,7 +340,7 @@
         }
 
         .btn-acao.destaque:hover {
-            background: rgba(224, 183, 63, 0.2);
+            background: rgba(91, 122, 140, 0.2);
         }
 
         .btn-acao.destaque:disabled {
@@ -351,11 +360,14 @@
         }
 
         .galeria-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
+            column-count: 4;
+            column-gap: 16px;
             margin-bottom: 40px;
         }
+
+        @media (max-width: 1100px) { .galeria-grid { column-count: 3; } }
+        @media (max-width: 768px) { .galeria-grid { column-count: 2; } }
+        @media (max-width: 480px) { .galeria-grid { column-count: 2; column-gap: 8px; } }
 
         .galeria-grid.modo-selecao {
             opacity: 0.7;
@@ -363,7 +375,10 @@
 
         .foto-card {
             position: relative;
-            aspect-ratio: 1;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 16px;
+            break-inside: avoid;
             overflow: hidden;
             border-radius: 4px;
             cursor: pointer;
@@ -372,25 +387,67 @@
             background: var(--panel);
         }
 
+        @media (max-width: 480px) { .foto-card { margin-bottom: 8px; } }
+
         .foto-card:hover {
             border-color: var(--gold);
-            transform: scale(1.02);
+            transform: scale(1.015);
         }
 
         .foto-card img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s, opacity 0.5s ease;
+            opacity: 0; /* Começa invisível para o fade-in */
         }
 
-        .foto-card:hover img {
+        .foto-card img.carregada {
+            opacity: 1;
+        }
+
+        .foto-card:hover img.carregada {
             transform: scale(1.05);
+        }
+
+        /* Placeholder de carregamento suave */
+        .foto-card.carregando::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            z-index: 1;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .foto-card.selecionada {
             border-color: var(--gold);
             box-shadow: 0 0 0 2px var(--gold);
+        }
+
+        .foto-card.erro-carregamento {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .foto-card.erro-carregamento img {
+            display: none;
+        }
+
+        .foto-card.erro-carregamento::after {
+            content: "Foto indisponível";
+            font-size: 12px;
+            color: var(--muted, #999);
+            text-align: center;
+            padding: 8px;
         }
 
         .btn-favoritar {
@@ -482,8 +539,10 @@
         }
 
         .mensagem-vazia h2 {
-            font-size: 20px;
-            font-weight: 600;
+            font-family: var(--display);
+            text-transform: uppercase;
+            font-size: 18px;
+            font-weight: 400;
             margin-bottom: 8px;
             color: var(--muted);
         }
@@ -616,10 +675,7 @@
                 flex-wrap: wrap;
             }
 
-            .galeria-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 12px;
-            }
+
 
             .filtro-btn,
             .btn-acao {
@@ -683,7 +739,7 @@
             <div class="error-icon">⚠</div>
             <h1 id="errorTitle">Galeria não encontrada</h1>
             <p id="errorMessage">A galeria que você está tentando acessar não existe ou expirou.</p>
-            <a href="https://motazt-studio.vercel.app/" class="btn-voltar">Voltar ao site</a>
+            <a href="/" class="btn-voltar">Voltar ao site</a>
         </div>
     </div>
 
@@ -692,7 +748,7 @@
         <div class="galeria-header">
             <div>
                 <h1 id="galeriaNome">Suas Fotos</h1>
-                <p class="galeria-estudio">por Motazt Studio</p>
+                <p class="galeria-estudio">por Motaz Studio</p>
                 <div class="galeria-header-info">
                     <span>Total: <strong id="totalFotos">0</strong> fotos</span>
                     <span>Favoritas: <strong id="totalFavoritas">0</strong></span>
@@ -917,18 +973,27 @@
 
             vazio.classList.remove('visivel');
 
-            grid.innerHTML = fotosExibidas.map((foto, idx) => `
-                <div class="foto-card ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">
-                    <img src="${foto.arquivo_preview}" alt="Foto ${idx + 1}" loading="lazy" oncontextmenu="return false" draggable="false">
-                    <button class="btn-favoritar ${foto.favorita ? 'favorita' : ''}"
-                            onclick="toggleFavorita(event, '${foto.id}', ${foto.favorita})" title="Favoritar">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5l2.6 5.4 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"/>
-                        </svg>
-                    </button>
-                    <div class="check-selecao" onclick="alternarSelecaoFoto(event, '${foto.id}')">✓</div>
-                </div>
-            `).join('');
+            grid.innerHTML = fotosExibidas.map((foto, idx) => {
+                // Usa o preview se existir, senão usa a foto full
+                const imgUrl = foto.arquivo_preview || foto.arquivo_full;
+                return `
+                    <div class="foto-card carregando ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">
+                        <img src="${imgUrl}" 
+                             alt="Foto ${idx + 1}" 
+                             oncontextmenu="return false" 
+                             draggable="false" 
+                             onload="this.classList.add('carregada'); this.closest('.foto-card').classList.remove('carregando')"
+                             onerror="this.closest('.foto-card').classList.remove('carregando'); this.closest('.foto-card').classList.add('erro-carregamento')">
+                        <button class="btn-favoritar ${foto.favorita ? 'favorita' : ''}"
+                                onclick="toggleFavorita(event, '${foto.id}', ${foto.favorita})" title="Favoritar">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5l2.6 5.4 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"/>
+                            </svg>
+                        </button>
+                        <div class="check-selecao" onclick="alternarSelecaoFoto(event, '${foto.id}')">✓</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ===== MODO DE SELEÇÃO MÚLTIPLA =====
@@ -1028,7 +1093,7 @@
 
         function baixarFotoAtual() {
             const foto = fotosExibidas[fotoAtualModal];
-            baixarImagem(foto.arquivo_full, `motazt-studio-foto-${fotoAtualModal + 1}.jpg`);
+            baixarImagem(foto.arquivo_full, `motaz-studio-foto-${fotoAtualModal + 1}.jpg`);
         }
 
         async function baixarSelecionadas() {
@@ -1043,7 +1108,7 @@
             contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''}...`;
 
             for (let i = 0; i < fotos.length; i++) {
-                await baixarImagem(fotos[i].arquivo_full, `motazt-studio-foto-${i + 1}.jpg`);
+                await baixarImagem(fotos[i].arquivo_full, `motaz-studio-foto-${i + 1}.jpg`);
                 await new Promise(res => setTimeout(res, 400));
             }
 
