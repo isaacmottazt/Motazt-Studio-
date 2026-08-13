@@ -1,628 +1,205 @@
 /* ================================================
-   CHATBOT MOTAZT STUDIO v4.0 — FINAL OTIMIZADO
-   Menu Completo + Validações + Reinicio
-   Estilo Padrão do Site + Instruções
+   CHATBOT MOTAZ STUDIO v5.2 — INTELIGÊNCIA PRO
+   Ajuste de Teclado + Grade de Fotos (Estilo WhatsApp)
 ================================================ */
 
 (function() {
-    const SUPABASE_URL = "https://tbwmsgztpyyratambgqs.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_yqH30kXsSD7nmwdlgPj93Q_pw1QrcQd";
-    
-    const supabase = (typeof window.supabase !== 'undefined') 
-        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-        : null;
-
     // ============ CONFIGURAÇÕES ============
     const CONFIG = {
-        WHATSAPP: '73981656986',
-        WHATSAPP_LINK: 'https://wa.me/5573981656986',
-        HORARIO_ABERTURA: '07:00',
-        HORARIO_FECHAMENTO: '22:00',
-        INTERVALO_MINUTOS: 30,
+        WHATSAPP_LINK: 'https://wa.me/5573981656986?text=Olá,%20quero%20fazer%20um%20agendamento!',
         TELEFONE_DISPLAY: '(73) 98165-6986',
-        ENDERECO: 'Motazt Studio - Centro',
-        EMAIL: 'contato@motazt.com.br'
+        INSTAGRAM: 'motaz_studio',
+        NOME_BOT: 'Motaz Assistant'
     };
 
-    // VALORES ÚNICOS PARA FOTÓGRAFO INICIANTE
     const VALORES = {
-        'Ensaio Individual': 'R$ 150 a R$ 250',
-        'Ensaio de Casal': 'R$ 200 a R$ 350',
-        'Ensaio Familiar': 'R$ 250 a R$ 400',
-        'Gestante': 'R$ 180 a R$ 280',
-        'Casamento': 'R$ 500 a R$ 1.500',
-        'Evento': 'R$ 400 a R$ 800',
-        'Aniversário': 'R$ 200 a R$ 400',
-        'Produção / Comercial': 'R$ 300 a R$ 600'
+        'Individual': 'R$ 150 - 250',
+        'Casal': 'R$ 200 - 350',
+        'Família': 'R$ 250 - 400',
+        'Gestante': 'R$ 180 - 280',
+        'Casamento': 'R$ 500 - 1.500',
+        'Evento': 'R$ 400 - 800'
     };
 
-    const DURACAO_ENSAIOS = {
-        'Casamento': 240,
-        'Ensaio Individual': 120,
-        'Ensaio de Casal': 120,
-        'Ensaio Familiar': 180,
-        'Gestante': 120,
-        'Aniversário': 180,
-        'Evento': 240,
-        'Produção / Comercial': 180
-    };
+    // Estado do Chat
+    let ESTADO_ATUAL = 'LIVRE'; // LIVRE, AGUARDANDO_CODIGO
 
-    const INSTRUCOES_AGENDAMENTO = `
-📋 **Informações Importantes Sobre Agendamentos**
-
-✨ **Os valores podem variar conforme:**
-   • Local do ensaio (estúdio, externo, sua casa)
-   • Horário (manhã, tarde, noite)
-   • Quantidade de fotos finais
-   • Número de dias para entrega
-
-⏰ **Prazos:**
-   • Prévias: 24-48 horas
-   • Entrega Parcial: 7-10 dias
-   • Entrega Completa: 20-30 dias
-
-💳 **Pagamento:**
-   • 50% de adiantamento
-   • Restante no dia
-   • Aceito PIX, cartão e dinheiro
-
-❌ **Cancelamento:**
-   • Até 24h antes: reembolso total
-   • Menos de 24h: multa de 30-50%
-
-Entendido? Vamos prosseguir! 👇
-    `;
-
-    // ============ ESTADO GLOBAL ============
-    const ESTADO = {
-        agendamento: {
-            nome: null,
-            telefone: null,
-            cidade: null,
-            tipo: null,
-            data: null,
-            horario: null
+    // ============ MAPEAMENTO DE INTENÇÕES ============
+    const INTENCOES = [
+        { 
+            id: 'agendamento', 
+            keywords: ['agendar', 'marcar', 'reserva', 'booking', 'contratar', 'fazer um ensaio'],
+            icon: 'calendar'
         },
-        etapa: null,
-        historicoMensagens: []
-    };
-
-    // ============ VALIDAÇÃO DE TELEFONE ============
-    function validarTelefone(telefone) {
-        // Remove caracteres especiais
-        const apenasNumeros = telefone.replace(/\D/g, '');
-        
-        // Verifica se tem entre 10 e 11 dígitos (sem código de país)
-        if (apenasNumeros.length === 11 || apenasNumeros.length === 10) {
-            return {
-                valido: true,
-                formatado: apenasNumeros
-            };
+        {
+            id: 'disponibilidade',
+            keywords: [
+                'disponivel', 'disponibilidade', 'horario', 'data', 'quando', 'dia', 'mes', 'vaga', 'tem vaga',
+                'janeiro', 'fevereiro', 'marco', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+            ],
+            icon: 'clock'
+        },
+        { 
+            id: 'valores', 
+            keywords: ['valor', 'preco', 'quanto', 'custo', 'tabela', 'orcamento', 'investimento'],
+            icon: 'dollar-sign'
+        },
+        { 
+            id: 'portfolio', 
+            keywords: ['fotos', 'galeria', 'portfolio', 'trabalho', 'exemplo', 'ver', 'mostrar'],
+            icon: 'image'
+        },
+        { 
+            id: 'albuns', 
+            keywords: ['meu ensaio', 'minha galeria', 'login', 'senha', 'acessar', 'albuns', 'privada', 'id', 'codigo'],
+            icon: 'lock'
+        },
+        { 
+            id: 'contato', 
+            keywords: ['whatsapp', 'telefone', 'falar', 'equipe', 'humano', 'contato', 'zap', 'instagram', 'insta'],
+            icon: 'message-circle'
         }
+    ];
+
+    // ============ MOTOR DE INTELIGÊNCIA ============
+    function processarTexto(texto) {
+        let t = texto.toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[?¿!.,;:]/g, " ")
+            .trim();
         
-        // Se tem 12 ou 13, pode ser com código de país
-        if (apenasNumeros.length === 12 || apenasNumeros.length === 13) {
-            // Remove primeiros dígitos (código de país)
-            const semCodigo = apenasNumeros.slice(-11);
-            if (semCodigo.length === 11 || semCodigo.length === 10) {
-                return {
-                    valido: true,
-                    formatado: semCodigo
-                };
+        // Se estiver aguardando código, qualquer texto que pareça um ID é tratado como tal
+        if (ESTADO_ATUAL === 'AGUARDANDO_CODIGO') {
+            if (t.length > 5) return 'processar_codigo';
+        }
+
+        const intencaoDireta = INTENCOES.find(i => i.id === t);
+        if (intencaoDireta) return intencaoDireta.id;
+
+        if (/\d{1,2}\/\d{1,2}/.test(t)) return 'disponibilidade';
+
+        let melhorIntencao = null;
+        let maiorPontuacao = 0;
+
+        INTENCOES.forEach(int => {
+            let pontos = 0;
+            int.keywords.forEach(key => {
+                const regex = new RegExp(`\\b${key}\\b`, 'i');
+                if (regex.test(t) || t.includes(key)) {
+                    pontos += (t.includes(key) ? 1 : 2);
+                }
+            });
+            if (pontos > maiorPontuacao) {
+                maiorPontuacao = pontos;
+                melhorIntencao = int.id;
             }
-        }
+        });
 
-        return {
-            valido: false,
-            formatado: null
-        };
+        if (maiorPontuacao > 0) return melhorIntencao;
+        
+        if (t.includes('oi') || t.includes('ola') || t.includes('bom dia') || t.includes('boa tarde')) return 'saudacao';
+        if (t.includes('obrigado') || t.includes('valeu') || t.includes('obrigada')) return 'agradecimento';
+        
+        return null;
     }
 
-    // ============ GERADOR DE DATAS E HORÁRIOS ============
-    function gerarProximasDatas(quantidade = 7) {
-        const datas = [];
-        let data = new Date();
-        data.setDate(data.getDate() + 1);
-
-        while (datas.length < quantidade) {
-            const diaSemana = data.getDay();
-            if (diaSemana !== 0) {
-                datas.push({
-                    iso: data.toISOString().split('T')[0],
-                    display: formatarDataBR(data)
-                });
-            }
-            data.setDate(data.getDate() + 1);
-        }
-        return datas;
-    }
-
-    function formatarDataBR(data) {
-        if (typeof data === 'string') {
-            data = new Date(data + 'T00:00:00');
-        }
-        const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-        const dia = String(data.getDate()).padStart(2, '0');
-        const mes = String(data.getMonth() + 1).padStart(2, '0');
-        const ano = data.getFullYear();
-        const diaSemana = dias[data.getDay()];
-        
-        return `${dia}/${mes}/${ano} (${diaSemana})`;
-    }
-
-    function gerarHorarios() {
-        const horarios = [];
-        const [h_abr, m_abr] = CONFIG.HORARIO_ABERTURA.split(':').map(Number);
-        const [h_fech, m_fech] = CONFIG.HORARIO_FECHAMENTO.split(':').map(Number);
-        
-        let minutos = h_abr * 60 + m_abr;
-        const fimMinutos = h_fech * 60 + m_fech;
-        
-        while (minutos < fimMinutos) {
-            const h = Math.floor(minutos / 60);
-            const m = minutos % 60;
-            horarios.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-            minutos += CONFIG.INTERVALO_MINUTOS;
-        }
-        
-        return horarios;
-    }
-
-    // ============ RECONHECIMENTO DE INTENÇÕES ============
-    const PALAVRAS = {
-        saudacao: /^(oi|olá|opa|e aí|bom dia|boa tarde|boa noite|hey|tudo bom)?$/i,
-        menu: /menu|opções|voltar|o que vocês/i,
-        agendamento: /agend|marcar|reserv|booking|quero marca|agendar|marcar data/i,
-        datas: /data.*(disponível|livre|vago)|qual data|próximas datas|quando posso|que dias vocês|vocês trabalham/i,
-        horarios: /horário|que horas|qual hora|disponibilidade|que horários|quando vocês/i,
-        valores: /valor|preço|quanto custa|orçamento|tabela|quanto é|investimento/i,
-        casamento: /casamento|wedding|noivo|noiva/i,
-        individual: /individual|retrato|book pessoal|solo/i,
-        casal: /casal|duplo|para dois|couple/i,
-        familia: /familia|familiar|todos juntos|grupo/i,
-        gestante: /gestant|grávida|gravidez/i,
-        aniversario: /aniversário|aniversario|birthday|bday/i,
-        evento: /evento|corporativo|festa/i,
-        producao: /produção|comercial|editorial|publicitário/i,
-        galeria: /galeria|portfolio|portfólio|fotos|exemplos/i,
-        entrega: /entrega|prazo|quanto tempo|quando recebo/i,
-        endereco: /endereço|onde vocês|localização|como chego/i,
-        whatsapp: /whatsapp|zap|wpp|numero|telefone|contato|ligar/i,
-        termos: /termos|condições|política|cancelamento|multa|reembolso/i,
-        galeria_privada: /galeria privada|meu ensaio|minha galeria|acessar fotos/i,
-        sobre: /sobre|quem é|história|experiência|quanto tempo/i,
-        reiniciar: /reiniciar|recomeçar|limpar|novo chat|recomecar/i,
-        obrigado: /obrigad|valeu|vlw|brigado/i,
-        tudo_bem: /tudo bem|e você|como vai|como está/i
-    };
-
-    function identificarIntencoes(texto) {
-        const t = texto.toLowerCase();
-        const intencoes = [];
-        
-        for (const [chave, regex] of Object.entries(PALAVRAS)) {
-            if (regex.test(t)) {
-                intencoes.push(chave);
-            }
-        }
-        
-        return intencoes;
-    }
-
-    // ============ RESPOSTAS DO BOT ============
-    function responder(texto) {
-        const intencoes = identificarIntencoes(texto);
-        
-        if (intencoes.includes('reiniciar')) {
-            reiniciarChat();
-            return true;
-        }
-
-        if (intencoes.includes('obrigado')) {
-            Chat.falar('😊 De nada! Qualquer coisa, é só chamar!');
-            return true;
-        }
-
-        if (intencoes.includes('tudo_bem')) {
-            Chat.falar('Tudo bem sim! E com você? Como posso ajudar?');
-            Chat.sugerir([
-                { label: '📅 Agendar', valor: 'agendar' },
-                { label: '💰 Valores', valor: 'valores' },
-                { label: '📞 Contato', valor: 'whatsapp' }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('saudacao')) {
-            Chat.falar('👋 Oi! Bem-vindo ao Motazt Studio!\n\nSou seu assistente de agendamentos. Em que posso ajudar?');
-            Chat.sugerir([
-                { label: '📅 Agendar', valor: 'agendar' },
-                { label: '💰 Valores', valor: 'valores' },
-                { label: '📸 Serviços', valor: 'serviços' },
-                { label: '📞 Contato', valor: 'whatsapp' }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('menu')) {
+    // ============ RESPOSTAS ============
+    const RESPOSTAS = {
+        saudacao: () => {
+            Chat.falar(`Olá! Sou o assistente virtual do Motaz Studio. Como posso ajudar você hoje?`);
             mostrarMenu();
-            return true;
-        }
-
-        if (intencoes.includes('agendamento')) {
-            iniciarAgendamento();
-            return true;
-        }
-
-        if (intencoes.includes('valores')) {
-            mostrarValores();
-            return true;
-        }
-
-        if (intencoes.includes('datas')) {
-            mostrarDatasDisp();
-            return true;
-        }
-
-        if (intencoes.includes('horarios')) {
-            Chat.falar('⏰ Que dia você gostaria? Digite no formato DD/MM/AAAA\n\nExemplo: 15/08/2026');
-            ESTADO.etapa = 'aguardando_data_para_horario';
-            return true;
-        }
-
-        if (intencoes.includes('galeria')) {
-            Chat.falar('🖼️ Você pode ver nosso portfólio na seção **Galeria** acima!');
-            Chat.sugerirLinks([
-                { label: '→ Ver Galeria', link: '#galeria' }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('galeria_privada')) {
-            Chat.falar('🔐 Acesse sua galeria privada aqui:');
-            Chat.sugerirLinks([
-                { label: '→ Minha Galeria', link: 'galeria-privada.html' }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('entrega')) {
-            Chat.falar('⏳ **Prazos de Entrega**\n\n⚡ Prévias: 24-48 horas\n🖼️ Parcial (50%): 7-10 dias\n✨ Final (100%): 20-30 dias');
-            return true;
-        }
-
-        if (intencoes.includes('termos')) {
-            Chat.falar(INSTRUCOES_AGENDAMENTO);
-            Chat.sugerir([
-                { label: '📅 Agendar', valor: 'agendar' }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('whatsapp')) {
-            Chat.falar(`💬 **Nosso WhatsApp**\n\n📱 ${CONFIG.TELEFONE_DISPLAY}\n\nRespondemos rápido!`);
-            Chat.sugerirLinks([
-                { label: '💬 Abrir WhatsApp', link: CONFIG.WHATSAPP_LINK }
-            ]);
-            return true;
-        }
-
-        if (intencoes.includes('sobre')) {
-            Chat.falar(`📸 **Sobre Nós**\n\n🎯 Somos especialistas em fotografia profissional e artística.\n\n✨ Transformamos seus momentos em memórias eternas!\n\nQuer conhecer nossos trabalhos?`);
-            Chat.sugerir([
-                { label: '🖼️ Ver galeria', valor: 'galeria' },
-                { label: '📅 Agendar', valor: 'agendar' }
-            ]);
-            return true;
-        }
-
-        // Se está em agendamento
-        if (ESTADO.etapa) {
-            processarAgendamento(texto);
-            return true;
-        }
-
-        return false;
-    }
-
-    function mostrarMenu() {
-        Chat.falar('📋 **O que você gostaria de fazer?**');
-        Chat.sugerir([
-            { label: '📅 Agendar', valor: 'agendar' },
-            { label: '💰 Valores', valor: 'valores' },
-            { label: '📸 Serviços', valor: 'serviços' },
-            { label: '🗓️ Datas', valor: 'datas' },
-            { label: '🖼️ Galeria', valor: 'galeria' },
-            { label: '📋 Termos', valor: 'termos' },
-            { label: '📞 Contato', valor: 'whatsapp' }
-        ]);
-    }
-
-    function mostrarValores() {
-        let texto = '💰 **Tabela de Valores - Fotógrafo Iniciante**\n\n';
-        for (const [tipo, valor] of Object.entries(VALORES)) {
-            texto += `• **${tipo}**: ${valor}\n`;
-        }
-        texto += '\n⚠️ *Valores podem variar conforme local, horário e duração.*';
-        
-        Chat.falar(texto);
-        Chat.sugerir([
-            { label: '📅 Agendar', valor: 'agendar' },
-            { label: '📋 Termos', valor: 'termos' }
-        ]);
-    }
-
-    function mostrarServiços() {
-        const texto = `📸 **Nossos Serviços**
-
-👤 **Ensaio Individual** — R$ 150 a R$ 250 • 2h
-Retrato, book pessoal, redes sociais
-
-👫 **Ensaio de Casal** — R$ 200 a R$ 350 • 2h
-Pré-casamento, book casal
-
-👨‍👩‍👧‍👦 **Ensaio Familiar** — R$ 250 a R$ 400 • 3h
-Fotos da família toda junta
-
-🤰 **Gestante** — R$ 180 a R$ 280 • 2h
-Celebrando a gravidez com arte
-
-💍 **Casamento** — R$ 500 a R$ 1.500
-Cobertura do seu grande dia
-
-🎉 **Evento** — R$ 400 a R$ 800
-Aniversários, corporativos, celebrações
-
-🎂 **Aniversário** — R$ 200 a R$ 400
-Festa inesquecível registrada
-
-📸 **Produção Comercial** — R$ 300 a R$ 600
-Fotos para marcas, editorials, publicidade`;
-
-        Chat.falar(texto);
-        Chat.sugerir([
-            { label: '📅 Agendar', valor: 'agendar' },
-            { label: '💰 Ver valores', valor: 'valores' }
-        ]);
-    }
-
-    function mostrarDatasDisp() {
-        Chat.digitando(true);
-        setTimeout(() => {
-            Chat.digitando(false);
-            const datas = gerarProximasDatas(7);
-            const lista = datas.map(d => `• ${d.display}`).join('\n');
+        },
+        agendamento: () => {
+            Chat.falar(`Com certeza! Para agendar seu ensaio, o melhor caminho é conversarmos pelo WhatsApp.`);
+            Chat.sugerirLinks([{ label: 'Agendar no WhatsApp', link: CONFIG.WHATSAPP_LINK, icon: 'calendar' }]);
+        },
+        disponibilidade: () => {
+            Chat.falar(`Temos horários flexíveis! Para eu te confirmar a disponibilidade exata, fale com nossa equipe no WhatsApp.`);
+            Chat.sugerirLinks([{ label: 'Consultar Agenda', link: CONFIG.WHATSAPP_LINK, icon: 'clock' }]);
+        },
+        valores: () => {
+            let msg = `**Nossos Investimentos:**\n\n`;
+            for (const [tipo, valor] of Object.entries(VALORES)) {
+                msg += `• ${tipo}: ${valor}\n`;
+            }
+            Chat.falar(msg);
+            Chat.sugerir([{ label: 'Solicitar Orçamento', valor: 'contato', icon: 'file-text' }]);
+        },
+        portfolio: () => {
+            Chat.falar(`Nossa galeria completa está disponível na seção **Portfólio** do site.`);
+            Chat.sugerirLinks([{ label: 'Ver Portfólio', link: '#galeria', icon: 'external-link' }]);
+        },
+        albuns: () => {
+            ESTADO_ATUAL = 'AGUARDANDO_CODIGO';
+            Chat.falar(`Seu ensaio está guardado com carinho! **Por favor, digite o código do seu álbum aqui no chat** para eu buscar suas fotos.`);
+        },
+        processar_codigo: async (codigo) => {
+            const idLimpo = codigo.trim().toLowerCase();
+            Chat.falar(`Buscando álbum com o código: **${idLimpo}**...`);
             
-            Chat.falar(`🗓️ **Próximas Datas Disponíveis**\n\n${lista}`);
-            Chat.sugerir(
-                datas.slice(0, 4).map(d => ({
-                    label: d.display.split(' ')[0],
-                    valor: d.iso
-                }))
-            );
-        }, 500);
-    }
-
-    function iniciarAgendamento() {
-        Chat.falar(INSTRUCOES_AGENDAMENTO);
-        
-        setTimeout(() => {
-            Chat.falar('🎉 Vamos começar?\n\nQual é o seu nome completo?');
-            ESTADO.etapa = 'aguardando_nome';
-        }, 500);
-    }
-
-    function processarAgendamento(texto) {
-        if (ESTADO.etapa === 'aguardando_nome') {
-            ESTADO.agendamento.nome = texto.trim();
-            Chat.falar(`😊 Prazer, ${ESTADO.agendamento.nome}!\n\nQual é seu telefone/WhatsApp? (com DDD)\n\nExemplo: (73) 98165-6986`);
-            ESTADO.etapa = 'aguardando_telefone';
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_telefone') {
-            const validacao = validarTelefone(texto);
-            
-            if (!validacao.valido) {
-                Chat.falar('❌ Telefone inválido.\n\nDigite novamente com DDD.\n\nExemplo: (73) 98165-6986 ou 73 98165-6986');
-                return;
-            }
-
-            ESTADO.agendamento.telefone = validacao.formatado;
-            Chat.falar(`📱 Perfeito! ${ESTADO.agendamento.telefone}\n\nDe qual cidade você é?`);
-            ESTADO.etapa = 'aguardando_cidade';
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_cidade') {
-            ESTADO.agendamento.cidade = texto.trim();
-            Chat.falar('🏙️ Obrigado!\n\nAgora, qual tipo de ensaio você gostaria?');
-            Chat.sugerir([
-                { label: '👤 Individual', valor: 'individual' },
-                { label: '👫 Casal', valor: 'casal' },
-                { label: '👨‍👩‍👧‍👦 Família', valor: 'familia' },
-                { label: '🤰 Gestante', valor: 'gestante' },
-                { label: '💍 Casamento', valor: 'casamento' },
-                { label: '🎉 Evento', valor: 'evento' }
-            ]);
-            ESTADO.etapa = 'aguardando_tipo';
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_tipo') {
-            const tipos = Object.keys(DURACAO_ENSAIOS);
-            const tipo = tipos.find(t => t.toLowerCase().includes(texto.toLowerCase()));
-            
-            if (tipo) {
-                ESTADO.agendamento.tipo = tipo;
-                Chat.falar(`📸 ${tipo}\n\n${VALORES[tipo]}\n\n*Valores podem mudar conforme local e horário.*\n\nPara qual data você gostaria?`);
-                
-                const datas = gerarProximasDatas(5);
-                Chat.sugerir(
-                    datas.map(d => ({
-                        label: d.display.slice(0, 10),
-                        valor: d.iso
-                    }))
-                );
-                
-                ESTADO.etapa = 'aguardando_data';
-            } else {
-                Chat.falar('❌ Tipo não reconhecido. Escolha uma das opções acima.');
-            }
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_data') {
-            let data = null;
-            
-            if (texto.includes('-')) {
-                data = texto.trim();
-            } else if (texto.match(/\d{2}\/\d{2}\/\d{4}/)) {
-                const [dia, mes, ano] = texto.split('/');
-                data = `${ano}-${mes}-${dia}`;
-            }
-
-            if (data) {
-                ESTADO.agendamento.data = data;
-                const horarios = gerarHorarios();
-                
-                Chat.falar(`📅 ${formatarDataBR(data)}\n\n⏰ Qual horário você prefere?`);
-                
-                const grupo1 = horarios.slice(0, 6);
-                Chat.sugerir(
-                    grupo1.map(h => ({
-                        label: h,
-                        valor: h
-                    }))
-                );
-                
-                ESTADO.etapa = 'aguardando_horario';
-            } else {
-                Chat.falar('❌ Data inválida. Digite assim: 15/08/2026');
-            }
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_horario') {
-            if (texto.match(/\d{1,2}:\d{2}/)) {
-                ESTADO.agendamento.horario = texto.trim();
-                finalizarAgendamento();
-            } else {
-                Chat.falar('❌ Horário inválido. Digite assim: 14:30');
-            }
-            return;
-        }
-
-        if (ESTADO.etapa === 'aguardando_data_para_horario') {
-            let data = null;
-            
-            if (texto.includes('-')) {
-                data = texto.trim();
-            } else if (texto.match(/\d{2}\/\d{2}\/\d{4}/)) {
-                const [dia, mes, ano] = texto.split('/');
-                data = `${ano}-${mes}-${dia}`;
-            }
-
-            if (data) {
-                const horarios = gerarHorarios();
-                Chat.falar(`⏰ **Horários disponíveis para ${formatarDataBR(data)}**\n\n${horarios.join(' • ')}`);
-                ESTADO.etapa = null;
-            } else {
-                Chat.falar('❌ Data inválida. Digite assim: 15/08/2026');
-            }
-            return;
-        }
-    }
-
-    function finalizarAgendamento() {
-        Chat.digitando(true);
-
-        setTimeout(async () => {
-            Chat.digitando(false);
-
             try {
-                if (supabase) {
-                    const duracao = DURACAO_ENSAIOS[ESTADO.agendamento.tipo] || 120;
-                    
-                    const { error } = await supabase
-                        .from('agendamentos')
-                        .insert([{
-                            nome: ESTADO.agendamento.nome,
-                            telefone: ESTADO.agendamento.telefone,
-                            cidade: ESTADO.agendamento.cidade,
-                            ensaio: ESTADO.agendamento.tipo,
-                            data: ESTADO.agendamento.data,
-                            horario: ESTADO.agendamento.horario,
-                            duracao_min: duracao,
-                            status: 'confirmado'
-                        }]);
-
-                    if (error) throw error;
+                // Aguarda um pouco para o script de galerias carregar se necessário
+                if (!window.GaleriaPrivada) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
                 }
 
-                const confirmacao = `✅ **Agendamento Confirmado!**
-
-📛 ${ESTADO.agendamento.nome}
-📱 ${ESTADO.agendamento.telefone}
-🏙️ ${ESTADO.agendamento.cidade}
-📸 ${ESTADO.agendamento.tipo}
-📅 ${formatarDataBR(ESTADO.agendamento.data)}
-⏰ ${ESTADO.agendamento.horario}
-
-🎉 Você receberá confirmação no WhatsApp!
-💳 Enviaremos link de pagamento do adiantamento
-🖼️ Acessará sua galeria privada em breve`;
-
-                Chat.falar(confirmacao);
-                Chat.sugerir([
-                    { label: '🖼️ Ver galeria', valor: 'galeria' },
-                    { label: '📞 Tirar dúvidas', valor: 'whatsapp' },
-                    { label: '📋 Menu', valor: 'menu' }
-                ]);
-
-                resetarAgendamento();
-
-            } catch (erro) {
-                Chat.falar('❌ Houve um erro. Entre em contato pelo WhatsApp.');
+                if (window.GaleriaPrivada) {
+                    const galeria = await window.GaleriaPrivada.validarGaleria(idLimpo);
+                    if (galeria) {
+                        const fotos = await window.GaleriaPrivada.listarFotosDaGaleria(galeria.id);
+                        if (fotos && fotos.length > 0) {
+                            Chat.falar(`Encontrei o álbum de **${galeria.cliente_nome || 'Cliente'}**! Aqui está uma prévia das fotos:`);
+                            Chat.falarGradeFotos(fotos.slice(0, 4), galeria.id);
+                            Chat.sugerirLinks([{ label: 'Acessar Álbum Completo', link: `/galeria-privada?id=${galeria.id}`, icon: 'external-link' }]);
+                            ESTADO_ATUAL = 'LIVRE';
+                            return;
+                        } else {
+                            Chat.falar(`Encontrei o álbum, mas ele ainda não possui fotos carregadas.`);
+                        }
+                    }
+                }
+                
+                Chat.falar(`Humm, não encontrei nenhum álbum ativo com o código **${idLimpo}**. Certifique-se de que o código está correto ou que a galeria não expirou.`);
                 Chat.sugerirLinks([
-                    { label: '💬 WhatsApp', link: CONFIG.WHATSAPP_LINK }
+                    { label: 'Tentar Outro Código', valor: 'albuns', icon: 'refresh-cw' },
+                    { label: 'Página de Login', link: '/galeria-privada', icon: 'lock' }
                 ]);
+            } catch (e) {
+                console.error('Erro no Chatbot:', e);
+                Chat.falar(`Ocorreu um erro técnico ao buscar seu álbum. Por favor, tente acessar pelo link direto.`);
+                Chat.sugerirLinks([{ label: 'Acessar via Login', link: '/galeria-privada', icon: 'external-link' }]);
             }
-        }, 1000);
-    }
+            ESTADO_ATUAL = 'LIVRE';
+        },
+        contato: () => {
+            Chat.falar(`Fale conosco pelo WhatsApp ou Instagram.`);
+            Chat.sugerirLinks([
+                { label: 'WhatsApp', link: CONFIG.WHATSAPP_LINK, icon: 'message-circle' },
+                { label: 'Instagram', link: `https://instagram.com/${CONFIG.INSTAGRAM}`, icon: 'instagram' }
+            ]);
+        },
+        agradecimento: () => {
+            Chat.falar(`Por nada! Fico à disposição.`);
+        },
+        desconhecido: () => {
+            Chat.falar(`Ainda estou aprendendo. Use os botões abaixo para encontrar o que precisa:`);
+            mostrarMenu();
+        }
+    };
 
-    function resetarAgendamento() {
-        ESTADO.agendamento = {
-            nome: null,
-            telefone: null,
-            cidade: null,
-            tipo: null,
-            data: null,
-            horario: null
-        };
-        ESTADO.etapa = null;
-    }
-
-    function reiniciarChat() {
-        Chat.msgs = [];
-        ESTADO.historicoMensagens = [];
-        resetarAgendamento();
-        
-        Chat.elMsgs.innerHTML = '';
-        Chat.limparSugestoes();
-        
-        Chat.falar('👋 Chat reiniciado!\n\nBem-vindo ao Motazt Studio!\n\nComo posso ajudá-lo?');
+    function mostrarMenu() {
         Chat.sugerir([
-            { label: '📅 Agendar', valor: 'agendar' },
-            { label: '💰 Valores', valor: 'valores' },
-            { label: '📸 Serviços', valor: 'serviços' },
-            { label: '📞 Contato', valor: 'whatsapp' }
+            { label: 'Agendar Ensaio', valor: 'agendamento', icon: 'calendar' },
+            { label: 'Ver Valores', valor: 'valores', icon: 'dollar-sign' },
+            { label: 'Ver Portfólio', valor: 'portfolio', icon: 'image' },
+            { label: 'Meus Álbuns', valor: 'albuns', icon: 'lock' },
+            { label: 'Falar com Equipe', valor: 'contato', icon: 'message-circle' }
         ]);
     }
 
     // ============ INTERFACE DO CHAT ============
     const Chat = {
-        msgs: [],
         elMsgs: null,
         elSugest: null,
         aberto: false,
@@ -630,68 +207,142 @@ Fotos para marcas, editorials, publicidade`;
         inicializar() {
             this.elMsgs = document.getElementById('chatbotMensagens');
             this.elSugest = document.getElementById('chatbotSugestoes');
-
+            
             const btnFab = document.getElementById('chatBotBtn');
             const painel = document.getElementById('chatbotPainel');
-            const overlay = document.getElementById('chatbotOverlay');
+            
+            if (btnFab) {
+                btnFab.innerHTML = '<i data-lucide="message-square"></i><span class="chatbot-fab-badge" id="chatbotBadge">1</span>';
+            }
+
+            const header = document.querySelector('.chatbot-header');
+            if (header) {
+                header.innerHTML = `
+                    <div class="chatbot-header-info">
+                        <div class="chatbot-avatar"><i data-lucide="camera"></i></div>
+                        <div class="chatbot-header-texto">
+                            <h3>Motaz Studio</h3>
+                            <p><span class="chatbot-status-dot"></span> Online agora</p>
+                        </div>
+                    </div>
+                    <div class="chatbot-header-buttons">
+                        <button id="chatbotReiniciar" class="chatbot-btn-header" title="Reiniciar"><i data-lucide="rotate-ccw"></i></button>
+                        <button id="chatbotFechar" class="chatbot-btn-header" title="Fechar"><i data-lucide="x"></i></button>
+                    </div>
+                `;
+            }
+
+            const btnEnviar = document.getElementById('chatbotEnviar');
+            if (btnEnviar) {
+                btnEnviar.innerHTML = '<i data-lucide="send"></i>';
+            }
+
+            this.vincularEventos();
+            this.configurarAjusteTeclado();
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                if (!this.aberto) {
+                    const badge = document.getElementById('chatbotBadge');
+                    if (badge) badge.classList.remove('oculto');
+                }
+            }, 2000);
+        },
+
+        configurarAjusteTeclado() {
+            if (!window.visualViewport) return;
+
+            const painel = document.getElementById('chatbotPainel');
+            const handler = () => {
+                if (window.innerWidth <= 500 && this.aberto) {
+                    const height = window.visualViewport.height;
+                    painel.style.height = `${height}px`;
+                    painel.style.bottom = '0';
+                    this.scroll();
+                } else {
+                    painel.style.height = '';
+                    painel.style.bottom = '';
+                }
+            };
+
+            window.visualViewport.addEventListener('resize', handler);
+            window.visualViewport.addEventListener('scroll', handler);
+        },
+
+        vincularEventos() {
+            const btnFab = document.getElementById('chatBotBtn');
             const btnFechar = document.getElementById('chatbotFechar');
             const btnReiniciar = document.getElementById('chatbotReiniciar');
-            const input = document.getElementById('chatbotInput');
             const btnEnviar = document.getElementById('chatbotEnviar');
-
-            if (!btnFab || !painel) return;
+            const input = document.getElementById('chatbotInput');
+            const overlay = document.getElementById('chatbotOverlay');
 
             btnFab.addEventListener('click', () => this.alternarChat());
-            btnFechar.addEventListener('click', () => this.fechar());
-            if (btnReiniciar) btnReiniciar.addEventListener('click', reiniciarChat);
-            overlay.addEventListener('click', () => this.fechar());
-            
-            btnEnviar.addEventListener('click', () => this.enviar());
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.enviar();
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && this.aberto) this.fechar();
-            });
-
-            this.falar('👋 Oi! Bem-vindo ao Motazt Studio!\n\nSou seu assistente de agendamentos. Como posso ajudar?');
-            this.sugerir([
-                { label: '📅 Agendar', valor: 'agendar' },
-                { label: '💰 Valores', valor: 'valores' },
-                { label: '📸 Serviços', valor: 'serviços' },
-                { label: '📞 Contato', valor: 'whatsapp' }
-            ]);
+            if (btnFechar) btnFechar.addEventListener('click', () => this.fechar());
+            if (btnReiniciar) btnReiniciar.addEventListener('click', () => this.reiniciar());
+            if (overlay) overlay.addEventListener('click', () => this.fechar());
+            if (btnEnviar) btnEnviar.addEventListener('click', () => this.enviar());
+            if (input) {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.enviar();
+                });
+            }
         },
 
-        alternarChat() {
-            this.aberto ? this.fechar() : this.abrir();
-        },
-
+        alternarChat() { this.aberto ? this.fechar() : this.abrir(); },
+        
         abrir() {
             this.aberto = true;
             document.getElementById('chatbotPainel').classList.add('aberto');
             document.getElementById('chatbotOverlay').classList.add('ativo');
-            document.getElementById('chatBotBtn').classList.add('aberto');
-            document.getElementById('chatbotInput').focus();
+            document.getElementById('chatbotBadge')?.classList.add('oculto');
+            if (this.elMsgs.children.length === 0) {
+                RESPOSTAS.saudacao();
+            }
         },
 
         fechar() {
             this.aberto = false;
             document.getElementById('chatbotPainel').classList.remove('aberto');
             document.getElementById('chatbotOverlay').classList.remove('ativo');
-            document.getElementById('chatBotBtn').classList.remove('aberto');
         },
 
         falar(texto) {
-            this.msgs.push({ texto, tipo: 'bot' });
-            this.renderizarUltima();
+            const div = document.createElement('div');
+            div.className = 'chatbot-msg bot';
+            div.innerHTML = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            this.elMsgs.appendChild(div);
+            this.scroll();
+        },
+
+        falarGradeFotos(fotos, galeriaId) {
+            const div = document.createElement('div');
+            div.className = 'chatbot-msg bot';
+            div.style.padding = '8px';
+            
+            const grid = document.createElement('div');
+            grid.className = `chatbot-photo-grid count-${fotos.length}`;
+            
+            fotos.forEach(foto => {
+                const img = document.createElement('img');
+                img.src = foto.arquivo_preview;
+                img.alt = 'Foto do álbum';
+                img.onclick = () => window.open(`/galeria-privada?id=${galeriaId}`, '_blank');
+                grid.appendChild(img);
+            });
+            
+            div.appendChild(grid);
+            this.elMsgs.appendChild(div);
+            this.scroll();
         },
 
         falarUsuario(texto) {
-            this.msgs.push({ texto, tipo: 'usuario' });
-            this.renderizarUltima();
+            const div = document.createElement('div');
+            div.className = 'chatbot-msg usuario';
+            div.textContent = texto;
+            this.elMsgs.appendChild(div);
             this.limparSugestoes();
+            this.scroll();
         },
 
         sugerir(opcoes) {
@@ -699,10 +350,11 @@ Fotos para marcas, editorials, publicidade`;
             opcoes.forEach(op => {
                 const btn = document.createElement('button');
                 btn.className = 'chatbot-chip';
-                btn.textContent = op.label;
+                btn.innerHTML = `<i data-lucide="${op.icon || 'chevron-right'}"></i> ${op.label}`;
                 btn.addEventListener('click', () => this.processar(op.valor));
                 this.elSugest.appendChild(btn);
             });
+            lucide.createIcons();
         },
 
         sugerirLinks(links) {
@@ -710,72 +362,54 @@ Fotos para marcas, editorials, publicidade`;
             links.forEach(op => {
                 const btn = document.createElement('button');
                 btn.className = 'chatbot-chip';
-                btn.textContent = op.label;
+                btn.innerHTML = `<i data-lucide="${op.icon || 'external-link'}"></i> ${op.label}`;
                 btn.addEventListener('click', () => {
                     window.open(op.link, '_blank', 'noopener');
                 });
                 this.elSugest.appendChild(btn);
             });
+            lucide.createIcons();
         },
 
-        limparSugestoes() {
-            if (this.elSugest) this.elSugest.innerHTML = '';
-        },
-
-        digitando(mostrar) {
-            let el = document.getElementById('chatbotDigitando');
-            if (mostrar) {
-                if (!el) {
-                    el = document.createElement('div');
-                    el.id = 'chatbotDigitando';
-                    el.className = 'chatbot-digitando';
-                    el.innerHTML = '<span></span><span></span><span></span>';
-                    this.elMsgs.appendChild(el);
-                }
-            } else if (el) {
-                el.remove();
-            }
-            this.scroll();
-        },
-
-        renderizarUltima() {
-            const msg = this.msgs[this.msgs.length - 1];
-            const div = document.createElement('div');
-            div.className = `chatbot-msg ${msg.tipo}`;
-            div.textContent = msg.texto;
-            this.elMsgs.appendChild(div);
-            this.scroll();
-        },
-
-        scroll() {
-            this.elMsgs.scrollTop = this.elMsgs.scrollHeight;
-        },
+        limparSugestoes() { if (this.elSugest) this.elSugest.innerHTML = ''; },
+        scroll() { this.elMsgs.scrollTo({ top: this.elMsgs.scrollHeight, behavior: 'smooth' }); },
 
         processar(texto) {
-            const val = texto.trim();
-            if (!val) return;
+            if (!texto.trim()) return;
+            this.falarUsuario(texto);
             
-            this.falarUsuario(val);
-            this.digitando(true);
+            const typing = document.createElement('div');
+            typing.className = 'chatbot-msg bot';
+            typing.innerHTML = '...';
+            this.elMsgs.appendChild(typing);
+            this.scroll();
 
-            setTimeout(() => {
-                this.digitando(false);
-                if (!responder(val)) {
-                    this.falar('🤔 Não entendi bem... Pode repetir?\n\nOu use o menu! ☝️');
-                    this.sugerir([
-                        { label: '📋 Menu', valor: 'menu' }
-                    ]);
+            setTimeout(async () => {
+                typing.remove();
+                const intencao = processarTexto(texto);
+                if (intencao === 'processar_codigo') {
+                    await RESPOSTAS.processar_codigo(texto);
+                } else if (intencao && RESPOSTAS[intencao]) {
+                    RESPOSTAS[intencao](texto);
+                } else {
+                    RESPOSTAS.desconhecido();
                 }
-            }, 500);
+            }, 800);
         },
 
         enviar() {
             const input = document.getElementById('chatbotInput');
             const val = input.value;
             if (!val.trim()) return;
-            
             input.value = '';
             this.processar(val);
+        },
+
+        reiniciar() {
+            ESTADO_ATUAL = 'LIVRE';
+            this.elMsgs.innerHTML = '';
+            this.limparSugestoes();
+            RESPOSTAS.saudacao();
         }
     };
 
@@ -784,5 +418,4 @@ Fotos para marcas, editorials, publicidade`;
     } else {
         Chat.inicializar();
     }
-
 })();

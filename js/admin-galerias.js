@@ -1,6 +1,6 @@
 /**
  * ADMIN - GERENCIADOR DE GALERIAS PRIVADAS
- * Motazt Studio
+ * Motaz Studio
  *
  * Permite:
  * - Listar todas as galerias
@@ -36,7 +36,8 @@ async function carregarGalerias() {
                 senha,
                 data_criacao,
                 data_expiracao,
-                agendamento_id,
+                cliente_nome,
+                cliente_email,
                 total_fotos
             `)
             .order('data_criacao', { ascending: false });
@@ -52,27 +53,11 @@ async function carregarGalerias() {
         document.getElementById('listaGalerias').style.display = 'grid';
         document.getElementById('galeriaVazia').style.display = 'none';
 
-        // Para cada galeria, buscar dados do agendamento para pegar o nome do cliente
-        const galeriasComCliente = await Promise.all(
-            galerias.map(async (g) => {
-                const { data: agendamento, error: errAgend } = await adminClient
-                    .from('agendamentos')
-                    .select('cliente_nome, cliente_email')
-                    .eq('id', g.agendamento_id)
-                    .single();
-
-                if (errAgend) {
-                    console.error('Erro ao buscar agendamento:', errAgend);
-                    return { ...g, cliente_nome: 'Desconhecido', cliente_email: '' };
-                }
-
-                return {
-                    ...g,
-                    cliente_nome: agendamento?.cliente_nome || 'Desconhecido',
-                    cliente_email: agendamento?.cliente_email || ''
-                };
-            })
-        );
+        const galeriasComCliente = galerias.map(g => ({
+            ...g,
+            cliente_nome: g.cliente_nome || 'Desconhecido',
+            cliente_email: g.cliente_email || ''
+        }));
 
         // Contar fotos corretamente para cada galeria
         const galeriasComContagem = await Promise.all(
@@ -84,7 +69,7 @@ async function carregarGalerias() {
 
                 if (errCount) {
                     console.error('Erro ao contar fotos:', errCount);
-                    return { ...g, contagem_fotos: 0 };
+                    return { ...g, contagem_fotos: g.total_fotos || 0 };
                 }
 
                 return { ...g, contagem_fotos: count || 0 };

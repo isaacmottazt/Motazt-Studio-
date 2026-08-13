@@ -1,6 +1,6 @@
 /**
  * SISTEMA COMPLETO DE GALERIAS PRIVADAS
- * Motazt Studio
+ * Motaz Studio
  *
  * Funciona em 3 momentos:
  * 1. Admin confirma agendamento → gera galeria (identificada só pelo ID)
