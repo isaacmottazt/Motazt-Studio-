@@ -3,211 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Galerias — Motazt Studio</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Gerenciar Galerias — Admin</title>
+    <link rel="stylesheet" href="admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ======================================
+           GALERIAS — interface premium independente
+           do painel administrativo principal.
+        ====================================== */
+
+        .conteudo{
+            max-width:1200px;
         }
 
-        :root {
-            --ouro: #d6a04c;
-            --ouro-claro: #e8c07d;
-            --ouro-escuro: #b88536;
-            --vidro: rgba(14, 14, 14, 0.82);
-            --vidro-alt: rgba(22, 22, 22, 0.92);
-            --borda: rgba(255, 255, 255, 0.08);
-            --borda-hover: rgba(214, 160, 76, 0.5);
-            --texto-mudo: #999;
-            --raio: 20px;
-            --raio-sm: 12px;
-        }
-
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #111;
-            color: #fff;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .app-shell {
+        /* Abas */
+        .tabs {
             display: flex;
-            width: 100%;
-            height: 100vh;
-            gap: 0;
-        }
-
-        .faixa {
-            width: 80px;
-            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(30, 30, 30, 0.95));
-            border-right: 1px solid var(--borda);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 16px 0;
-            gap: 12px;
-            overflow-y: auto;
-        }
-
-        .faixa-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--ouro), var(--ouro-escuro));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 8px;
-            font-size: 24px;
-        }
-
-        .faixa-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .faixa-linha {
-            width: 30px;
-            height: 1px;
-            background: var(--borda);
-            margin: 4px 0;
-        }
-
-        .faixa-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--borda);
-            color: #fff;
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.25s ease;
-            text-decoration: none;
-        }
-
-        .faixa-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--borda-hover);
-            transform: translateY(-2px);
-        }
-
-        .faixa-btn--ativo {
-            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
-            color: #1a1200;
-        }
-
-        .faixa-btn--ativo:hover {
-            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
-            border-color: transparent;
-            transform: none;
-        }
-
-        .faixa-espaco {
-            flex: 1;
-        }
-
-        .faixa-btn--sair {
-            color: #ff8a80;
-            border-color: rgba(244, 67, 54, 0.3);
-        }
-
-        .faixa-btn--sair:hover {
-            background: rgba(244, 67, 54, 0.15);
-            border-color: rgba(244, 67, 54, 0.4);
-        }
-
-        .conteudo {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background: #0a0a0a;
-        }
-
-        .cabecalho {
-            padding: 24px 32px;
+            gap: 10px;
+            margin-bottom: 22px;
             border-bottom: 1px solid var(--borda);
-            background: var(--vidro);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
 
-        .cabecalho-titulo h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--ouro-claro);
-            margin-bottom: 6px;
-        }
-
-        .cabecalho-titulo p {
-            font-size: 14px;
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
             color: var(--texto-mudo);
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.25s ease;
         }
 
-        .conteudo-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px 32px;
+        .tab-btn.ativo {
+            color: var(--ouro-claro);
+            border-bottom-color: var(--ouro);
         }
 
-        .galerias-grid {
+        .tab-btn:hover {
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.ativo {
+            display: block;
+        }
+
+        /* ===== ABA 1: LISTAR GALERIAS ===== */
+        .galerias-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 20px;
         }
 
-        .galeria-card {
-            background: var(--vidro-alt);
+        .galeria-item {
+            background: var(--vidro-alt, rgba(22,22,22,0.92));
             border: 1px solid var(--borda);
             border-radius: var(--raio-sm);
             padding: 20px;
             transition: all 0.25s ease;
         }
 
-        .galeria-card:hover {
+        .galeria-item:hover {
             border-color: var(--borda-hover);
+            background: var(--vidro-alt, rgba(30,30,30,0.95));
         }
 
-        .galeria-header {
+        .galeria-header-item {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--borda);
+            align-items: start;
+            margin-bottom: 15px;
         }
 
         .galeria-nome {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: var(--ouro-claro);
+            margin-bottom: 4px;
+        }
+
+        .galeria-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--texto-mudo);
+            opacity: 0.7;
         }
 
         .galeria-status {
-            display: inline-block;
-            padding: 4px 10px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .galeria-status.ativa {
@@ -215,21 +109,45 @@
             color: #4caf50;
         }
 
-        .galeria-status.expirada {
-            background: rgba(255, 152, 0, 0.18);
-            color: #ffa726;
+        .galeria-status.ativa::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
         }
 
-        .galeria-status.inativa {
+        .galeria-status.expirada {
+            background: rgba(255, 152, 0, 0.18);
+            color: var(--laranja);
+        }
+
+        .galeria-status.expirada::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .galeria-status.bloqueada {
             background: rgba(244, 67, 54, 0.18);
-            color: #ff8a80;
+            color: #f44336;
+        }
+
+        .galeria-status.bloqueada::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
         }
 
         .galeria-info {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 15px;
             font-size: 13px;
         }
 
@@ -240,11 +158,10 @@
         }
 
         .info-label {
-            display: block;
             color: var(--texto-mudo);
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing:0.04em;
             margin-bottom: 4px;
         }
 
@@ -253,29 +170,114 @@
             font-weight: 500;
         }
 
-        .galeria-fotos-preview {
+        /* Controles de ativação/dias */
+        .galeria-controls {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .control-group {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-            min-height: 60px;
-            align-content: flex-start;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: var(--texto-mudo);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+
+        .control-group input,
+        .control-group select {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--borda);
+            color: #fff;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .control-group input[type="number"] {
+            width: 100%;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--ouro);
+            background: rgba(214, 160, 76, 0.06);
+        }
+
+        .btn-salvar-control {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            color: #1a1200;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-salvar-control:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(214, 160, 76, 0.3);
+        }
+
+        .btn-salvar-control:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Fotos da galeria */
+        .galeria-fotos {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .fotos-label {
+            font-size: 12px;
+            color: var(--texto-mudo);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
         }
 
         .foto-thumb {
-            width: 60px;
-            height: 60px;
+            position: relative;
+            aspect-ratio: 1;
             border-radius: 6px;
             overflow: hidden;
-            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--borda);
             cursor: pointer;
             transition: all 0.25s ease;
         }
 
         .foto-thumb:hover {
+            border-color: var(--ouro);
             transform: scale(1.05);
-            border-color: var(--borda-hover);
         }
 
         .foto-thumb img {
@@ -284,183 +286,305 @@
             object-fit: cover;
         }
 
+        .foto-thumb .foto-favorita {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
         .fotos-vazio {
-            color: var(--texto-mudo);
-            font-size: 12px;
-            padding: 16px;
             text-align: center;
+            padding: 20px;
+            color: var(--texto-mudo);
+            font-size: 13px;
         }
 
-        .galeria-controles {
+        .galeria-actions {
             display: flex;
-            flex-direction: column;
             gap: 10px;
-            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
 
-        .controle-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .controle-label {
-            font-size: 12px;
-            color: #ccc;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 500;
-        }
-
-        .controle-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        input[type="number"] {
-            flex: 1;
-            padding: 8px 10px;
+        .btn-acao {
+            padding: 8px 16px;
             background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--borda);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-acao:hover {
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            border-color: var(--ouro);
+            color: #1a1200;
+        }
+
+        .btn-acao.btn-danger:hover {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        /* ===== ABA 2: CRIAR GALERIA ===== */
+        .form-criar {
+            background: var(--vidro-alt, rgba(22,22,22,0.92));
+            border: 1px solid var(--borda);
+            padding: 26px;
+            border-radius: var(--raio-sm);
+            max-width: 480px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.04);
             border: 1px solid var(--borda);
             color: #fff;
             border-radius: var(--raio-sm);
             font-family: inherit;
-            font-size: 13px;
+            font-size: 14px;
             transition: all 0.25s ease;
         }
 
-        input[type="number"]:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--borda-hover);
-            background: rgba(214, 160, 76, 0.06);
+            background: rgba(214,160,76,0.06);
         }
 
-        .toggle-status {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .toggle-btn {
-            padding: 8px 12px;
-            border: 1px solid var(--borda);
-            background: rgba(255, 255, 255, 0.04);
-            color: #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.25s ease;
-            font-weight: 500;
-        }
-
-        .toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--borda-hover);
-        }
-
-        .toggle-btn.ativo {
+        .btn-criar {
+            width: 100%;
+            padding: 13px;
             background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
             color: #1a1200;
-            border-color: transparent;
-        }
-
-        .galeria-acoes {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--raio-sm);
+            cursor: pointer;
             font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+        }
+
+        .btn-criar:hover {
+            transform:translateY(-2px);
+            box-shadow:0 10px 24px rgba(214,160,76,0.3);
+        }
+
+        .btn-criar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform:none;
+            box-shadow:none;
+        }
+
+        /* ===== ABA 3: UPLOAD DE FOTOS ===== */
+        .campo-simples{
+            margin-bottom: 20px;
+        }
+
+        .campo-simples label{
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .campo-simples input{
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--borda);
+            color: #fff;
+            border-radius: var(--raio-sm);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .campo-simples input:focus{
+            outline: none;
+            border-color: var(--borda-hover);
+            background: rgba(214,160,76,0.06);
+        }
+
+        #uploadArea {
+            border: 2px dashed var(--borda);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
             cursor: pointer;
             transition: all 0.25s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
-            color: #1a1200;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(214, 160, 76, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.04);
-            color: #ddd;
-            border: 1px solid var(--borda);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--borda-hover);
-        }
-
-        .btn-pequeno {
-            padding: 6px 10px;
-            font-size: 11px;
-        }
-
-        .mensagem {
-            padding: 14px 16px;
-            border-radius: var(--raio-sm);
+            background: rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            display: none;
-            font-size: 13px;
         }
 
-        .mensagem.sucesso {
-            background: rgba(76, 175, 80, 0.15);
-            color: #8fd39a;
-            border-left: 3px solid #4caf50;
+        #uploadArea:hover,
+        #uploadArea.arrastando {
+            border-color: var(--ouro);
+            background: rgba(214,160,76,0.06);
         }
 
-        .mensagem.erro {
-            background: rgba(244, 67, 54, 0.15);
-            color: #ff8a80;
-            border-left: 3px solid #f44336;
-        }
-
-        .mensagem.mostrar {
-            display: block;
-        }
-
-        .vazio {
-            text-align: center;
-            padding: 60px 20px;
+        #uploadArea p {
             color: var(--texto-mudo);
+            margin: 0;
         }
 
-        .vazio-icon {
-            font-size: 48px;
+        #uploadArea .upload-icon {
+            font-size: 36px;
             margin-bottom: 12px;
         }
 
-        /* Modal de fotos */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.25s ease;
+        .fotosPreview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        .modal.ativo {
+        .preview-foto {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--borda);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .preview-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-status {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .preview-status.enviando {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .preview-foto.ignorado {
+            opacity: 0.55;
+        }
+
+        .preview-foto.ignorado .preview-status {
+            background: rgba(120, 30, 30, 0.85);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn-enviar {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--ouro-claro), var(--ouro-escuro));
+            color: #1a1200;
+            border: none;
+            border-radius: var(--raio-sm);
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+        }
+
+        .btn-enviar:hover {
+            transform:translateY(-2px);
+            box-shadow:0 10px 24px rgba(214,160,76,0.3);
+        }
+
+        .btn-enviar:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== MENSAGENS PADRONIZADAS ===== */
+        .msg {
+            padding: 14px 18px;
+            border-radius: var(--raio-sm);
+            margin-top: 16px;
+            display: none;
+            font-weight: 500;
+            border: 1px solid transparent;
+            animation: slideIn 0.3s ease;
+        }
+
+        .msg.mostrar {
+            display: block;
+        }
+
+        .msg-sucesso {
+            background: rgba(76, 175, 80, 0.15);
+            border-color: #4caf50;
+            color: #8fd39a;
+        }
+
+        .msg-erro {
+            background: rgba(244, 67, 54, 0.15);
+            border-color: #f44336;
+            color: #ff8a80;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .listaVazia {
+            text-align: center;
+            padding: 40px;
+            color: var(--texto-mudo);
+        }
+
+        /* Modal para visualizar fotos */
+        .modal-fotos {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-fotos.ativo {
             display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @keyframes fadeIn {
@@ -469,181 +593,769 @@
         }
 
         .modal-conteudo {
-            background: var(--vidro-alt);
+            background: var(--vidro-alt, rgba(22,22,22,0.95));
             border: 1px solid var(--borda);
-            border-radius: var(--raio);
+            border-radius: 12px;
+            padding: 30px;
             max-width: 90vw;
             max-height: 90vh;
-            overflow: auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            overflow-y: auto;
+            position: relative;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 1px solid var(--borda);
         }
 
-        .modal-header h2 {
+        .modal-title {
             font-size: 18px;
+            font-weight: 600;
             color: var(--ouro-claro);
         }
 
-        .modal-fechar {
-            width: 32px;
-            height: 32px;
+        .modal-close {
+            background: none;
             border: none;
-            background: rgba(255, 255, 255, 0.04);
+            font-size: 24px;
             color: #fff;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 18px;
-            transition: all 0.25s ease;
+            transition: color 0.25s ease;
         }
 
-        .modal-fechar:hover {
-            background: rgba(255, 255, 255, 0.08);
+        .modal-close:hover {
+            color: var(--ouro);
         }
 
-        .fotos-grid {
+        .modal-fotos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
         }
 
-        .foto-card {
+        .modal-foto-item {
+            position: relative;
             aspect-ratio: 1;
             border-radius: 8px;
             overflow: hidden;
-            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--borda);
-            cursor: pointer;
-            transition: all 0.25s ease;
         }
 
-        .foto-card:hover {
-            transform: scale(1.02);
-            border-color: var(--borda-hover);
-        }
-
-        .foto-card img {
+        .modal-foto-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.25s ease;
         }
 
-        @media (max-width: 1024px) {
-            .galerias-grid {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            }
+        .modal-foto-item:hover img {
+            transform: scale(1.1);
         }
 
-        @media (max-width: 768px) {
-            .faixa {
-                width: 60px;
-                padding: 12px 0;
-                gap: 8px;
-            }
+        .btn-excluir-foto {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            left: 6px;
+            padding: 6px;
+            background: rgba(150, 20, 20, 0.9);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
 
-            .faixa-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 18px;
-            }
+        .modal-foto-item:hover .btn-excluir-foto {
+            opacity: 1;
+        }
 
-            .faixa-logo {
-                width: 44px;
-                height: 44px;
-            }
-
-            .cabecalho {
-                padding: 16px 20px;
-            }
-
-            .cabecalho-titulo h1 {
-                font-size: 22px;
-            }
-
-            .conteudo-area {
-                padding: 16px 20px;
-            }
-
-            .galerias-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .galeria-info {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-conteudo {
-                max-width: 95vw;
-                max-height: 95vh;
-                padding: 16px;
-            }
-
-            .fotos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            }
+        .btn-excluir-foto:hover {
+            background: rgba(190, 30, 30, 1);
         }
     </style>
+    <!-- Tema final carregado por último para padronizar a página de álbuns -->
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-galerias-site-theme.css?v=20260814-site-theme2">
 </head>
 <body>
+    <!-- Cabeçalho com a mesma linguagem visual do Site principal -->
+    <header class="admin-topo" id="adminTopo">
+        <a class="admin-logo" href="index.html" aria-label="Motazt Studio — Galeria pública">
+            <img src="img/logo-branco.png" alt="Motazt Studio">
+            <h1>Motazt Studio</h1>
+        </a>
 
-<div class="app-shell">
+        <nav class="admin-menu" id="adminMenu" aria-label="Navegação do painel">
+            <a href="index.html"><i data-lucide="grid-3x3"></i> Galeria pública</a>
+            <a class="ativo" href="admin-galerias.html"><i data-lucide="images"></i> Álbuns privados</a>
+            <a href="#tabUpload" onclick="mudarAba('upload', document.querySelectorAll('.tab-btn')[2]); return false;"><i data-lucide="upload"></i> Enviar fotos</a>
+        </nav>
 
-    <!-- FAIXA LATERAL -->
-    <aside class="faixa">
-        <div class="faixa-logo">📸</div>
-        <div class="faixa-linha"></div>
-        <a class="faixa-btn faixa-btn--ativo" href="admin-galerias.html" title="Galerias">📸</a>
-        <a class="faixa-btn" href="index.html" title="Site">🏠</a>
-        <div class="faixa-espaco"></div>
-        <button class="faixa-btn faixa-btn--sair" onclick="fazerLogout()" title="Sair">⎋</button>
-    </aside>
+        <div class="admin-menu-right">
+            <button class="admin-sair" type="button" onclick="logout()"><i data-lucide="log-out"></i><span>Sair</span></button>
+            <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Abrir menu" aria-expanded="false"><i data-lucide="menu"></i></button>
+        </div>
+    </header>
 
-    <!-- CONTEÚDO -->
-    <div class="conteudo">
-        <header class="cabecalho">
-            <div class="cabecalho-titulo">
-                <h1>Gerenciador de Galerias</h1>
-                <p>Ative, desative e gerencie as galerias privadas dos clientes</p>
+    <div class="app-shell">
+
+        <!-- ===== FAIXA LATERAL PADRONIZADA ===== -->
+        <aside class="faixa">
+            <div class="faixa-logo"><img src="img/logo.png" alt="Logo"></div>
+            <div class="faixa-linha"></div>
+            <a class="faixa-btn" href="index.html" title="Galeria pública"><i data-lucide="grid-3x3"></i></a>
+            <a class="faixa-btn faixa-btn--ativo" href="admin-galerias.html" title="Álbuns privados"><i data-lucide="images"></i></a>
+            <div class="faixa-espaco"></div>
+            <button class="faixa-btn faixa-btn--sair" onclick="logout()" title="Sair"><i data-lucide="log-out"></i></button>
+        </aside>
+
+        <nav class="bottom-nav" aria-label="Navegação principal">
+            <a class="bottom-nav-item" href="index.html" aria-label="Galeria pública"><i data-lucide="grid-3x3" class="bottom-nav-icon"></i></a>
+            <a class="bottom-nav-item ativo" href="admin-galerias.html" aria-label="Álbuns privados"><i data-lucide="images" class="bottom-nav-icon"></i></a>
+            <a class="bottom-nav-item" href="#tabUpload" onclick="mudarAba('upload', document.querySelectorAll('.tab-btn')[2]); return false;" aria-label="Enviar fotos"><i data-lucide="upload" class="bottom-nav-icon"></i></a>
+            <button class="bottom-nav-item" type="button" onclick="logout()" aria-label="Sair"><i data-lucide="log-out" class="bottom-nav-icon"></i></button>
+        </nav>
+
+        <!-- Conteúdo -->
+        <main class="conteudo">
+
+            <h1>Álbuns privados</h1>
+
+            <!-- Abas -->
+            <div class="tabs">
+                <button class="tab-btn ativo" onclick="mudarAba('listar', this)"><i data-lucide="layout-grid"></i> Listar álbuns</button>
+                <button class="tab-btn" onclick="mudarAba('criar', this)"><i data-lucide="folder-plus"></i> Criar álbum</button>
+                <button class="tab-btn" onclick="mudarAba('upload', this)"><i data-lucide="upload"></i> Enviar fotos</button>
             </div>
-        </header>
 
-        <div class="conteudo-area">
-            <div id="msgGeral" class="mensagem"></div>
-
-            <div id="listaGalerias" class="galerias-grid"></div>
-            <div id="galeriaVazia" class="vazio" style="display: none;">
-                <div class="vazio-icon">📸</div>
-                <p>Nenhuma galeria criada ainda</p>
+            <!-- ===== ABA 1: LISTAR GALERIAS ===== -->
+            <div id="tabListar" class="tab-content ativo">
+                <div id="listaVazia" class="listaVazia" style="display:none;">
+                    <p>Nenhuma galeria criada ainda</p>
+                </div>
+                <div id="listaGalerias" class="galerias-list"></div>
             </div>
+
+            <!-- ===== ABA 2: CRIAR GALERIA ===== -->
+            <div id="tabCriar" class="tab-content">
+                <div class="form-criar">
+                        <h2 style="margin-top:0; color:var(--ouro-claro);">Criar novo álbum</h2>
+
+                    <div class="form-group">
+                        <label>Nome do Cliente</label>
+                        <input type="text" id="criarClienteNome" placeholder="Ex: João Silva">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Título da Galeria</label>
+                        <input type="text" id="criarTitulo" placeholder="Ex: Ensaio de Aniversário, Casamento na Praia">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Telefone do Cliente</label>
+                        <input type="tel" id="criarClienteTelefone" placeholder="(73) 98165-6986" autocomplete="tel">
+                    </div>
+
+                    <button class="btn-criar" onclick="criarNovaGaleria()">Criar álbum privado</button>
+
+                    <div id="msgCriar" class="msg"></div>
+                </div>
+            </div>
+
+                        <!-- ===== ABA 3: UPLOAD ===== -->
+            <div id="tabUpload" class="tab-content">
+                <div class="campo-simples">
+                    <label>ID da Galeria</label>
+                    <input type="text" id="uploadGaleriaId" placeholder="Cole o ID da galeria aqui">
+                </div>
+
+                <div id="uploadArea" onclick="document.getElementById('inputArquivos').click()">
+                    <div class="upload-icon"><i data-lucide="image-plus"></i></div>
+                    <p><strong>Clique para selecionar</strong> ou arraste fotos aqui</p>
+                </div>
+
+                <input type="file" id="inputArquivos" multiple accept="image/*"
+                       onchange="selecionarFotos(event)" style="display:none;">
+
+                <div id="fotosPreview" class="fotosPreview"></div>
+
+                <button class="btn-enviar" id="btnEnviarFotos" onclick="enviarFotos()" disabled>
+                    Enviar Fotos
+                </button>
+
+                <div id="msgUpload" class="msg"></div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Modal para visualizar fotos -->
+    <div id="modalFotos" class="modal-fotos">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <div class="modal-title">Fotos da Galeria</div>
+                <button class="modal-close" onclick="fecharModalFotos()" aria-label="Fechar"><i data-lucide="x"></i></button>
+            </div>
+            <div id="modalFotosGrid" class="modal-fotos-grid"></div>
         </div>
     </div>
 
-</div>
+    <!-- Scripts necessários -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="galerias-sistema-completo.js?v=20260814-galerias1"></script>
 
-<!-- MODAL DE FOTOS -->
-<div id="modalFotos" class="modal">
-    <div class="modal-conteudo">
-        <div class="modal-header">
-            <h2 id="modalTitulo">Fotos da Galeria</h2>
-            <button class="modal-fechar" onclick="fecharModalFotos()">✕</button>
-        </div>
-        <div id="modalFotosGrid" class="fotos-grid"></div>
-    </div>
-</div>
+    <script>
+        // Inicializar cliente admin (ajustar conforme sua config)
+        const adminSupabaseClient = supabaseClient; // usar o cliente do galerias-sistema-completo.js
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/galerias-sistema-completo.js"></script>
-<script src="js/admin-galerias.js"></script>
+        let fotosParaEnviar = [];
+
+        // ===== NAVEGAÇÃO ENTRE ABAS =====
+        function mudarAba(tab, botao) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('ativo'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('ativo'));
+            
+            if (botao) botao.classList.add('ativo');
+            document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('ativo');
+
+            if (tab === 'listar') {
+                carregarGalerias();
+            }
+        }
+
+        // ===== ABA 1: LISTAR GALERIAS =====
+        async function carregarGalerias() {
+            try {
+                const { data: galerias, error } = await adminSupabaseClient
+                    .from('galerias')
+                    .select('*')
+                    .order('data_criacao', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('listaGalerias');
+                const vazio = document.getElementById('listaVazia');
+
+                if (!galerias || galerias.length === 0) {
+                    container.innerHTML = '';
+                    vazio.style.display = 'block';
+                    return;
+                }
+
+                vazio.style.display = 'none';
+
+                container.innerHTML = galerias.map(gal => {
+                    const expiracao = new Date(gal.data_expiracao);
+                    const dias = Math.ceil((expiracao - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    // Extrair primeiro nome do cliente
+                    const nomeCliente = gal.cliente_nome || gal.nome || 'Cliente';
+                    const primeiroNome = nomeCliente.split(' ')[0];
+
+                    return `
+                        <div class="galeria-item">
+                            <div class="galeria-header-item">
+                                <div>
+                                    <div class="galeria-nome">${gal.titulo || primeiroNome}</div>
+                                    <div class="galeria-id">ID: ${gal.id.substring(0, 12)}...</div>
+                                </div>
+                                <span class="galeria-status ${gal.status}">${gal.status.toUpperCase()}</span>
+                            </div>
+
+                            <div class="galeria-info">
+                                <div class="info-item">
+                                    <div class="info-label">Fotos</div>
+                                    <div class="info-value" id="total-fotos-${gal.id}">--</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Criada em</div>
+                                    <div class="info-value">${new Date(gal.data_criacao).toLocaleDateString('pt-BR')}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Validade</div>
+                                    <div class="info-value">${dias} dias</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Telefone</div>
+                                    <div class="info-value">${gal.cliente_telefone || gal.telefone || '—'}</div>
+                                </div>
+                            </div>
+
+                            <!-- Controles de ativação e dias -->
+                            <div class="galeria-controls">
+                                <div class="control-group">
+                                    <label>Status</label>
+                                    <select id="status-${gal.id}" onchange="atualizarStatusGaleria('${gal.id}', this.value)">
+                            <option value="ativa" ${gal.status === 'ativa' ? 'selected' : ''}>Ativa</option>
+                            <option value="bloqueada" ${gal.status === 'bloqueada' ? 'selected' : ''}>Bloqueada</option>
+                            <option value="expirada" ${gal.status === 'expirada' ? 'selected' : ''}>Expirada</option>
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <label>Dias válida</label>
+                                    <input type="number" id="dias-${gal.id}" min="1" max="365" value="${dias}">
+                                </div>
+                                <button class="btn-salvar-control" onclick="atualizarDiasGaleria('${gal.id}')">Salvar</button>
+                            </div>
+
+                            <!-- Galeria de fotos -->
+                            <div class="galeria-fotos">
+                                    <label class="fotos-label"><i data-lucide="images"></i> Fotos armazenadas</label>
+                                <div id="fotos-${gal.id}" class="fotos-grid">
+                                    <div class="fotos-vazio">Carregando...</div>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button class="btn-acao" onclick="abrirModalFotos('${gal.id}')">Abrir galeria</button>
+                                </div>
+                            </div>
+
+                            <div class="galeria-actions">
+                                <button class="btn-acao" onclick="copiarIdGaleria('${gal.id}')"><i data-lucide="copy"></i> Copiar ID</button>
+                                <button class="btn-acao" onclick="abrirLink('${gal.id}')"><i data-lucide="external-link"></i> Ver link</button>
+                                <button class="btn-acao btn-danger" onclick="deletarGaleria('${gal.id}')"><i data-lucide="trash-2"></i> Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                window.lucide?.createIcons();
+
+                // Carregar fotos de cada galeria
+                galerias.forEach(gal => carregarFotosDaGaleria(gal.id));
+
+            } catch (erro) {
+                console.error('Erro ao carregar galerias:', erro);
+            }
+        }
+
+        // ===== CARREGAR FOTOS DA GALERIA =====
+        async function carregarFotosDaGaleria(galeriaId) {
+            try {
+                const { data: fotos, error } = await adminSupabaseClient
+                    .from('fotos')
+                    .select('*')
+                    .eq('galeria_id', galeriaId)
+                    .order('posicao', { ascending: true });
+
+                if (error) throw error;
+
+                const container = document.getElementById(`fotos-${galeriaId}`);
+                const totalElement = document.getElementById(`total-fotos-${galeriaId}`);
+
+                // Atualizar contador
+                if (totalElement) {
+                    totalElement.textContent = fotos?.length || 0;
+                }
+
+                if (!fotos || fotos.length === 0) {
+                    container.innerHTML = '<div class="fotos-vazio">Nenhuma foto</div>';
+                    return;
+                }
+
+                // Mostrar apenas 4 primeiras fotos como preview
+                container.innerHTML = fotos.slice(0, 4).map(foto => `
+                    <div class="foto-thumb">
+                        <img src="${foto.arquivo_preview}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                        ${foto.favorita ? '<div class="foto-favorita">⭐</div>' : ''}
+                    </div>
+                `).join('');
+
+                if (fotos.length > 4) {
+                    container.innerHTML += `<div style="grid-column: 1/-1; text-align: center; padding: 10px; color: var(--texto-mudo); font-size: 12px;">+${fotos.length - 4} mais</div>`;
+                }
+
+            } catch (erro) {
+                console.error('Erro ao carregar fotos:', erro);
+                const container = document.getElementById(`fotos-${galeriaId}`);
+                if (container) {
+                    container.innerHTML = '<div class="fotos-vazio">Erro ao carregar</div>';
+                }
+            }
+        }
+
+        // ===== MODAL DE FOTOS =====
+        let galeriaAbertaNoModal = null;
+
+        async function abrirModalFotos(galeriaId) {
+            galeriaAbertaNoModal = galeriaId;
+            await recarregarModalFotos();
+            document.getElementById('modalFotos').classList.add('ativo');
+        }
+
+        async function recarregarModalFotos() {
+            try {
+                const { data: fotos, error } = await adminSupabaseClient
+                    .from('fotos')
+                    .select('*')
+                    .eq('galeria_id', galeriaAbertaNoModal)
+                    .order('posicao', { ascending: true });
+
+                if (error) throw error;
+
+                const grid = document.getElementById('modalFotosGrid');
+
+                if (!fotos || fotos.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--texto-mudo);">Nenhuma foto nesta galeria</div>';
+                } else {
+                    grid.innerHTML = fotos.map(foto => `
+                        <div class="modal-foto-item">
+                            <img src="${foto.arquivo_preview}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                            <button class="btn-excluir-foto" onclick="excluirFotoModal('${foto.id}', '${foto.arquivo_original}')" title="Excluir foto">Excluir</button>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (erro) {
+                console.error('Erro:', erro);
+            }
+        }
+
+        async function excluirFotoModal(fotoId, arquivoOriginal) {
+            if (!confirm('Excluir esta foto? Essa ação não pode ser desfeita.')) return;
+
+            try {
+                const sucesso = await GaleriaPrivada.deletarFoto(fotoId, arquivoOriginal);
+                if (!sucesso) {
+                    alert('Erro ao excluir a foto. Tente novamente.');
+                    return;
+                }
+
+                await recarregarModalFotos();
+                if (galeriaAbertaNoModal) {
+                    carregarFotosDaGaleria(galeriaAbertaNoModal);
+                }
+            } catch (erro) {
+                console.error('Erro ao excluir foto:', erro);
+                alert('Erro ao excluir a foto. Tente novamente.');
+            }
+        }
+
+        function fecharModalFotos() {
+            document.getElementById('modalFotos').classList.remove('ativo');
+            galeriaAbertaNoModal = null;
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('modalFotos')?.addEventListener('click', function(e) {
+            if (e.target === this) fecharModalFotos();
+        });
+
+        // ===== ATUALIZAR STATUS =====
+        async function atualizarStatusGaleria(galeriaId, novoStatus) {
+            try {
+                const { error } = await adminSupabaseClient
+                    .from('galerias')
+                    .update({ status: novoStatus })
+                    .eq('id', galeriaId);
+
+                if (error) throw error;
+                
+                console.log(`Galeria ${galeriaId} atualizada para ${novoStatus}`);
+                carregarGalerias();
+
+            } catch (erro) {
+                console.error('Erro ao atualizar status:', erro);
+                alert('Erro ao atualizar status');
+            }
+        }
+
+        // ===== ATUALIZAR DIAS DE VALIDADE =====
+        async function atualizarDiasGaleria(galeriaId) {
+            try {
+                const diasInput = document.getElementById(`dias-${galeriaId}`);
+                const dias = parseInt(diasInput.value);
+
+                if (dias < 1 || dias > 365) {
+                    alert('Digite um número entre 1 e 365');
+                    return;
+                }
+
+                // Buscar data atual de criação
+                const { data: galeria, error: erroGet } = await adminSupabaseClient
+                    .from('galerias')
+                    .select('data_criacao')
+                    .eq('id', galeriaId)
+                    .single();
+
+                if (erroGet) throw erroGet;
+
+                // Calcular nova data de expiração
+                const dataCriacao = new Date(galeria.data_criacao);
+                const dataExpiracao = new Date(dataCriacao);
+                dataExpiracao.setDate(dataExpiracao.getDate() + dias);
+
+                // Atualizar
+                const { error } = await adminSupabaseClient
+                    .from('galerias')
+                    .update({ data_expiracao: dataExpiracao.toISOString() })
+                    .eq('id', galeriaId);
+
+                if (error) throw error;
+
+                alert(`Galeria válida por ${dias} dias`);
+                carregarGalerias();
+
+            } catch (erro) {
+                console.error('Erro ao atualizar dias:', erro);
+                alert('Erro ao atualizar');
+            }
+        }
+
+        // ===== AÇÕES ÚTEIS =====
+        function copiarIdGaleria(id) {
+            navigator.clipboard.writeText(id);
+            alert('ID copiado!');
+        }
+
+        function abrirLink(id) {
+            // Usa o domínio atual ou rota limpa
+            const sitePublico = window.MOTAZT_SITE_URL || 'https://motazt-studio.vercel.app';
+            const link = `${sitePublico}/galeria-privada?id=${encodeURIComponent(id)}`;
+            window.open(link, '_blank', 'noopener,noreferrer');
+        }
+
+        async function deletarGaleria(id) {
+            if (!confirm('Deletar galeria e todas as suas fotos?')) return;
+
+            try {
+                // Deletar fotos do storage
+                const { data: fotos } = await adminSupabaseClient
+                    .from('fotos')
+                    .select('arquivo_original')
+                    .eq('galeria_id', id);
+
+                if (fotos && fotos.length > 0) {
+                    const arquivos = fotos.map(f => f.arquivo_original);
+                    await adminSupabaseClient.storage.from('fotos').remove(arquivos);
+                }
+
+                // Deletar registros de fotos
+                await adminSupabaseClient
+                    .from('fotos')
+                    .delete()
+                    .eq('galeria_id', id);
+
+                // Deletar galeria
+                const { error } = await adminSupabaseClient
+                    .from('galerias')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                alert('Álbum excluído.');
+                carregarGalerias();
+            } catch (erro) {
+                console.error('Erro:', erro);
+                alert('Erro ao deletar');
+            }
+        }
+
+        // ===== ABA 2: CRIAR GALERIA =====
+        async function criarNovaGaleria() {
+            const nome = document.getElementById('criarClienteNome').value.trim();
+            const telefone = document.getElementById('criarClienteTelefone').value.trim();
+            const titulo = document.getElementById('criarTitulo').value.trim();
+            const msg = document.getElementById('msgCriar');
+
+            if (!nome || !telefone) {
+                mostrarMensagem(msg, 'Preencha pelo menos Nome e Telefone', 'erro');
+                return;
+            }
+
+            try {
+                // A tabela privada real do banco é public.galerias.
+                // A criação é feita diretamente nela para não depender de RPC/cache.
+                const resultadoDireto = await adminSupabaseClient
+                    .from('galerias')
+                    .insert({
+                        cliente_nome: nome,
+                        cliente_telefone: telefone,
+                        titulo: titulo || null,
+                        status: 'ativa',
+                        total_fotos: 0,
+                        data_criacao: new Date().toISOString(),
+                        data_expiracao: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                    })
+                    .select('id')
+                    .single();
+
+                if (resultadoDireto.error) {
+                    throw new Error(`Galerias: ${resultadoDireto.error.message}`);
+                }
+
+                const galeriaId = resultadoDireto.data?.id;
+                if (!galeriaId) throw new Error('O banco não retornou o ID do álbum.');
+
+                mostrarMensagem(msg, `Álbum criado. ID: ${galeriaId}`, 'sucesso');
+
+                document.getElementById('criarClienteNome').value = '';
+                document.getElementById('criarClienteTelefone').value = '';
+                document.getElementById('criarTitulo').value = '';
+
+                setTimeout(() => msg.classList.remove('mostrar'), 6000);
+
+            } catch (erro) {
+                console.error('Erro:', erro);
+                mostrarMensagem(msg, 'Erro ao criar álbum: ' + (erro.message || 'tente novamente'), 'erro');
+            }
+        }
+
+        // ===== ABA 3: UPLOAD =====
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('arrastando');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('arrastando');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('arrastando');
+            const files = e.dataTransfer.files;
+            document.getElementById('inputArquivos').files = files;
+            selecionarFotos({ target: { files } });
+        });
+
+        function selecionarFotos(event) {
+            fotosParaEnviar = Array.from(event.target.files);
+
+            const preview = document.getElementById('fotosPreview');
+            preview.innerHTML = fotosParaEnviar.map((foto) => `
+                <div class="preview-foto">
+                    <img src="${URL.createObjectURL(foto)}" alt="">
+                    <div class="preview-status">Pronto</div>
+                </div>
+            `).join('');
+
+            document.getElementById('btnEnviarFotos').disabled = fotosParaEnviar.length === 0;
+        }
+
+        async function enviarFotos() {
+            const galeriaId = document.getElementById('uploadGaleriaId').value.trim();
+            const msg = document.getElementById('msgUpload');
+
+            if (!galeriaId) {
+                mostrarMensagem(msg, 'Digite o ID da galeria', 'erro');
+                return;
+            }
+
+            if (fotosParaEnviar.length === 0) {
+                mostrarMensagem(msg, 'Selecione fotos para enviar', 'erro');
+                return;
+            }
+
+            const btn = document.getElementById('btnEnviarFotos');
+            btn.disabled = true;
+            btn.textContent = `Enviando ${fotosParaEnviar.length} foto(s)...`;
+
+            let enviadas = 0;
+            let erros = 0;
+            const previews = document.querySelectorAll('.preview-foto');
+
+            for (const [idx, foto] of fotosParaEnviar.entries()) {
+                try {
+                    previews[idx].querySelector('.preview-status').classList.add('enviando');
+                    previews[idx].querySelector('.preview-status').textContent = 'Enviando...';
+
+                    await GaleriaPrivada.uploadFoto(galeriaId, foto, true);
+
+                    previews[idx].querySelector('.preview-status').classList.remove('enviando');
+                    previews[idx].querySelector('.preview-status').textContent = 'Pronto!';
+                    enviadas++;
+
+                } catch (erro) {
+                    console.error('Erro no upload:', erro);
+                    previews[idx].querySelector('.preview-status').classList.add('erro');
+                    previews[idx].querySelector('.preview-status').textContent = 'Erro';
+                    erros++;
+                }
+            }
+
+            const mensagem = `${enviadas} foto(s) enviadas com sucesso!${erros > 0 ? ` ${erros} erro(s).` : ''}`;
+            mostrarMensagem(msg, mensagem, erros === 0 ? 'sucesso' : 'erro');
+
+            btn.disabled = false;
+            btn.textContent = 'Enviar Fotos';
+
+            fotosParaEnviar = [];
+            document.getElementById('fotosPreview').innerHTML = '';
+            document.getElementById('inputArquivos').value = '';
+
+            setTimeout(() => msg.classList.remove('mostrar'), 6000);
+        }
+
+        // ===== UTILITÁRIO DE MENSAGENS =====
+        function mostrarMensagem(elemento, texto, tipo = 'sucesso') {
+            elemento.textContent = texto;
+            elemento.className = 'msg';
+            elemento.classList.add('mostrar');
+            elemento.classList.add(tipo === 'sucesso' ? 'msg-sucesso' : 'msg-erro');
+        }
+
+        // ===== LOGOUT =====
+        async function logout() {
+            try {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            } catch (e) {
+                console.error('Erro ao sair:', e);
+                alert('Erro ao sair. Tente novamente.');
+            }
+        }
+
+        // Configure esta variável se o site público estiver em outro domínio:
+        // window.MOTAZT_SITE_URL = 'https://seu-dominio.com';
+
+        // ===== VERIFICAR AUTENTICAÇÃO AO ABRIR =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data: { session }, error } = await adminSupabaseClient.auth.getSession();
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                carregarGalerias();
+            } catch (e) {
+                console.error('Erro de sessão:', e);
+                window.location.href = 'login.html';
+            }
+        });
+        // ===== COMPORTAMENTO DO CABEÇALHO DO SITE PRINCIPAL =====
+        const adminTopo = document.getElementById('adminTopo');
+        const adminMenu = document.getElementById('adminMenu');
+        const adminMenuToggle = document.getElementById('adminMenuToggle');
+
+        window.addEventListener('scroll', () => {
+            adminTopo?.classList.toggle('rolou', window.scrollY > 40);
+        }, { passive: true });
+
+        adminMenuToggle?.addEventListener('click', () => {
+            const aberto = adminMenu?.classList.toggle('aberto') || false;
+            adminMenuToggle.setAttribute('aria-expanded', String(aberto));
+            adminMenuToggle.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+        });
+
+        adminMenu?.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                adminMenu.classList.remove('aberto');
+                adminMenuToggle?.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => window.lucide?.createIcons());
+    </script>
 
 </body>
 </html>

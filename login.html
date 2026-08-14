@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Login Admin | Motazt Studio
+    </title>
+
+    <!-- GOOGLE FONTS -->
+
+    <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com">
+
+    <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin>
+
+    <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap"
+    rel="stylesheet">
+
+    <!-- FONT AWESOME -->
+
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- CSS -->
+
+    <link
+    rel="stylesheet"
+    href="style.css">
+
+    <!-- SUPABASE -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JS -->
+
+    <script
+    src="script.js"
+    defer></script>
+
+</head>
+
+<body>
+
+    <!-- LOGIN -->
+
+    <section class="login-section">
+
+        <!-- OVERLAY -->
+
+        <div class="overlay"></div>
+
+        <!-- BOX -->
+
+        <div class="login-box">
+
+            <h1>
+                Motazt Studio
+            </h1>
+
+            <h2>
+                Painel Administrativo
+            </h2>
+
+            <p class="descricao">
+
+                Entre para gerenciar
+                as fotos da galeria.
+
+            </p>
+
+            <!-- EMAIL -->
+
+            <input
+            type="email"
+            id="email"
+            placeholder="Digite seu email">
+
+            <!-- SENHA -->
+
+            <input
+            type="password"
+            id="senha"
+            placeholder="Digite sua senha">
+
+            <!-- BOTÃO LOGIN -->
+
+            <button onclick="login()">
+
+                Entrar
+
+            </button>
+
+            <!-- BOTÃO RESET -->
+
+            <button
+            class="btn-reset"
+            onclick="redefinirSenha()">
+
+                Redefinir Senha
+
+            </button>
+
+            <!-- STATUS -->
+
+            <p id="status"></p>
+
+        </div>
+
+    </section>
+
+    <script>
+        window.addEventListener("error", function(e){
+            var status = document.getElementById("status");
+            if(status){
+                status.innerHTML = "Erro: " + e.message;
+                status.style.color = "red";
+            }
+        });
+    </script>
+
+</body>
+</html>

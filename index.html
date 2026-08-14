@@ -1,250 +1,235 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Motaz Studio — Fotografia profissional e artística para casamentos, ensaios e eventos. Portfólio premium com galeria interativa.">
-    <meta name="theme-color" content="#050505">
-    <title>Motaz Studio — Fotografia Profissional</title>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon-180.png">
+<meta charset="UTF-8">
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Motaz Studio — Fotografia Profissional">
-    <meta property="og:description" content="Fotografia profissional e artística para casamentos, ensaios e eventos. Portfólio premium com galeria interativa.">
-    <meta property="og:image" content="img/og-image.jpg">
-    <meta property="og:locale" content="pt_BR">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Motaz Studio — Fotografia Profissional">
-    <meta name="twitter:description" content="Fotografia profissional e artística para casamentos, ensaios e eventos.">
-    <meta name="twitter:image" content="img/og-image.jpg">
+<title>
+Admin | Motazt Studio
+</title>
 
-    <!-- Fonte -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-chatbot.css">
-    <!-- Ícones -->
-    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Supabase -->
-    <link rel="preconnect" href="https://tbwmsgztpyyratambgqs.supabase.co">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js" defer></script>
-    <!-- Sistema de Galerias (Requerido pelo Chatbot) -->
-    <script src="js/galerias-sistema-completo.js" defer></script>
-    <!-- Chatbot v5.2 -->
-    <script src="js/chatbot-v4.js" defer></script>
+<link
+rel="stylesheet"
+href="admin.css">
+
+<link
+rel="stylesheet"
+href="admin-galerias-site-theme.css?v=20260814-site-theme2">
+
+<link
+rel="stylesheet"
+href="admin-public-gallery-masonry.css?v=20260814-masonry1">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
+
 <body>
 
-    <!-- HEADER / NAVBAR -->
-    <header class="topo" id="topo">
-        <div class="logo">
-            <img src="img/logo-branco.png" alt="Logo Motaz Studio">
-            <h1>Motaz Studio</h1>
+<!-- CABEÇALHO PRINCIPAL NO PADRÃO DOS ÁLBUNS PRIVADOS -->
+<header class="admin-topo" id="adminTopo">
+    <a class="admin-logo" href="index.html" aria-label="Motazt Studio — Galeria pública">
+        <img src="img/logo-branco.png" alt="Motazt Studio">
+        <h1>Motazt Studio</h1>
+    </a>
+
+    <nav class="admin-menu" id="adminMenu" aria-label="Navegação do painel">
+        <a class="ativo" href="index.html"><i data-lucide="grid-3x3"></i> Galeria pública</a>
+        <a href="admin-galerias.html"><i data-lucide="images"></i> Álbuns privados</a>
+        <a href="#modalUpload" onclick="abrirModalUpload(); return false;"><i data-lucide="upload"></i> Enviar fotos</a>
+        <a href="#modalUploadDestaque" onclick="abrirModalUploadDestaque(); return false;"><i data-lucide="sparkles"></i> Momentos capturados</a>
+    </nav>
+
+    <div class="admin-menu-right">
+        <button class="admin-sair" type="button" onclick="logout()"><i data-lucide="log-out"></i><span>Sair</span></button>
+        <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Abrir menu" aria-expanded="false"><i data-lucide="menu"></i></button>
+    </div>
+</header>
+
+<div class="app-shell">
+
+<!-- FAIXA LATERAL -->
+<aside class="faixa">
+    <div class="faixa-logo"><img src="img/logo.png" alt="Logo"></div>
+    <div class="faixa-linha"></div>
+    <a class="faixa-btn faixa-btn--ativo" href="index.html" title="Galeria pública"><i data-lucide="grid-3x3"></i></a>
+    <a class="faixa-btn" href="admin-galerias.html" title="Álbuns privados"><i data-lucide="images"></i></a>
+    <button class="faixa-btn" onclick="abrirModalUpload()" title="Enviar fotos"><i data-lucide="upload"></i></button>
+    <button class="faixa-btn" onclick="abrirModalUploadDestaque()" title="Gerenciar momentos capturados"><i data-lucide="sparkles"></i></button>
+    <div class="faixa-espaco"></div>
+    <button class="faixa-btn faixa-btn--sair" onclick="logout()" title="Sair"><i data-lucide="log-out"></i></button>
+</aside>
+
+<nav class="bottom-nav" aria-label="Navegação principal">
+    <a class="bottom-nav-item ativo" href="index.html" aria-label="Galeria pública"><i data-lucide="grid-3x3" class="bottom-nav-icon"></i></a>
+    <a class="bottom-nav-item" href="admin-galerias.html" aria-label="Álbuns privados"><i data-lucide="images" class="bottom-nav-icon"></i></a>
+    <button class="bottom-nav-item" type="button" onclick="abrirModalUpload()" aria-label="Enviar fotos"><i data-lucide="upload" class="bottom-nav-icon"></i></button>
+    <button class="bottom-nav-item" type="button" onclick="abrirModalUploadDestaque()" aria-label="Momentos capturados"><i data-lucide="sparkles" class="bottom-nav-icon"></i></button>
+</nav>
+
+<div class="conteudo">
+
+<!-- CABEÇALHO -->
+<header class="cabecalho">
+    <div class="cabecalho-titulo">
+        <h1>Painel Admin</h1>
+        <p>Gerencie as fotos da galeria do Motazt Studio</p>
+    </div>
+</header>
+
+<!-- UPLOAD (MODAL) -->
+<div class="modal-overlay" id="modalUpload" onclick="fecharModalUploadFora(event)">
+    <section class="painel-vidro upload-box modal-caixa">
+        <div class="painel-vidro-topo">
+            <h2>Enviar novas fotos</h2>
+            <button class="modal-fechar" onclick="fecharModalUpload()" title="Fechar"><i data-lucide="x"></i></button>
         </div>
 
-        <ul class="menu" id="menu">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#sobre">Sobre</a></li>
-            <li><a href="#servicos">Serviços</a></li>
-            <li><a href="#galeria">Galeria</a></li>
-            <li><a href="https://wa.me/5573981656986?text=Olá,%20quero%20fazer%20um%20agendamento!" class="btn-agendamento btn-agendamento-mobile" target="_blank" rel="noopener noreferrer">Agendar</a></li>
-        </ul>
+        <div class="upload-corpo">
 
-        <div class="menu-right">
-            <a href="/galeria-privada" class="btn-agendamento">Álbuns</a>
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-                <span></span>
-                <span></span>
-                <span></span>
+            <label class="upload-campo" for="imagem">
+                <input
+                type="file"
+                id="imagem"
+                multiple
+                accept="image/*">
+            </label>
+
+            <button
+            class="btn-enviar"
+            onclick="enviarImagem()">
+            Enviar imagens
             </button>
-        </div>
-    </header>
 
-    <!-- HERO -->
-    <section class="hero" id="home">
-        <div class="overlay"></div>
+            <p id="status" class="upload-status"></p>
 
-        <div class="hero-obturador obturador-bg" aria-hidden="true"></div>
-
-        <div class="hero-frame">
-            <span class="contador">01 — CASAMENTOS · ENSAIOS · EVENTOS</span>
-        </div>
-
-        <div class="hero-content">
-            <span class="eyebrow">Motaz Studio · Fotografia</span>
-            <h2>Capturando<br><span>Momentos Eternos</span></h2>
-            <p>
-                Fotografia profissional que transforma instantes em memórias inesquecíveis.
-            </p>
-            <a href="#galeria" class="btn">Explorar Portfólio</a>
         </div>
     </section>
+</div>
 
-    <!-- SOBRE -->
-    <section class="sobre" id="sobre">
-        <div class="titulo">
-            <div>
-                <span class="eyebrow">Quem somos</span>
-                <h2>Sobre Nós</h2>
-            </div>
+<!-- UPLOAD DESTAQUES (MODAL) -->
+<div class="modal-overlay" id="modalUploadDestaque" onclick="fecharModalUploadDestaqueFora(event)">
+    <section class="painel-vidro upload-box modal-caixa">
+        <div class="painel-vidro-topo">
+            <h2>Momentos Capturados</h2>
+            <button class="modal-fechar" onclick="fecharModalUploadDestaque()" title="Fechar"><i data-lucide="x"></i></button>
         </div>
 
-        <div class="sobre-conteudo">
-            <div class="sobre-foto">
-                <img src="img/fotografo.jpg" alt="Fotógrafo do Motaz Studio">
-            </div>
+        <div class="upload-corpo">
 
-            <div class="sobre-texto">
-                <p>
-                    Somos especialistas em registrar momentos com qualidade, emoção e criatividade.
-                </p>
-                <p>
-                    Trabalhamos com ensaios fotográficos, casamentos, eventos corporativos e produções comerciais,
-                    transformando cada clique em uma obra de arte que perdura através dos anos. Por trás de cada foto,
-                    existe um olhar atento aos detalhes e uma paixão genuína por contar histórias através da imagem.
-                </p>
-            </div>
-        </div>
-    </section>
+            <p class="upload-aviso">Escolha até 4 fotos para aparecer em destaque no site, logo antes da seção de contato.</p>
 
-    <!-- SERVIÇOS -->
-    <section class="servicos" id="servicos">
-        <div class="titulo">
-            <div>
-                <span class="eyebrow">O que fazemos</span>
-                <h2>Nossos Serviços</h2>
-            </div>
-        </div>
+            <label class="upload-campo" for="imagemDestaque">
+                <input
+                type="file"
+                id="imagemDestaque"
+                multiple
+                accept="image/*">
+            </label>
 
-        <div class="cards">
-            <div class="card">
-                <h3>Casamentos</h3>
-                <p>Registros emocionantes e artísticos do seu grande dia, captando cada momento especial com elegância.</p>
-            </div>
+            <button
+            class="btn-enviar"
+            onclick="enviarImagemDestaque()">
+            Publicar destaques
+            </button>
 
-            <div class="card">
-                <h3>Ensaios</h3>
-                <p>Sessões fotográficas personalizadas: individual, casal, família ou temático. Criatividade sem limites.</p>
-            </div>
+            <p id="statusDestaque" class="upload-status"></p>
 
-            <div class="card">
-                <h3>Eventos</h3>
-                <p>Cobertura completa para eventos corporativos, aniversários e celebrações especiais com qualidade profissional.</p>
-            </div>
-
-            <div class="card">
-                <h3>Produção</h3>
-                <p>Trabalhos comerciais, editoriais e publicitários com conceito único e acabamento premium.</p>
-            </div>
-
-            <div class="card">
-                <h3>Esportes</h3>
-                <p>Cobertura esportiva dinâmica, capturando a intensidade e a emoção de cada jogada com precisão e ritmo.</p>
-            </div>
         </div>
     </section>
+</div>
 
-    <!-- GALERIA -->
-    <section class="galeria-section" id="galeria">
-        <div class="titulo">
-            <div>
-                <span class="eyebrow">Portfólio</span>
-                <h2>Galeria</h2>
-            </div>
-        </div>
-
-        <div class="galeria" id="galeria-container">
-            <p class="galeria-carregando">Carregando portfólio...</p>
-        </div>
-    </section>
-
-    <!-- CONTATO -->
-    <section class="contato" id="contato">
-        <span class="eyebrow">Vamos conversar</span>
-        <p>Pronto para transformar seus momentos em arte?</p>
-
-        <div class="info-contato">
-            <p>
-                <strong>Email</strong>
-                <a href="mailto:contato@motaestudio.com" style="color: inherit; text-decoration: none;">contato@motaestudio.com</a>
-            </p>
-            <p>
-                <strong>Telefone</strong>
-                <a href="tel:5573981656986" style="color: inherit; text-decoration: none;">(73) 98165-6986</a>
-            </p>
-            <p>
-                <strong>Instagram</strong>
-                <a href="https://www.instagram.com/motaz_studio?igsh=MWdibXkzaHd0cmpzNg==" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">@motaz_studio</a>
-            </p>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 Motaz Studio. Todos os direitos reservados.</p>
-        <p><a href="/galeria-privada">Acessar galeria privada do meu ensaio</a></p>
-    </footer>
-
-    <!-- CHATBOT EMBUTIDO -->
-    <div id="chatbotOverlay" class="chatbot-overlay"></div>
-
-    <div id="chatbotPainel" class="chatbot-painel" role="dialog" aria-label="Chat Motaz Studio" aria-hidden="true">
-        <div class="chatbot-header">
-            <div class="chatbot-header-info">
-                <div class="chatbot-avatar">📸</div>
-                <div class="chatbot-header-texto">
-                    <h3>Motaz Studio</h3>
-                    <p><span class="chatbot-status-dot"></span> Online agora</p>
-                </div>
-            </div>
-            <div class="chatbot-header-buttons">
-                <button id="chatbotReiniciar" class="chatbot-btn-reiniciar" title="Reiniciar chat" aria-label="Reiniciar chat">🔄</button>
-                <button id="chatbotFechar" class="chatbot-btn-fechar" aria-label="Fechar chat">&times;</button>
-            </div>
-        </div>
-
-        <div id="chatbotMensagens" class="chatbot-mensagens"></div>
-
-        <div class="chatbot-sugestoes" id="chatbotSugestoes"></div>
-
-        <div class="chatbot-input-area">
-            <input type="text" id="chatbotInput" placeholder="Digite sua mensagem..." autocomplete="off">
-            <button id="chatbotEnviar" class="chatbot-btn-enviar" aria-label="Enviar mensagem">&#10148;</button>
-        </div>
+<!-- GALERIA -->
+<section class="painel-vidro galeria-secao">
+    <div class="painel-vidro-topo">
+        <h2>Galeria</h2>
+        <span class="tag-suave">Fotos publicadas</span>
     </div>
 
-    <button id="chatBotBtn" class="chatbot-fab" title="Fale conosco" aria-label="Abrir chat">
-        <span class="chatbot-fab-icon">💬</span>
-        <span class="chatbot-fab-badge" id="chatbotBadge">1</span>
-    </button>
+    <div
+    id="galeria-admin"
+    class="galeria-admin">
+    </div>
+</section>
 
-    <!-- LIGHTBOX -->
-    <div class="lightbox">
-        <span class="fechar" aria-label="Fechar galeria">&times;</span>
-        <img class="lightbox-img" alt="Imagem ampliada">
-        <button class="anterior" aria-label="Foto anterior">&#10094;</button>
-        <button class="proximo" aria-label="Próxima foto">&#10095;</button>
+<!-- MOMENTOS CAPTURADOS -->
+<section class="painel-vidro galeria-secao">
+    <div class="painel-vidro-topo">
+        <h2>Momentos Capturados</h2>
+        <span class="tag-suave">Máx. 4 fotos · aparece antes do contato</span>
     </div>
 
-    <script>
-        // Header muda de aparência ao rolar a página
-        const topo = document.getElementById('topo');
-        window.addEventListener('scroll', () => {
-            topo.classList.toggle('rolou', window.scrollY > 40);
-        }, { passive: true });
-    </script>
+    <div
+    id="destaque-admin"
+    class="galeria-admin">
+    </div>
+</section>
+
+</div><!-- /.conteudo -->
+
+</div><!-- /.app-shell -->
+
+<!-- LIGHTBOX (tela cheia) -->
+<div class="lightbox" id="lightbox" onclick="fecharLightboxFora(event)">
+    <button class="lightbox-fechar" onclick="fecharLightbox()" title="Fechar"><i data-lucide="x"></i></button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="Foto ampliada">
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO -->
+<div class="modal-overlay" id="modalExcluir" onclick="fecharModalExcluirFora(event)">
+    <section class="painel-vidro modal-caixa modal-excluir">
+        <div class="modal-excluir-icone">!</div>
+        <h2>Excluir esta foto?</h2>
+        <p>Essa ação não pode ser desfeita. A foto será removida da galeria e do armazenamento.</p>
+        <div class="modal-excluir-botoes">
+            <button class="btn-cancelar" onclick="fecharModalExcluir()">Cancelar</button>
+            <button class="btn-confirmar-excluir" onclick="confirmarExclusao()"><i data-lucide="trash-2"></i> Excluir</button>
+        </div>
+    </section>
+</div>
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- JS -->
+
+<script src="admin.js"></script>
+<script>
+    // Cabeçalho compartilhado com a página de álbuns privados.
+    const adminTopo = document.getElementById('adminTopo');
+    const adminMenu = document.getElementById('adminMenu');
+    const adminMenuToggle = document.getElementById('adminMenuToggle');
+
+    window.addEventListener('scroll', () => {
+        adminTopo?.classList.toggle('rolou', window.scrollY > 40);
+    }, { passive: true });
+
+    adminMenuToggle?.addEventListener('click', () => {
+        const aberto = adminMenu?.classList.toggle('aberto') || false;
+        adminMenuToggle.setAttribute('aria-expanded', String(aberto));
+        adminMenuToggle.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+    });
+
+    adminMenu?.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            adminMenu.classList.remove('aberto');
+            adminMenuToggle?.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => window.lucide?.createIcons());
+</script>
 
 </body>
 </html>

@@ -1,0 +1,206 @@
+/* =========================================================
+   MOTAZT STUDIO ADMIN — GALERIA PÚBLICA EM MASONRY
+   Mesmo comportamento visual da galeria privada principal:
+   proporções preservadas, sem cortes e fade-in suave.
+========================================================= */
+
+#galeria-admin {
+    display: block !important;
+    column-count: 4;
+    column-gap: 16px;
+    padding: 24px !important;
+    background: var(--ink-soft, #0f0f0f) !important;
+}
+
+#galeria-admin > p {
+    display: block;
+    padding: 60px 24px !important;
+    color: var(--text-dim, #9a9a97) !important;
+    font-family: var(--sans, 'Space Grotesk', sans-serif);
+    text-align: center;
+}
+
+/* Cada cartão ocupa uma coluna e nunca é partido entre colunas. */
+#galeria-admin .foto-card {
+    position: relative;
+    display: inline-block !important;
+    width: 100%;
+    height: auto !important;
+    margin: 0 0 16px;
+    padding: 0 !important;
+    overflow: hidden;
+    break-inside: avoid;
+    vertical-align: top;
+    background: var(--panel, #161616) !important;
+    border: 1px solid var(--panel-line, rgba(255,255,255,.08)) !important;
+    border-radius: 4px !important;
+    cursor: default;
+    transition: border-color .25s var(--ease, cubic-bezier(.16,.84,.44,1)), transform .25s var(--ease, cubic-bezier(.16,.84,.44,1)), box-shadow .25s ease;
+}
+
+#galeria-admin .foto-card:hover {
+    border-color: var(--steel, #8aa5b3) !important;
+    transform: scale(1.012);
+    box-shadow: 0 18px 42px rgba(0,0,0,.34);
+}
+
+#galeria-admin .foto-card.arrastando {
+    opacity: .58;
+    border-color: var(--steel, #8aa5b3) !important;
+    cursor: grabbing;
+    transform: scale(.985);
+}
+
+/* Alça de ordenação fica discreta como na galeria privada. */
+#galeria-admin .foto-arrastar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    min-height: 30px;
+    padding: 10px 0 8px;
+    background: var(--ink, #050505);
+    cursor: grab;
+    touch-action: none;
+}
+
+#galeria-admin .foto-arrastar span {
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text-dim, #9a9a97);
+    transition: background .25s ease;
+}
+
+#galeria-admin .foto-arrastar:hover span { background: var(--steel, #8aa5b3); }
+
+/* A imagem mantém a altura natural e nunca recebe object-fit: cover. */
+#galeria-admin .foto-wrap,
+#galeria-admin .foto-wrap--paisagem,
+#galeria-admin .foto-wrap--retrato,
+#galeria-admin .foto-wrap--quadrado {
+    width: 100%;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    overflow: hidden;
+    background: var(--ink, #050505);
+}
+
+#galeria-admin .foto-wrap img {
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block;
+    object-fit: contain !important;
+    opacity: 0;
+    cursor: zoom-in;
+    transition: opacity .5s ease, transform .5s var(--ease, cubic-bezier(.16,.84,.44,1)), filter .35s ease;
+}
+
+#galeria-admin .foto-wrap img.carregada { opacity: 1; }
+#galeria-admin .foto-card:hover .foto-wrap img.carregada { transform: scale(1.025); filter: saturate(1.04); }
+
+/* Placeholder shimmer idêntico ao da galeria privada principal. */
+#galeria-admin .foto-card.carregando .foto-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 30px 0 auto;
+    height: 180px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.055), transparent);
+    background-size: 200% 100%;
+    animation: adminFotoShimmer 1.5s infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes adminFotoShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+#galeria-admin .foto-card.erro-carregamento .foto-wrap {
+    min-height: 150px;
+    display: grid;
+    place-items: center;
+}
+
+#galeria-admin .foto-card.erro-carregamento .foto-wrap img { display: none; }
+#galeria-admin .foto-card.erro-carregamento .foto-wrap::after {
+    content: 'Foto indisponível';
+    color: var(--text-dim, #9a9a97);
+    font-family: var(--sans, 'Space Grotesk', sans-serif);
+    font-size: .78rem;
+}
+
+/* Controles continuam vinculados a cada foto, mas não interrompem a Masonry. */
+#galeria-admin .foto-controles {
+    display: block;
+    padding: 12px 14px 0;
+    background: var(--panel, #161616);
+}
+
+#galeria-admin .foto-formato {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 13px;
+    color: var(--text, #ededeb);
+    background: var(--ink-soft, #0f0f0f);
+    border: 1px solid var(--panel-line, rgba(255,255,255,.08));
+    border-radius: 4px;
+    font-family: var(--body, 'Poppins', sans-serif);
+    font-size: .82rem;
+    cursor: pointer;
+}
+
+#galeria-admin .foto-formato:focus {
+    outline: none;
+    border-color: var(--steel, #8aa5b3);
+    box-shadow: 0 0 0 3px var(--steel-dim, rgba(138,165,179,.14));
+}
+
+#galeria-admin .btn-excluir {
+    width: calc(100% - 28px);
+    min-height: 44px;
+    margin: 10px 14px 14px;
+    padding: 10px 14px;
+    color: #ff9a9a;
+    background: rgba(225,75,75,.08);
+    border: 1px solid rgba(225,75,75,.24);
+    border-radius: 999px;
+    font-family: var(--sans, 'Space Grotesk', sans-serif);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .25s ease, background .25s ease, border-color .25s ease, transform .25s ease;
+}
+
+#galeria-admin .btn-excluir:hover {
+    color: #fff;
+    background: rgba(163,76,76,.82);
+    border-color: rgba(163,76,76,.95);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 1100px) {
+    #galeria-admin { column-count: 3; }
+}
+
+@media (max-width: 768px) {
+    #galeria-admin {
+        column-count: 2;
+        column-gap: 12px;
+        padding: 16px !important;
+    }
+    #galeria-admin .foto-card { margin-bottom: 12px; }
+    #galeria-admin .foto-arrastar { min-height: 28px; padding: 9px 0 7px; }
+    #galeria-admin .foto-controles { padding: 10px 10px 0; }
+    #galeria-admin .btn-excluir { width: calc(100% - 20px); margin: 8px 10px 10px; }
+}
+
+@media (max-width: 480px) {
+    #galeria-admin { column-count: 2; column-gap: 8px; padding: 10px !important; }
+    #galeria-admin .foto-card { margin-bottom: 8px; }
+    #galeria-admin .foto-formato { min-height: 40px; padding: 8px 9px; font-size: .72rem; }
+    #galeria-admin .btn-excluir { min-height: 40px; font-size: .72rem; }
+}
