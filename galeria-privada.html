@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
             margin: 0;
@@ -701,6 +702,11 @@
             }
         }
     </style>
+    <style>
+        .error-icon svg { width: 42px; height: 42px; stroke-width: 1.5; }
+        .btn-fechar-modal svg { width: 20px; height: 20px; }
+        .check-selecao svg { width: 17px; height: 17px; stroke-width: 2.2; }
+    </style>
 </head>
 <body>
 
@@ -736,7 +742,7 @@
     <!-- TELA DE ERRO -->
     <div class="error-screen screen" id="errorScreen">
         <div class="error-card">
-            <div class="error-icon">⚠</div>
+            <div class="error-icon"><i data-lucide="triangle-alert"></i></div>
             <h1 id="errorTitle">Galeria não encontrada</h1>
             <p id="errorMessage">A galeria que você está tentando acessar não existe ou expirou.</p>
             <a href="/" class="btn-voltar">Voltar ao site</a>
@@ -785,7 +791,7 @@
     <!-- MODAL DE VISUALIZAÇÃO -->
     <div class="modal-visualizacao" id="modalVisualizacao">
         <div class="modal-conteudo">
-            <button class="btn-fechar-modal" onclick="fecharModal()">✕</button>
+            <button class="btn-fechar-modal" onclick="fecharModal()" aria-label="Fechar"><i data-lucide="x"></i></button>
             <img id="modalImg" src="" alt="Foto ampliada" class="modal-img">
             <div class="modal-botoes">
                 <button class="btn-modal" onclick="fotoAnterior()" title="Anterior">‹</button>
@@ -816,7 +822,8 @@
             return params.get('id');
         }
 
-        // ===== INICIALIZAR =====
+        // ===== INICIALIZAÇÃO =====
+        window.lucide?.createIcons();
         async function inicializar() {
             galeriaId = extrairIdDaUrl();
 
@@ -837,7 +844,7 @@
                     return;
                 }
 
-                // ✅ Acesso somente com o ID: carrega a galeria direto, sem senha
+                // Acesso somente com o ID: carrega a galeria direto, sem senha
                 document.getElementById('galeriaNome').textContent = galeria.titulo || 'Suas Fotos';
 
                 await carregarGaleria();
@@ -990,10 +997,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5l2.6 5.4 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"/>
                             </svg>
                         </button>
-                        <div class="check-selecao" onclick="alternarSelecaoFoto(event, '${foto.id}')">✓</div>
+                        <div class="check-selecao" onclick="alternarSelecaoFoto(event, '${foto.id}')"><i data-lucide="check"></i></div>
                     </div>
                 `;
             }).join('');
+            window.lucide?.createIcons();
         }
 
         // ===== MODO DE SELEÇÃO MÚLTIPLA =====
@@ -1007,7 +1015,7 @@
 
             grid.classList.toggle('modo-selecao', modoSelecao);
             btn.classList.toggle('ativo', modoSelecao);
-            btn.textContent = modoSelecao ? '✕ Cancelar seleção' : 'Selecionar fotos';
+            btn.textContent = modoSelecao ? 'Cancelar seleção' : 'Selecionar fotos';
             btnTodas.style.display = modoSelecao ? 'inline-flex' : 'none';
             btnTodas.textContent = 'Selecionar todas';
 
