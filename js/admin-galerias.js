@@ -27,7 +27,7 @@ window.addEventListener('DOMContentLoaded', iniciar);
 
 async function carregarGalerias() {
     try {
-        // Buscar todas as galerias com dados do agendamento
+        // Buscar todos os álbuns privados
         const { data: galerias, error } = await adminClient
             .from('galerias')
             .select(`
@@ -108,7 +108,7 @@ async function renderizarGalerias(galerias) {
         card.className = 'galeria-card';
         card.innerHTML = `
             <div class="galeria-header">
-                <div class="galeria-nome">✨ ${primeiroNome}</div>
+                <div class="galeria-nome">${primeiroNome}</div>
                 <span class="galeria-status ${status.classe}">${status.texto}</span>
             </div>
 
@@ -150,11 +150,11 @@ async function renderizarGalerias(galerias) {
                     <div class="toggle-status">
                         <button class="toggle-btn ${galeria.status === 'ativa' ? 'ativo' : ''}" 
                                 onclick="mudarStatus('${galeria.id}', 'ativa')">
-                            ✓ Ativa
+                            Ativa
                         </button>
                         <button class="toggle-btn ${galeria.status === 'inativa' ? 'ativo' : ''}" 
                                 onclick="mudarStatus('${galeria.id}', 'inativa')">
-                            ✕ Inativa
+                            Inativa
                         </button>
                     </div>
                 </div>
@@ -178,7 +178,7 @@ async function renderizarGalerias(galerias) {
                     Ver Fotos (${galeria.contagem_fotos})
                 </button>
                 <button class="btn btn-secondary" onclick="copiarSenha('${galeria.senha}')">
-                    📋 Copiar Senha
+                    Copiar senha
                 </button>
             </div>
         `;
@@ -249,7 +249,7 @@ async function mudarStatus(galeriaId, novoStatus) {
         if (error) throw error;
 
         mostrarMensagem(
-            novoStatus === 'ativa' ? '✓ Galeria ativada' : '✕ Galeria desativada',
+            novoStatus === 'ativa' ? 'Galeria ativada' : 'Galeria desativada',
             'sucesso'
         );
 
@@ -280,7 +280,7 @@ async function atualizarDuracao(galeriaId) {
 
         if (error) throw error;
 
-        mostrarMensagem(`✓ Galeria válida por ${dias} dia(s)`, 'sucesso');
+        mostrarMensagem(`Galeria válida por ${dias} dia(s)`, 'sucesso');
 
         await carregarGalerias();
 
@@ -342,7 +342,7 @@ document.addEventListener('click', (e) => {
 
 function copiarSenha(senha) {
     navigator.clipboard.writeText(senha).then(() => {
-        mostrarMensagem('✓ Senha copiada para a área de transferência', 'sucesso');
+        mostrarMensagem('Senha copiada para a área de transferência', 'sucesso');
     }).catch(erro => {
         console.error('Erro ao copiar:', erro);
         mostrarMensagem('Erro ao copiar senha', 'erro');

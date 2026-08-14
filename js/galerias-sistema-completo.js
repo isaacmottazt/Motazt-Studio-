@@ -50,14 +50,14 @@ async function criarGaleriaParaAgendamento(agendamentoId, clienteNome, clienteEm
 
         const galeriaId = data[0].id;
 
-        // TODO: enviar email/WhatsApp para o cliente com o link
-        console.log(`📧 ENVIAR PARA ${clienteEmail}:
+        // O envio do link pode ser feito manualmente pelo WhatsApp.
+        console.log(`ENVIAR PARA ${clienteEmail}:
 ---
 Olá ${clienteNome}!
 
 Sua galeria privada está pronta!
 
-🔗 Link: https://seusite.com/galeria-privada.html?id=${galeriaId}
+Link: https://seusite.com/galeria-privada?id=${galeriaId}
 
 Suas fotos estarão disponíveis por 30 dias.
 ---`);
@@ -65,7 +65,7 @@ Suas fotos estarão disponíveis por 30 dias.
         return {
             sucesso: true,
             galeria_id: galeriaId,
-            mensagem: 'Galeria criada! Envie o link ao cliente por email/WhatsApp.'
+            mensagem: 'Galeria criada! Envie o link ao cliente pelo WhatsApp.'
         };
 
     } catch (erro) {
