@@ -33,11 +33,8 @@ async function carregarGalerias() {
             .select(`
                 id,
                 status,
-                senha,
                 data_criacao,
                 data_expiracao,
-                cliente_nome,
-                cliente_email,
                 total_fotos
             `)
             .order('data_criacao', { ascending: false });
@@ -53,11 +50,20 @@ async function carregarGalerias() {
         document.getElementById('listaGalerias').style.display = 'grid';
         document.getElementById('galeriaVazia').style.display = 'none';
 
-        const galeriasComCliente = galerias.map(g => ({
-            ...g,
-            cliente_nome: g.cliente_nome || 'Desconhecido',
-            cliente_email: g.cliente_email || ''
-        }));
+        // Buscamos os dados de forma que não dependa de colunas específicas no SELECT inicial
+        // para evitar o erro de cache do Supabase
+        const { data: dadosExtras } = await adminClient
+            .from('galerias')
+            .select('*');
+
+        const galeriasComCliente = galerias.map(g => {
+            const extra = dadosExtras.find(d => d.id === g.id) || {};
+            return {
+                ...g,
+                cliente_nome: extra.cliente_nome || extra.nome || 'Cliente',
+                cliente_telefone: extra.cliente_telefone || extra.telefone || '—'
+            };
+        });
 
         // Contar fotos corretamente para cada galeria
         const galeriasComContagem = await Promise.all(
@@ -177,8 +183,8 @@ async function renderizarGalerias(galerias) {
                 <button class="btn btn-primary" onclick="verFotos('${galeria.id}', '${primeiroNome}')">
                     Ver Fotos (${galeria.contagem_fotos})
                 </button>
-                <button class="btn btn-secondary" onclick="copiarSenha('${galeria.senha}')">
-                    Copiar senha
+                <button class="btn btn-secondary" onclick="copiarTelefone('${galeria.cliente_telefone}')">
+                    Copiar telefone
                 </button>
             </div>
         `;
@@ -340,12 +346,12 @@ document.addEventListener('click', (e) => {
     }
 });
 
-function copiarSenha(senha) {
-    navigator.clipboard.writeText(senha).then(() => {
-        mostrarMensagem('Senha copiada para a área de transferência', 'sucesso');
+function copiarTelefone(telefone) {
+    navigator.clipboard.writeText(telefone || '').then(() => {
+        mostrarMensagem('Telefone copiado para a área de transferência', 'sucesso');
     }).catch(erro => {
         console.error('Erro ao copiar:', erro);
-        mostrarMensagem('Erro ao copiar senha', 'erro');
+        mostrarMensagem('Erro ao copiar telefone', 'erro');
     });
 }
 
