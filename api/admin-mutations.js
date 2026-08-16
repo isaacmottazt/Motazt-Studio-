@@ -1,6 +1,18 @@
 const BUCKET = 'fotos';
 const MAX_PATH_LENGTH = 420;
 
+function applyCors(req, res) {
+  const allowedOrigin = process.env.MOTAZT_ADMIN_ORIGIN;
+  const origin = req.headers.origin;
+  if (allowedOrigin && origin === allowedOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Vary', 'Origin');
+  }
+  return !allowedOrigin || !origin || origin === allowedOrigin;
+}
+
 function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -141,6 +153,9 @@ async function finalizePhoto(req, res, base, key, body) {
 }
 
 module.exports = async function adminMutations(req, res) {
+  const origin = req.headers.origin;
+  if (!applyCors(req, res)) return json(res, 403, { error: 'Origem não autorizada.' });
+  if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return json(res, 405, { error: 'Método não permitido.' });
@@ -148,9 +163,7 @@ module.exports = async function adminMutations(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !serviceRoleKey) return json(res, 503, { error: 'Serviço administrativo não configurado.' });
-  const origin = req.headers.origin;
   const allowedOrigin = process.env.MOTAZT_ADMIN_ORIGIN;
-  if (allowedOrigin && origin && origin !== allowedOrigin) return json(res, 403, { error: 'Origem não autorizada.' });
   const auth = await authenticate(req, supabaseUrl, serviceRoleKey);
   if (auth.error) return json(res, auth.error[0], { error: auth.error[1] });
   const body = parseBody(req) || {};
