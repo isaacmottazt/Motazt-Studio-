@@ -996,13 +996,17 @@
             vazio.classList.remove('visivel');
 
             grid.innerHTML = fotosExibidas.map((foto, idx) => {
-                // Usa o preview se existir, senão usa a foto full
-                const imgUrl = signedImageUrls.get(foto.arquivo_preview || foto.arquivo_full) || MotaztSecurity.safeStorageUrl(foto.arquivo_preview || foto.arquivo_full);
+                // Usa o original assinado na grade para preservar nitidez; o lazy loading mantém o desempenho.
+                const caminhoExibicao = foto.arquivo_full || foto.arquivo_preview;
+                const imgUrl = signedImageUrls.get(caminhoExibicao) || MotaztSecurity.safeStorageUrl(caminhoExibicao);
                 if (!imgUrl) return '';
                 return `
                     <div class="foto-card carregando ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">
                         <img src="${MotaztSecurity.escapeHtml(imgUrl)}"
                              alt="Foto ${idx + 1}" 
+                             loading="lazy"
+                             decoding="async"
+                             fetchpriority="low"
                              oncontextmenu="return false" 
                              draggable="false" 
                              onload="this.classList.add('carregada'); this.closest('.foto-card').classList.remove('carregando')"
