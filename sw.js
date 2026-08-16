@@ -35,7 +35,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || request.destination !== 'image' || !url.pathname.includes(SIGNED_PATH)) return;
+  if (request.method !== 'GET' || !url.pathname.includes('/object/sign/fotos/')) return;
 
   event.respondWith((async () => {
     if (!isFresh(request)) return fetch(request);
@@ -43,7 +43,9 @@ self.addEventListener('fetch', event => {
     const cached = await cache.match(request);
     if (cached) return cached;
     const response = await fetch(request);
-    if (response.ok) await cache.put(request, response.clone());
+    if (response.ok || response.type === 'opaque') {
+      try { await cache.put(request, response.clone()); } catch { /* resposta não cacheável */ }
+    }
     return response;
   })());
 });
