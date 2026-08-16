@@ -1,16 +1,16 @@
 const BUCKET = 'fotos';
 const MAX_PATH_LENGTH = 420;
+const ADMIN_ORIGIN = 'https://admin-luz-urbana.vercel.app';
 
 function applyCors(req, res) {
-  const allowedOrigin = process.env.MOTAZT_ADMIN_ORIGIN;
   const origin = req.headers.origin;
-  if (allowedOrigin && origin === allowedOrigin) {
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  if (origin === ADMIN_ORIGIN) {
+    res.setHeader('Access-Control-Allow-Origin', ADMIN_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Vary', 'Origin');
   }
-  return !allowedOrigin || !origin || origin === allowedOrigin;
+  return !origin || origin === ADMIN_ORIGIN;
 }
 
 function json(res, status, body) {
@@ -163,7 +163,6 @@ module.exports = async function adminMutations(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !serviceRoleKey) return json(res, 503, { error: 'Serviço administrativo não configurado.' });
-  const allowedOrigin = process.env.MOTAZT_ADMIN_ORIGIN;
   const auth = await authenticate(req, supabaseUrl, serviceRoleKey);
   if (auth.error) return json(res, auth.error[0], { error: auth.error[1] });
   const body = parseBody(req) || {};
