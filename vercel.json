@@ -17,19 +17,19 @@
   "rewrites": [
     {
       "source": "/galeria-privada",
-      "destination": "/galeria-privada.html"
+      "destination": "/album.html"
     },
     {
       "source": "/album",
-      "destination": "/galeria-privada.html"
+      "destination": "/album.html"
     },
     {
       "source": "/albuns",
-      "destination": "/galeria-privada.html"
+      "destination": "/album.html"
     },
     {
       "source": "/albums",
-      "destination": "/galeria-privada.html"
+      "destination": "/album.html"
     },
     {
       "source": "/index",

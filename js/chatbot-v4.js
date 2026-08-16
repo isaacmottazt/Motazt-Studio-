@@ -151,7 +151,7 @@
                         if (fotos && fotos.length > 0) {
                             Chat.falar(`Encontrei o álbum de **${galeria.cliente_nome || 'Cliente'}**! Aqui está uma prévia das fotos:`);
                             Chat.falarGradeFotos(fotos.slice(0, 4), galeria.id);
-                            Chat.sugerirLinks([{ label: 'Acessar Álbum Completo', link: `/galeria-privada?id=${galeria.id}`, icon: 'external-link' }]);
+                            Chat.sugerirLinks([{ label: 'Acessar Álbum Completo', link: `/album?id=${galeria.id}`, icon: 'external-link' }]);
                             ESTADO_ATUAL = 'LIVRE';
                             return;
                         } else {
@@ -163,12 +163,12 @@
                 Chat.falar(`Humm, não encontrei nenhum álbum ativo com o código **${idLimpo}**. Certifique-se de que o código está correto ou que a galeria não expirou.`);
                 Chat.sugerirLinks([
                     { label: 'Tentar Outro Código', valor: 'albuns', icon: 'refresh-cw' },
-                    { label: 'Página de Login', link: '/galeria-privada', icon: 'lock' }
+                    { label: 'Página de Login', link: '/album', icon: 'lock' }
                 ]);
             } catch (e) {
                 console.error('Erro no Chatbot:', e);
                 Chat.falar(`Ocorreu um erro técnico ao buscar seu álbum. Por favor, tente acessar pelo link direto.`);
-                Chat.sugerirLinks([{ label: 'Acessar via Login', link: '/galeria-privada', icon: 'external-link' }]);
+                Chat.sugerirLinks([{ label: 'Acessar via Login', link: '/album', icon: 'external-link' }]);
             }
             ESTADO_ATUAL = 'LIVRE';
         },

@@ -66,7 +66,7 @@ async function criarGaleria(clienteNome, clienteTelefone, titulo = '') {
 
 /**
  * Valida se a galeria existe, está ativa e não expirou
- * Chamado quando o cliente acessa galeria-privada.html?id=xyz
+ * Chamado quando o cliente acessa album.html?id=xyz
  *
  * @param {string} galeriaId - ID da galeria (do ?id=xyz na URL)
  * @returns {Promise<object|null>} os dados da galeria se válida, ou null
