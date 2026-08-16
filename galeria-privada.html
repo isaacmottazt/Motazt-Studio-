@@ -996,7 +996,7 @@
 
             grid.innerHTML = fotosExibidas.map((foto, idx) => {
                 // Usa o preview se existir, senão usa a foto full
-                const imgUrl = MotaztSecurity.thumbnailUrl(signedImageUrls.get(foto.arquivo_preview || foto.arquivo_full) || foto.arquivo_preview || foto.arquivo_full, 700, 70);
+                const imgUrl = signedImageUrls.get(foto.arquivo_preview || foto.arquivo_full) || MotaztSecurity.safeStorageUrl(foto.arquivo_preview || foto.arquivo_full);
                 if (!imgUrl) return '';
                 return `
                     <div class="foto-card carregando ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">

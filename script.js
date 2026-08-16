@@ -110,12 +110,8 @@ async function carregarGaleria() {
 
         const urlsImagem = data.flatMap(item => [item.imagem_url, item.imagem_preview]).filter(Boolean);
         let signedUrls = new Map();
-        let signedThumbnailUrls = new Map();
         try {
-            [signedUrls, signedThumbnailUrls] = await Promise.all([
-                window.MotaztSecurity.getSignedStorageUrls(urlsImagem, { portfolio: true }),
-                window.MotaztSecurity.getSignedStorageUrls(urlsImagem, { portfolio: true, thumbnail: true })
-            ]);
+            signedUrls = await window.MotaztSecurity.getSignedStorageUrls(urlsImagem, { portfolio: true });
         } catch (signError) {
             console.warn('URLs assinadas indisponíveis; usando fallback seguro:', signError);
         }
@@ -129,10 +125,7 @@ async function carregarGaleria() {
             const originalRaw = item.imagem_url || '';
             const previewRaw = item.imagem_preview || originalRaw;
             const imagemOriginal = signedUrls.get(originalRaw) || window.MotaztSecurity?.safeStorageUrl(originalRaw) || '';
-            const imagemPreviewBase = signedUrls.get(previewRaw) || window.MotaztSecurity?.safeStorageUrl(previewRaw) || '';
-            const imagemPreview = signedThumbnailUrls.get(previewRaw)
-                || window.MotaztSecurity?.thumbnailUrl(imagemPreviewBase, 700, 70)
-                || imagemPreviewBase;
+            const imagemPreview = signedUrls.get(previewRaw) || window.MotaztSecurity?.safeStorageUrl(previewRaw) || '';
             if (!imagemOriginal && !imagemPreview) return;
             img.dataset.full = imagemOriginal;
             img.dataset.src = imagemPreview || imagemOriginal;
