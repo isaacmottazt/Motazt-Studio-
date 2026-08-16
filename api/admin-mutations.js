@@ -136,6 +136,26 @@ async function prepareUpload(req, res, base, key, body) {
   return json(res, 200, { path, token, signedUrl });
 }
 
+async function deleteGallery(req, res, base, key, body) {
+  const galeriaId = clean(body?.galeriaId, 80);
+  if (!galeriaId) return json(res, 400, { error: 'ID do álbum inválido.' });
+  const listResponse = await supabaseFetch(base, key, '/storage/v1/object/list/' + BUCKET, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefix: galeriaId, limit: 1000, offset: 0 })
+  });
+  const listed = await listResponse.json().catch(() => []);
+  const objects = Array.isArray(listed) ? listed.filter(item => item?.name).map(item => `${galeriaId}/${item.name}`) : [];
+  for (const path of objects) {
+    const response = await supabaseFetch(base, key, `/storage/v1/object/${BUCKET}/${path}`, { method: 'DELETE' });
+    if (!response.ok) console.error('Failed to remove test object:', path, response.status);
+  }
+  const photosResponse = await supabaseFetch(base, key, `/rest/v1/fotos?galeria_id=eq.${encodeURIComponent(galeriaId)}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+  const galleryResponse = await supabaseFetch(base, key, `/rest/v1/galerias?id=eq.${encodeURIComponent(galeriaId)}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+  if (!photosResponse.ok || !galleryResponse.ok) return json(res, 502, { error: 'Não foi possível remover completamente o álbum temporário.' });
+  return json(res, 200, { sucesso: true, arquivos_removidos: objects.length });
+}
+
 async function finalizePhoto(req, res, base, key, body) {
   const galeriaId = clean(body?.galeriaId, 80);
   const previewPath = safePath(body?.previewPath);
@@ -182,6 +202,7 @@ module.exports = async function adminMutations(req, res) {
     if (body.action === 'create-gallery') return await createGallery(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'prepare-upload') return await prepareUpload(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'finalize-photo') return await finalizePhoto(req, res, supabaseUrl, serviceRoleKey, body);
+    if (body.action === 'delete-gallery') return await deleteGallery(req, res, supabaseUrl, serviceRoleKey, body);
     return json(res, 400, { error: 'Operação administrativa inválida.' });
   } catch (error) {
     console.error('Admin mutation error:', error);
