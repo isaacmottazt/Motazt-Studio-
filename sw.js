@@ -1,5 +1,5 @@
-const CACHE_NAME = 'motazt-signed-images-v2';
-const META_CACHE_NAME = 'motazt-signed-images-meta-v2';
+const CACHE_NAME = 'motazt-signed-images-v3';
+const META_CACHE_NAME = 'motazt-signed-images-meta-v3';
 const SIGNED_PATH = '/storage/v1/object/sign/fotos/';
 const LOCAL_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const SAFETY_WINDOW_SECONDS = 30;
