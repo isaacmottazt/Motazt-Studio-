@@ -70,7 +70,13 @@ module.exports = async function signedImages(req, res) {
     return json(res, 400, { error: 'Solicitação de imagens inválida.' });
   }
 
-  const paths = [...new Set(rawPaths.map(value => normalizePath(value, supabaseUrl)).filter(Boolean))];
+  const originalByPath = new Map();
+  const normalizedRawPaths = rawPaths.map(value => {
+    const normalized = normalizePath(value, supabaseUrl);
+    if (normalized) originalByPath.set(normalized, String(value).trim());
+    return normalized;
+  });
+  const paths = [...new Set(normalizedRawPaths.filter(Boolean))];
   if (paths.length === 0 || paths.length !== rawPaths.length) {
     return json(res, 400, { error: 'Um ou mais caminhos de imagem são inválidos.' });
   }
@@ -118,9 +124,10 @@ module.exports = async function signedImages(req, res) {
       const matchedPath = returnedPath
         ? paths.find(path => path === returnedPath || path.endsWith(`/${returnedPath}`) || path.endsWith(`/fotos/${returnedPath}`))
         : paths[index];
+      const rawSignedUrl = entry?.signedURL || entry?.signedUrl || entry?.url || '';
       return {
-        path: matchedPath || '',
-        signedUrl: entry?.signedURL || entry?.signedUrl || entry?.url || ''
+        path: originalByPath.get(matchedPath) || matchedPath || '',
+        signedUrl: rawSignedUrl.startsWith('/') ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl}` : rawSignedUrl
       };
     }).filter(entry => entry.path && entry.signedUrl);
     return json(res, 200, { expiresIn: EXPIRES_IN, signed });
