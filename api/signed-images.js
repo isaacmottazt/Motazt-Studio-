@@ -66,6 +66,7 @@ module.exports = async function signedImages(req, res) {
   const rawPaths = Array.isArray(body?.paths) ? body.paths : [];
   const galleryId = typeof body?.galleryId === 'string' ? body.galleryId.trim() : '';
   const isPortfolio = body?.portfolio === true;
+  const thumbnail = body?.thumbnail === true;
   if (rawPaths.length === 0 || rawPaths.length > MAX_PATHS || (!galleryId && !isPortfolio)) {
     return json(res, 400, { error: 'Solicitação de imagens inválida.' });
   }
@@ -102,7 +103,8 @@ module.exports = async function signedImages(req, res) {
       }
     }
 
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/sign/${BUCKET}`, {
+    const signEndpoint = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/sign/${BUCKET}`;
+    const response = await fetch(signEndpoint, {
       method: 'POST',
       headers: {
         apikey: serviceRoleKey,
@@ -125,11 +127,21 @@ module.exports = async function signedImages(req, res) {
         ? paths.find(path => path === returnedPath || path.endsWith(`/${returnedPath}`) || path.endsWith(`/fotos/${returnedPath}`))
         : paths[index];
       const rawSignedUrl = entry?.signedURL || entry?.signedUrl || entry?.url || '';
+      let signedUrl = rawSignedUrl.startsWith('/')
+        ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl.startsWith('/storage/v1/') ? rawSignedUrl : `/storage/v1${rawSignedUrl}`}`
+        : rawSignedUrl;
+      if (thumbnail && signedUrl) {
+        try {
+          const parsed = new URL(signedUrl);
+          parsed.pathname = parsed.pathname.replace('/storage/v1/object/sign/', '/storage/v1/render/image/sign/');
+          parsed.searchParams.set('width', '700');
+          parsed.searchParams.set('quality', '70');
+          signedUrl = parsed.href;
+        } catch { /* mantém a URL assinada original */ }
+      }
       return {
         path: originalByPath.get(matchedPath) || matchedPath || '',
-        signedUrl: rawSignedUrl.startsWith('/')
-          ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl.startsWith('/storage/v1/') ? rawSignedUrl : `/storage/v1${rawSignedUrl}`}`
-          : rawSignedUrl
+        signedUrl
       };
     }).filter(entry => entry.path && entry.signedUrl);
     return json(res, 200, { expiresIn: EXPIRES_IN, signed });

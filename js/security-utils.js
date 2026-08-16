@@ -67,7 +67,8 @@
     }
 
     function cacheScope(scope) {
-        return scope.galleryId ? `gallery:${scope.galleryId}` : (scope.portfolio ? 'portfolio' : 'default');
+        const base = scope.galleryId ? `gallery:${scope.galleryId}` : (scope.portfolio ? 'portfolio' : 'default');
+        return scope.thumbnail ? `${base}:thumbnail` : base;
     }
 
     function readSignedCache() {
@@ -120,7 +121,8 @@
                 body: JSON.stringify({
                     paths: missing,
                     galleryId: scope.galleryId || undefined,
-                    portfolio: scope.portfolio === true
+                    portfolio: scope.portfolio === true,
+                    thumbnail: scope.thumbnail === true
                 })
             });
             if (!response.ok) throw new Error('Não foi possível carregar as imagens com segurança.');
