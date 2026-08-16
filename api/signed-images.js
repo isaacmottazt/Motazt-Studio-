@@ -107,7 +107,7 @@ module.exports = async function signedImages(req, res) {
         headers: { apikey: serviceRoleKey, Authorization: `Bearer ${token}` }
       });
       const user = await userResponse.json().catch(() => null);
-      if (!userResponse.ok || user?.app_metadata?.role !== 'admin') return json(res, 403, { error: 'Acesso administrativo necessário.' });
+      if (!userResponse.ok || !user?.id) return json(res, 403, { error: 'Sessão administrativa inválida.' });
     }
 
     const apiBase = `${supabaseUrl.replace(/\/$/, '')}/rest/v1`;
