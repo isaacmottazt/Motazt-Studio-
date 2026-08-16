@@ -105,6 +105,18 @@ async function createGallery(req, res, base, key, body) {
   return json(res, 200, { sucesso: true, galeria: data[0], galeria_id: data[0].id, mensagem: 'Álbum criado com sucesso.' });
 }
 
+async function resolveGallery(req, res, base, key, body) {
+  const reference = clean(body?.reference, 80);
+  if (!reference) return json(res, 400, { error: 'Código ou ID da galeria obrigatório.' });
+  const filter = /^MZ-[A-Z0-9]+$/i.test(reference)
+    ? `codigo_curto=eq.${encodeURIComponent(reference.toUpperCase())}`
+    : `id=eq.${encodeURIComponent(reference)}`;
+  const response = await supabaseFetch(base, key, `/rest/v1/galerias?select=id,codigo_curto&${filter}&limit=1`);
+  const data = await response.json().catch(() => null);
+  if (!response.ok || !Array.isArray(data) || !data[0]?.id) return json(res, 404, { error: 'Álbum não encontrado para esse código.' });
+  return json(res, 200, { sucesso: true, galeria_id: data[0].id, codigo_curto: data[0].codigo_curto });
+}
+
 async function prepareUpload(req, res, base, key, body) {
   const path = safePath(body?.path);
   if (!path) return json(res, 400, { error: 'Caminho de upload inválido.' });
@@ -200,6 +212,7 @@ module.exports = async function adminMutations(req, res) {
   const body = parseBody(req) || {};
   try {
     if (body.action === 'create-gallery') return await createGallery(req, res, supabaseUrl, serviceRoleKey, body);
+    if (body.action === 'resolve-gallery') return await resolveGallery(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'prepare-upload') return await prepareUpload(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'finalize-photo') return await finalizePhoto(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'delete-gallery') return await deleteGallery(req, res, supabaseUrl, serviceRoleKey, body);
