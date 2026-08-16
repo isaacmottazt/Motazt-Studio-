@@ -103,24 +103,46 @@ module.exports = async function signedImages(req, res) {
       }
     }
 
-    const signEndpoint = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/sign/${BUCKET}`;
-    const response = await fetch(signEndpoint, {
-      method: 'POST',
-      headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ expiresIn: EXPIRES_IN, paths })
-    });
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      console.error('Supabase signed URL error:', response.status);
-      return json(res, 502, { error: 'Não foi possível assinar as imagens.' });
+    let entries = [];
+    if (thumbnail) {
+      entries = await Promise.all(paths.map(async path => {
+        const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+        const signEndpoint = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/sign/${BUCKET}/${encodedPath}`;
+        const response = await fetch(signEndpoint, {
+          method: 'POST',
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            expiresIn: EXPIRES_IN,
+            transform: { width: 700, quality: 70, resize: 'contain' }
+          })
+        });
+        const data = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(`Supabase signed URL error: ${response.status}`);
+        return { path, signedUrl: data?.signedURL || data?.signedUrl || data?.url || '' };
+      }));
+    } else {
+      const signEndpoint = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/sign/${BUCKET}`;
+      const response = await fetch(signEndpoint, {
+        method: 'POST',
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ expiresIn: EXPIRES_IN, paths })
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        console.error('Supabase signed URL error:', response.status);
+        return json(res, 502, { error: 'Não foi possível assinar as imagens.' });
+      }
+      const rawEntries = Array.isArray(data) ? data : (data?.data || data?.signed || []);
+      entries = Array.isArray(rawEntries) ? rawEntries : [];
     }
-
-    const rawEntries = Array.isArray(data) ? data : (data?.data || data?.signed || []);
-    const entries = Array.isArray(rawEntries) ? rawEntries : [];
     const signed = entries.map((entry, index) => {
       const returnedPath = typeof entry?.path === 'string' ? entry.path.replace(/^\/+/, '') : '';
       const matchedPath = returnedPath
@@ -130,15 +152,7 @@ module.exports = async function signedImages(req, res) {
       let signedUrl = rawSignedUrl.startsWith('/')
         ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl.startsWith('/storage/v1/') ? rawSignedUrl : `/storage/v1${rawSignedUrl}`}`
         : rawSignedUrl;
-      if (thumbnail && signedUrl) {
-        try {
-          const parsed = new URL(signedUrl);
-          parsed.pathname = parsed.pathname.replace('/storage/v1/object/sign/', '/storage/v1/render/image/sign/');
-          parsed.searchParams.set('width', '700');
-          parsed.searchParams.set('quality', '70');
-          signedUrl = parsed.href;
-        } catch { /* mantém a URL assinada original */ }
-      }
+      // Quando thumbnail=true, a transformação já está incorporada no token pela API do Storage.
       return {
         path: originalByPath.get(matchedPath) || matchedPath || '',
         signedUrl
