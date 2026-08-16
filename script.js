@@ -90,14 +90,15 @@ const lazyObserver = 'IntersectionObserver' in window
 async function carregarGaleria() {
 
     try {
-        const { data, error } = await client
-            .from('galeria')
-            .select('*')
-            .order('ordem', { ascending: true, nullsFirst: false })
-            .order('id', { ascending: false });
+        const response = await fetch('/api/public-gallery', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' }
+        });
+        const data = await response.json().catch(() => null);
 
-        if (error) {
-            console.error('Erro ao carregar galeria:', error);
+        if (!response.ok || !Array.isArray(data)) {
+            console.error('Erro ao carregar galeria:', data?.error || response.status);
             galeriaContainer.innerHTML = '<p class="galeria-erro">Não foi possível carregar as fotos.</p>';
             return;
         }
