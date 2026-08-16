@@ -8,6 +8,7 @@ function applyCors(req, res) {
     res.setHeader('Access-Control-Allow-Origin', ADMIN_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Vary', 'Origin');
   }
   return !origin || origin === ADMIN_ORIGIN;
