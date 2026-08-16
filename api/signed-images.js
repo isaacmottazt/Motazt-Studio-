@@ -127,7 +127,9 @@ module.exports = async function signedImages(req, res) {
       const rawSignedUrl = entry?.signedURL || entry?.signedUrl || entry?.url || '';
       return {
         path: originalByPath.get(matchedPath) || matchedPath || '',
-        signedUrl: rawSignedUrl.startsWith('/') ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl}` : rawSignedUrl
+        signedUrl: rawSignedUrl.startsWith('/')
+          ? `${supabaseUrl.replace(/\/$/, '')}${rawSignedUrl.startsWith('/storage/v1/') ? rawSignedUrl : `/storage/v1${rawSignedUrl}`}`
+          : rawSignedUrl
       };
     }).filter(entry => entry.path && entry.signedUrl);
     return json(res, 200, { expiresIn: EXPIRES_IN, signed });
