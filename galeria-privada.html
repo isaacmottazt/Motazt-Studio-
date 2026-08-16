@@ -817,6 +817,16 @@
         let modoSelecao = false;
         let fotosSelecionadas = new Set();
         let signedImageUrls = new Map();
+        let albumPublico = null;
+
+        async function obterAlbumPublico(identificador) {
+            const valor = String(identificador || '').trim();
+            const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(valor);
+            const parametro = uuid ? `id=${encodeURIComponent(valor)}` : `codigo=${encodeURIComponent(valor)}`;
+            const resposta = await fetch(`/api/public-album?${parametro}`, { credentials: 'same-origin' });
+            if (!resposta.ok) return null;
+            return resposta.json();
+        }
 
         function obterUrlFoto(foto) {
             const raw = foto?.arquivo_full || foto?.arquivo_preview || '';
@@ -844,8 +854,9 @@
             }
 
             try {
-                // Validar se galeria existe (sem mostrar fotos ainda)
-                const galeria = await GaleriaPrivada.validarGaleria(galeriaId);
+                // Validar código/ID e obter fotos assinadas no servidor.
+                albumPublico = await obterAlbumPublico(galeriaId);
+                const galeria = albumPublico?.galeria || null;
                 if (!galeria) {
                     mostrarErro('Galeria não encontrada', 'A galeria que você está tentando acessar não existe ou expirou.');
                     return;
@@ -886,7 +897,8 @@
             btn.textContent = 'Verificando...';
 
             try {
-                const galeria = await GaleriaPrivada.validarGaleria(idDigitado);
+                albumPublico = await obterAlbumPublico(idDigitado);
+                const galeria = albumPublico?.galeria || null;
 
                 if (!galeria) {
                     erro.textContent = 'Galeria não encontrada ou expirada. Verifique o ID.';
@@ -932,22 +944,9 @@
         // ===== CARREGAR GALERIA =====
         async function carregarGaleria() {
             try {
-                const { data: fotos, error } = await supabaseClient
-                    .from('fotos')
-                    .select('*')
-                    .eq('galeria_id', galeriaId)
-                    .order('posicao', { ascending: true });
-
-                if (error) throw error;
-
-                todasFotos = fotos || [];
-                const urlsImagem = todasFotos.flatMap(foto => [foto.arquivo_full, foto.arquivo_preview]).filter(Boolean);
-                try {
-                    signedImageUrls = await MotaztSecurity.getSignedStorageUrls(urlsImagem, { galleryId: galeriaId });
-                } catch (signError) {
-                    console.warn('URLs assinadas indisponíveis; usando fallback seguro:', signError);
-                    signedImageUrls = new Map();
-                }
+                if (!albumPublico?.fotos) throw new Error('Dados do álbum indisponíveis.');
+                todasFotos = albumPublico.fotos || [];
+                signedImageUrls = new Map();
                 
                 // Atualizar contadores
                 document.getElementById('totalFotos').textContent = todasFotos.length;
