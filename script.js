@@ -129,8 +129,10 @@ async function carregarGaleria() {
             const originalRaw = item.imagem_url || '';
             const previewRaw = item.imagem_preview || originalRaw;
             const imagemOriginal = signedUrls.get(originalRaw) || window.MotaztSecurity?.safeStorageUrl(originalRaw) || '';
-            const imagemPreviewRaw = signedThumbnailUrls.get(previewRaw) || signedUrls.get(previewRaw) || window.MotaztSecurity?.safeStorageUrl(previewRaw) || '';
-            const imagemPreview = imagemPreviewRaw;
+            const imagemPreviewBase = signedUrls.get(previewRaw) || window.MotaztSecurity?.safeStorageUrl(previewRaw) || '';
+            const imagemPreview = signedThumbnailUrls.get(previewRaw)
+                || window.MotaztSecurity?.thumbnailUrl(imagemPreviewBase, 700, 70)
+                || imagemPreviewBase;
             if (!imagemOriginal && !imagemPreview) return;
             img.dataset.full = imagemOriginal;
             img.dataset.src = imagemPreview || imagemOriginal;
