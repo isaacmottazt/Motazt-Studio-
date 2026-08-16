@@ -16,15 +16,15 @@
         }
 
         :root {
-            --black: #000000;
-            --panel: #0c0c0c;
-            --panel-light: #161513;
-            --hairline: rgba(91, 122, 140, 0.16);
-            --gold: #5b7a8c;
-            --gold-light: #8aa5b3;
-            --gold-dim: rgba(91, 122, 140, 0.12);
-            --ivory: #f2efe6;
-            --muted: #8c8a83;
+            --black: #050505;
+            --panel: #161616;
+            --panel-light: #202020;
+            --hairline: rgba(255, 255, 255, 0.08);
+            --gold: #8aa5b3;
+            --gold-light: #b4c9d2;
+            --gold-dim: rgba(138, 165, 179, 0.14);
+            --ivory: #ededeb;
+            --muted: #9a9a97;
             --danger: #ff6b6b;
             --display: 'Archivo Black', 'Arial Black', sans-serif;
             --sans: 'Space Grotesk', 'Poppins', sans-serif;
@@ -42,7 +42,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background:
-                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(91, 122, 140, 0.07), transparent 60%),
+                radial-gradient(ellipse 70% 45% at 50% -8%, rgba(138, 165, 179, 0.10), transparent 60%),
                 var(--black);
             color: var(--ivory);
             min-height: 100vh;
@@ -140,7 +140,7 @@
         .login-form input:focus {
             outline: none;
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(91, 122, 140, 0.1);
+            box-shadow: 0 0 0 3px rgba(138, 165, 179, 0.1);
         }
 
         .login-form button {
@@ -151,7 +151,7 @@
             font-family: var(--sans);
             font-size: 14px;
             font-weight: 600;
-            color: #000;
+            color: #050505;
             cursor: pointer;
             transition: all 0.25s;
             letter-spacing: 0.02em;
@@ -236,7 +236,7 @@
         .btn-voltar {
             display: inline-block;
             background: var(--ivory);
-            color: #000;
+            color: #050505;
             text-decoration: none;
             padding: 11px 26px;
             border-radius: 999px;
@@ -323,7 +323,7 @@
 
         .filtro-btn.ativo {
             background: var(--gold);
-            color: #000;
+            color: #050505;
             border-color: var(--gold);
         }
 
@@ -341,7 +341,7 @@
         }
 
         .btn-acao.destaque:hover {
-            background: rgba(91, 122, 140, 0.2);
+            background: rgba(138, 165, 179, 0.2);
         }
 
         .btn-acao.destaque:disabled {
@@ -485,7 +485,7 @@
         }
 
         .btn-favoritar:hover svg {
-            stroke: #000;
+            stroke: #050505;
         }
 
         .btn-favoritar.favorita {
@@ -493,8 +493,8 @@
         }
 
         .btn-favoritar.favorita svg {
-            fill: #000;
-            stroke: #000;
+            fill: #050505;
+            stroke: #050505;
         }
 
         .check-selecao {
@@ -524,7 +524,7 @@
         .foto-card.selecionada .check-selecao {
             background: var(--gold);
             border-color: var(--gold);
-            color: #000;
+            color: #050505;
         }
 
         .mensagem-vazia {
@@ -605,7 +605,7 @@
             border: none;
             border-radius: 50%;
             background: var(--gold);
-            color: #000;
+            color: #050505;
             font-size: 18px;
             cursor: pointer;
             display: flex;
@@ -628,7 +628,7 @@
             border: none;
             border-radius: 50%;
             background: var(--gold);
-            color: #000;
+            color: #050505;
             font-size: 24px;
             cursor: pointer;
             display: flex;
@@ -1132,14 +1132,15 @@
             const total = fotos.length;
 
             btnBaixar.disabled = true;
-            contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''}...`;
+            // Uma única mensagem para o lote; os arquivos continuam sendo baixados separadamente.
+            contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''} separadamente...`;
 
             for (let i = 0; i < fotos.length; i++) {
                 await baixarImagem(obterUrlFoto(fotos[i]), `motaz-studio-foto-${i + 1}.jpg`);
                 await new Promise(res => setTimeout(res, 400));
             }
 
-            contador.textContent = `${total} foto${total > 1 ? 's' : ''} baixada${total > 1 ? 's' : ''}!`;
+            contador.textContent = `Download de ${total} foto${total > 1 ? 's' : ''} iniciado.`;
             btnBaixar.disabled = false;
 
             setTimeout(() => atualizarBarraSelecao(), 2500);
