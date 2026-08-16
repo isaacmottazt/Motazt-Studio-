@@ -114,7 +114,7 @@ module.exports = async function signedImages(req, res) {
     const rawEntries = Array.isArray(data) ? data : (data?.data || data?.signed || []);
     const entries = Array.isArray(rawEntries) ? rawEntries : [];
     const signed = entries.map((entry, index) => ({
-      path: entry?.path || paths[index],
+      path: paths[index],
       signedUrl: entry?.signedURL || entry?.signedUrl || entry?.url || ''
     })).filter(entry => entry.signedUrl);
     return json(res, 200, { expiresIn: EXPIRES_IN, signed });
