@@ -100,7 +100,7 @@ async function createGallery(req, res, base, key, body) {
   const data = await response.json().catch(() => null);
   if (!response.ok || !Array.isArray(data) || !data[0]?.id) {
     console.error('Create gallery failed:', response.status, data);
-    return json(res, 502, { error: 'Não foi possível criar o álbum no banco de dados.' });
+    return json(res, 502, { error: 'Não foi possível criar o álbum no banco de dados.', detail: data?.message || data?.hint || data?.code || `HTTP ${response.status}` });
   }
   return json(res, 200, { sucesso: true, galeria: data[0], galeria_id: data[0].id, mensagem: 'Álbum criado com sucesso.' });
 }
