@@ -100,7 +100,7 @@ async function createGallery(req, res, base, key, body) {
   const data = await response.json().catch(() => null);
   if (!response.ok || !Array.isArray(data) || !data[0]?.id) {
     console.error('Create gallery failed:', response.status, data);
-    return json(res, 502, { error: 'Não foi possível criar o álbum no banco de dados.', detail: data?.message || data?.hint || data?.code || `HTTP ${response.status}` });
+    return json(res, 502, { error: 'Não foi possível criar o álbum no banco de dados.' });
   }
   return json(res, 200, { sucesso: true, galeria: data[0], galeria_id: data[0].id, mensagem: 'Álbum criado com sucesso.' });
 }
@@ -120,7 +120,18 @@ async function prepareUpload(req, res, base, key, body) {
   }
   const token = data?.token || data?.data?.token;
   const rawUrl = data?.url || data?.signedURL || data?.signedUrl || data?.data?.url || '';
-  const signedUrl = rawUrl.startsWith('/') ? `${base.replace(/\/$/, '')}${rawUrl}` : rawUrl;
+  let signedUrl = rawUrl;
+  if (signedUrl.startsWith('/')) {
+    signedUrl = `${base.replace(/\/$/, '')}${signedUrl.startsWith('/storage/v1/') ? signedUrl : `/storage/v1${signedUrl}`}`;
+  } else if (signedUrl) {
+    try {
+      const parsed = new URL(signedUrl);
+      if (parsed.origin === new URL(base).origin && parsed.pathname.startsWith('/object/')) {
+        parsed.pathname = `/storage/v1${parsed.pathname}`;
+        signedUrl = parsed.toString();
+      }
+    } catch {}
+  }
   if (!token && !signedUrl) return json(res, 502, { error: 'O Storage não retornou uma URL de upload válida.' });
   return json(res, 200, { path, token, signedUrl });
 }
