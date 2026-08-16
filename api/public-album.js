@@ -42,11 +42,17 @@ module.exports = async function publicAlbum(req, res) {
   const base = `${supabaseUrl.replace(/\/$/, '')}/rest/v1`;
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identifier);
   const filter = uuid ? `id=eq.${encodeURIComponent(identifier)}` : `codigo_curto=ilike.${encodeURIComponent(identifier)}`;
-  const galleryResponse = await fetch(`${base}/galerias?${filter}&select=id,codigo_curto,cliente_nome,titulo,data_expiracao,status,total_fotos&limit=1`, {
-    headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` }
-  });
-  const galleries = await galleryResponse.json().catch(() => []);
-  const gallery = Array.isArray(galleries) ? galleries[0] : null;
+  const headers = { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` };
+  let galleries = [];
+  for (const resource of ['galerias_publicas', 'galerias']) {
+    const galleryResponse = await fetch(`${base}/${resource}?${filter}&select=id,codigo_curto,cliente_nome,titulo,data_expiracao,status,total_fotos&limit=1`, { headers });
+    const candidate = await galleryResponse.json().catch(() => []);
+    if (galleryResponse.ok && Array.isArray(candidate) && candidate.length) {
+      galleries = candidate;
+      break;
+    }
+  }
+  const gallery = galleries[0] || null;
   if (!gallery || gallery.status !== 'ativa' || (gallery.data_expiracao && new Date(gallery.data_expiracao) <= new Date())) {
     return json(res, 404, { error: 'Galeria não encontrada ou expirada.' });
   }
