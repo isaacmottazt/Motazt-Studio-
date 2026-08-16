@@ -20,6 +20,18 @@
       "destination": "/galeria-privada.html"
     },
     {
+      "source": "/album",
+      "destination": "/galeria-privada.html"
+    },
+    {
+      "source": "/albuns",
+      "destination": "/galeria-privada.html"
+    },
+    {
+      "source": "/albums",
+      "destination": "/galeria-privada.html"
+    },
+    {
       "source": "/index",
       "destination": "/index.html"
     },
