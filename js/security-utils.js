@@ -38,6 +38,29 @@
         return safeUrl(value, { allowedHosts: [STORAGE_HOST] });
     }
 
+    function thumbnailUrl(value, width = 700, quality = 70) {
+        const safe = safeStorageUrl(value);
+        if (!safe) return '';
+        try {
+            const url = new URL(safe);
+            if (url.pathname.includes('/storage/v1/object/sign/')) {
+                url.pathname = url.pathname.replace('/storage/v1/object/sign/', '/storage/v1/render/image/sign/');
+                url.searchParams.set('width', String(width));
+                url.searchParams.set('quality', String(quality));
+                return url.href;
+            }
+            if (url.pathname.includes('/storage/v1/object/public/')) {
+                url.pathname = url.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+                url.searchParams.set('width', String(width));
+                url.searchParams.set('quality', String(quality));
+                return url.href;
+            }
+        } catch {
+            return safe;
+        }
+        return safe;
+    }
+
     function textToSafeHtml(value) {
         const escaped = escapeHtml(value);
         return escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
@@ -129,6 +152,7 @@
         escapeHtml,
         safeUrl,
         safeStorageUrl,
+        thumbnailUrl,
         getSignedStorageUrls,
         textToSafeHtml
     });

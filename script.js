@@ -56,10 +56,7 @@ if (menuToggle) {
 // em vez da foto original (que pode ter vários MB). Se a URL não for
 // do Storage do Supabase, devolve a URL original sem alterações.
 function urlThumbnail(url, largura) {
-    const safeUrl = window.MotaztSecurity?.safeStorageUrl(url) || '';
-    if (!safeUrl || !safeUrl.includes('/storage/v1/object/public/')) return safeUrl;
-    return safeUrl.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
-        + `?width=${largura}&quality=70`;
+    return window.MotaztSecurity?.thumbnailUrl(url, largura, 70) || '';
 }
 
 /* ======================================
@@ -123,6 +120,8 @@ async function carregarGaleria() {
             const img = document.createElement('img');
             img.alt = 'Foto ' + (index + 1);
             img.decoding = 'async';
+            img.loading = index < 4 ? 'eager' : 'lazy';
+            img.fetchPriority = index < 4 ? 'high' : 'low';
             const originalRaw = item.imagem_url || '';
             const previewRaw = item.imagem_preview || originalRaw;
             const imagemOriginal = signedUrls.get(originalRaw) || window.MotaztSecurity?.safeStorageUrl(originalRaw) || '';
@@ -151,7 +150,10 @@ async function carregarGaleria() {
                 }
             });
 
-            if (lazyObserver) {
+            if (index < 4) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            } else if (lazyObserver) {
                 lazyObserver.observe(img);
             } else {
                 img.src = img.dataset.src;
