@@ -113,10 +113,16 @@ module.exports = async function signedImages(req, res) {
 
     const rawEntries = Array.isArray(data) ? data : (data?.data || data?.signed || []);
     const entries = Array.isArray(rawEntries) ? rawEntries : [];
-    const signed = entries.map((entry, index) => ({
-      path: paths[index],
-      signedUrl: entry?.signedURL || entry?.signedUrl || entry?.url || ''
-    })).filter(entry => entry.signedUrl);
+    const signed = entries.map((entry, index) => {
+      const returnedPath = typeof entry?.path === 'string' ? entry.path.replace(/^\/+/, '') : '';
+      const matchedPath = returnedPath
+        ? paths.find(path => path === returnedPath || path.endsWith(`/${returnedPath}`) || path.endsWith(`/fotos/${returnedPath}`))
+        : paths[index];
+      return {
+        path: matchedPath || '',
+        signedUrl: entry?.signedURL || entry?.signedUrl || entry?.url || ''
+      };
+    }).filter(entry => entry.path && entry.signedUrl);
     return json(res, 200, { expiresIn: EXPIRES_IN, signed });
   } catch (error) {
     console.error('Signed image route error:', error);
