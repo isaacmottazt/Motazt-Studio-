@@ -153,7 +153,7 @@ async function finalizePhoto(req, res, base, key, body) {
   const photoData = await photoResponse.json().catch(() => null);
   if (!photoResponse.ok || !Array.isArray(photoData) || !photoData[0]?.id) {
     console.error('Finalize photo failed:', photoResponse.status, photoData);
-    return json(res, 502, { error: 'Os arquivos foram enviados, mas não foi possível registrar a foto.' });
+    return json(res, 502, { error: 'Os arquivos foram enviados, mas não foi possível registrar a foto.', detail: photoData?.message || photoData?.hint || photoData?.code || `HTTP ${photoResponse.status}` });
   }
   const updateResponse = await supabaseFetch(base, key, `/rest/v1/galerias?id=eq.${encodeURIComponent(galeriaId)}`, {
     method: 'PATCH',
