@@ -804,7 +804,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/security-utils.js"></script>
-    <script src="js/galerias-sistema-completo.js?v=20260814-galerias1"></script>
+    <script src="js/galerias-sistema-completo.js?v=20260816-codigo-curto"></script>
     <script>
         // ===== VARIÁVEIS GLOBAIS =====
         // supabaseClient já foi criado em js/galerias-sistema-completo.js — reaproveitado aqui
@@ -826,7 +826,7 @@
         // ===== EXTRAIR ID DA URL =====
         function extrairIdDaUrl() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('id');
+            return params.get('codigo') || params.get('id');
         }
 
         // ===== INICIALIZAÇÃO =====
@@ -851,7 +851,8 @@
                     return;
                 }
 
-                // Acesso somente com o ID: carrega a galeria direto, sem senha
+                // O visitante pode informar o código curto; as fotos usam o UUID interno.
+                galeriaId = galeria.id;
                 document.getElementById('galeriaNome').textContent = galeria.titulo || 'Suas Fotos';
 
                 await carregarGaleria();
@@ -896,13 +897,14 @@
                 }
 
                 // Atualiza a URL com o ID e recarrega o fluxo normal
-                const novaUrl = `${window.location.pathname}?id=${encodeURIComponent(idDigitado)}`;
+                const usaCodigoCurto = !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idDigitado);
+                const novaUrl = `${window.location.pathname}?${usaCodigoCurto ? 'codigo' : 'id'}=${encodeURIComponent(idDigitado)}`;
                 window.history.replaceState({}, '', novaUrl);
 
                 document.getElementById('idScreen').style.display = 'none';
                 document.getElementById('loadingScreen').style.display = 'flex';
 
-                galeriaId = idDigitado;
+                galeriaId = galeria.id;
                 document.getElementById('galeriaNome').textContent = galeria.titulo || 'Suas Fotos';
 
                 await carregarGaleria();

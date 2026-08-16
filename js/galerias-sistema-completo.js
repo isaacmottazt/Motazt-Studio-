@@ -79,11 +79,19 @@ async function criarGaleria(clienteNome, clienteTelefone, titulo = '') {
  */
 async function validarGaleria(galeriaId) {
     try {
-        const { data: galeria, error } = await supabaseClient
+        const identificador = String(galeriaId || '').trim();
+        if (!identificador) return null;
+
+        let consulta = supabaseClient
             .from('galerias')
-            .select('id, cliente_nome, titulo, data_expiracao, status, total_fotos')
-            .eq('id', galeriaId)
-            .single();
+            .select('id, codigo_curto, cliente_nome, titulo, data_expiracao, status, total_fotos');
+
+        const pareceUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identificador);
+        consulta = pareceUuid
+            ? consulta.eq('id', identificador)
+            : consulta.ilike('codigo_curto', identificador);
+
+        const { data: galeria, error } = await consulta.maybeSingle();
 
         if (error) {
             console.error('Galeria não encontrada:', error);
