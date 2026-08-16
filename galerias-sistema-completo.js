@@ -83,7 +83,7 @@ async function validarGaleria(galeriaId) {
     try {
         const { data: galeria, error } = await supabaseClient
             .from('galerias')
-            .select('*')
+            .select('id, cliente_nome, titulo, data_expiracao, status, total_fotos')
             .eq('id', galeriaId)
             .single();
 
@@ -134,7 +134,7 @@ async function listarFotosDaGaleria(galeriaId) {
     try {
         const { data: fotos, error } = await supabaseClient
             .from('fotos')
-            .select('*')
+            .select('id, arquivo_preview, arquivo_full, posicao, favorita')
             .eq('galeria_id', galeriaId)
             .order('posicao', { ascending: true });
 
@@ -160,9 +160,19 @@ async function listarFotosDaGaleria(galeriaId) {
  */
 async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
     try {
-        // Gerar nome único para o arquivo
-        const timestamp = Date.now();
-        const nomeArquivo = `${galeriaId}/${timestamp}-${arquivo.name}`;
+        const tiposPermitidos = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+        const limiteBytes = 25 * 1024 * 1024;
+        if (!arquivo || !tiposPermitidos.has(arquivo.type)) {
+            throw new Error('Tipo de imagem não permitido. Use JPG, PNG, WebP ou GIF.');
+        }
+        if (arquivo.size > limiteBytes) {
+            throw new Error('A imagem excede o limite de 25 MB.');
+        }
+        const idSeguro = String(galeriaId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+        if (!idSeguro) throw new Error('ID de galeria inválido.');
+        const nomeSeguro = String(arquivo.name || 'imagem').split(/[\\/]/).pop().replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'imagem';
+        const identificador = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const nomeArquivo = `${idSeguro}/${identificador}-${nomeSeguro}`;
 
         // Upload para Storage do Supabase
         const { data: uploadData, error: erroUpload } = await supabaseClient
@@ -356,7 +366,7 @@ async function obterInfoGaleria(galeriaId) {
     try {
         const { data: galeria, error } = await supabaseClient
             .from('galerias')
-            .select('*')
+            .select('id, cliente_nome, titulo, data_expiracao, status, total_fotos')
             .eq('id', galeriaId)
             .single();
 

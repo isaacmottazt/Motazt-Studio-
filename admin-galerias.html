@@ -811,6 +811,7 @@
 
     <!-- Scripts necessários -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/security-utils.js"></script>
     <script src="galerias-sistema-completo.js?v=20260814-galerias1"></script>
 
     <script>
@@ -818,6 +819,8 @@
         const adminSupabaseClient = supabaseClient; // usar o cliente do galerias-sistema-completo.js
 
         let fotosParaEnviar = [];
+        const esc = (value) => MotaztSecurity.escapeHtml(value);
+        const jsArg = (value) => MotaztSecurity.escapeHtml(JSON.stringify(String(value ?? '')));
 
         // ===== NAVEGAÇÃO ENTRE ABAS =====
         function mudarAba(tab, botao) {
@@ -865,16 +868,16 @@
                         <div class="galeria-item">
                             <div class="galeria-header-item">
                                 <div>
-                                    <div class="galeria-nome">${gal.titulo || primeiroNome}</div>
-                                    <div class="galeria-id">ID: ${gal.id.substring(0, 12)}...</div>
+                                    <div class="galeria-nome">${MotaztSecurity.escapeHtml(gal.titulo || primeiroNome)}</div>
+                                    <div class="galeria-id">ID: ${MotaztSecurity.escapeHtml(String(gal.id).substring(0, 12))}...</div>
                                 </div>
-                                <span class="galeria-status ${gal.status}">${gal.status.toUpperCase()}</span>
+                                <span class="galeria-status ${MotaztSecurity.escapeHtml(String(gal.status || 'desconhecida'))}">${MotaztSecurity.escapeHtml(String(gal.status || 'desconhecida').toUpperCase())}</span>
                             </div>
 
                             <div class="galeria-info">
                                 <div class="info-item">
                                     <div class="info-label">Fotos</div>
-                                    <div class="info-value" id="total-fotos-${gal.id}">--</div>
+                                    <div class="info-value" id="total-fotos-${esc(gal.id)}">--</div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Criada em</div>
@@ -886,7 +889,7 @@
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">Telefone</div>
-                                    <div class="info-value">${gal.cliente_telefone || gal.telefone || '—'}</div>
+                                    <div class="info-value">${MotaztSecurity.escapeHtml(gal.cliente_telefone || gal.telefone || '—')}</div>
                                 </div>
                             </div>
 
@@ -894,7 +897,7 @@
                             <div class="galeria-controls">
                                 <div class="control-group">
                                     <label>Status</label>
-                                    <select id="status-${gal.id}" onchange="atualizarStatusGaleria('${gal.id}', this.value)">
+                                    <select id="status-${esc(gal.id)}" onchange="atualizarStatusGaleria(${jsArg(gal.id)}, this.value)">
                             <option value="ativa" ${gal.status === 'ativa' ? 'selected' : ''}>Ativa</option>
                             <option value="bloqueada" ${gal.status === 'bloqueada' ? 'selected' : ''}>Bloqueada</option>
                             <option value="expirada" ${gal.status === 'expirada' ? 'selected' : ''}>Expirada</option>
@@ -902,26 +905,26 @@
                                 </div>
                                 <div class="control-group">
                                     <label>Dias válida</label>
-                                    <input type="number" id="dias-${gal.id}" min="1" max="365" value="${dias}">
+                                    <input type="number" id="dias-${esc(gal.id)}" min="1" max="365" value="${esc(dias)}">
                                 </div>
-                                <button class="btn-salvar-control" onclick="atualizarDiasGaleria('${gal.id}')">Salvar</button>
+                                <button class="btn-salvar-control" onclick="atualizarDiasGaleria(${jsArg(gal.id)})">Salvar</button>
                             </div>
 
                             <!-- Galeria de fotos -->
                             <div class="galeria-fotos">
                                     <label class="fotos-label"><i data-lucide="images"></i> Fotos armazenadas</label>
-                                <div id="fotos-${gal.id}" class="fotos-grid">
+                                <div id="fotos-${esc(gal.id)}" class="fotos-grid">
                                     <div class="fotos-vazio">Carregando...</div>
                                 </div>
                                 <div style="margin-top: 10px;">
-                                    <button class="btn-acao" onclick="abrirModalFotos('${gal.id}')">Abrir galeria</button>
+                                    <button class="btn-acao" onclick="abrirModalFotos(${jsArg(gal.id)})">Abrir galeria</button>
                                 </div>
                             </div>
 
                             <div class="galeria-actions">
-                                <button class="btn-acao" onclick="copiarIdGaleria('${gal.id}')"><i data-lucide="copy"></i> Copiar ID</button>
-                                <button class="btn-acao" onclick="abrirLink('${gal.id}')"><i data-lucide="external-link"></i> Ver link</button>
-                                <button class="btn-acao btn-danger" onclick="deletarGaleria('${gal.id}')"><i data-lucide="trash-2"></i> Excluir</button>
+                                <button class="btn-acao" onclick="copiarIdGaleria(${jsArg(gal.id)})"><i data-lucide="copy"></i> Copiar ID</button>
+                                <button class="btn-acao" onclick="abrirLink(${jsArg(gal.id)})"><i data-lucide="external-link"></i> Ver link</button>
+                                <button class="btn-acao btn-danger" onclick="deletarGaleria(${jsArg(gal.id)})"><i data-lucide="trash-2"></i> Excluir</button>
                             </div>
                         </div>
                     `;
@@ -963,7 +966,7 @@
                 // Mostrar apenas 4 primeiras fotos como preview
                 container.innerHTML = fotos.slice(0, 4).map(foto => `
                     <div class="foto-thumb">
-                        <img src="${foto.arquivo_preview}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                        <img src="${MotaztSecurity.escapeHtml(MotaztSecurity.safeStorageUrl(foto.arquivo_preview))}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
                         ${foto.favorita ? '<div class="foto-favorita">⭐</div>' : ''}
                     </div>
                 `).join('');
@@ -1007,8 +1010,8 @@
                 } else {
                     grid.innerHTML = fotos.map(foto => `
                         <div class="modal-foto-item">
-                            <img src="${foto.arquivo_preview}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
-                            <button class="btn-excluir-foto" onclick="excluirFotoModal('${foto.id}', '${foto.arquivo_original}')" title="Excluir foto">Excluir</button>
+                            <img src="${MotaztSecurity.escapeHtml(MotaztSecurity.safeStorageUrl(foto.arquivo_preview))}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                            <button class="btn-excluir-foto" onclick="excluirFotoModal(${MotaztSecurity.escapeHtml(JSON.stringify(foto.id))}, ${MotaztSecurity.escapeHtml(JSON.stringify(foto.arquivo_original || ''))})" title="Excluir foto">Excluir</button>
                         </div>
                     `).join('');
                 }

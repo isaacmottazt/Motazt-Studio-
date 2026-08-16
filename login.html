@@ -44,6 +44,7 @@
     <!-- SUPABASE -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/login.js" defer></script>
 
     <!-- JS -->
 
@@ -126,7 +127,7 @@
         window.addEventListener("error", function(e){
             var status = document.getElementById("status");
             if(status){
-                status.innerHTML = "Erro: " + e.message;
+                status.textContent = "Erro: " + String(e.message || 'erro desconhecido');
                 status.style.color = "red";
             }
         });

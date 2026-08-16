@@ -803,6 +803,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/security-utils.js"></script>
     <script src="js/galerias-sistema-completo.js?v=20260814-galerias1"></script>
     <script>
         // ===== VARIÁVEIS GLOBAIS =====
@@ -982,22 +983,23 @@
 
             grid.innerHTML = fotosExibidas.map((foto, idx) => {
                 // Usa o preview se existir, senão usa a foto full
-                const imgUrl = foto.arquivo_preview || foto.arquivo_full;
+                const imgUrl = MotaztSecurity.safeStorageUrl(foto.arquivo_preview || foto.arquivo_full);
+                if (!imgUrl) return '';
                 return `
                     <div class="foto-card carregando ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">
-                        <img src="${imgUrl}" 
+                        <img src="${MotaztSecurity.escapeHtml(imgUrl)}"
                              alt="Foto ${idx + 1}" 
                              oncontextmenu="return false" 
                              draggable="false" 
                              onload="this.classList.add('carregada'); this.closest('.foto-card').classList.remove('carregando')"
                              onerror="this.closest('.foto-card').classList.remove('carregando'); this.closest('.foto-card').classList.add('erro-carregamento')">
                         <button class="btn-favoritar ${foto.favorita ? 'favorita' : ''}"
-                                onclick="toggleFavorita(event, '${foto.id}', ${foto.favorita})" title="Favoritar">
+                                onclick="toggleFavorita(event, ${MotaztSecurity.escapeHtml(JSON.stringify(foto.id))}, ${Boolean(foto.favorita)})" title="Favoritar">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.5l2.6 5.4 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"/>
                             </svg>
                         </button>
-                        <div class="check-selecao" onclick="alternarSelecaoFoto(event, '${foto.id}')"><i data-lucide="check"></i></div>
+                        <div class="check-selecao" onclick="alternarSelecaoFoto(event, ${MotaztSecurity.escapeHtml(JSON.stringify(foto.id))})"><i data-lucide="check"></i></div>
                     </div>
                 `;
             }).join('');
@@ -1082,8 +1084,10 @@
 
         // ===== DOWNLOAD =====
         async function baixarImagem(url, nomeArquivo) {
+            const safeUrl = MotaztSecurity.safeStorageUrl(url);
+            if (!safeUrl) return;
             try {
-                const resposta = await fetch(url);
+                const resposta = await fetch(safeUrl);
                 const blob = await resposta.blob();
                 const urlBlob = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -1095,7 +1099,8 @@
                 URL.revokeObjectURL(urlBlob);
             } catch (erro) {
                 console.error('Erro ao baixar imagem:', erro);
-                window.open(url, '_blank', 'noopener');
+                const safeUrl = MotaztSecurity.safeStorageUrl(url);
+                if (safeUrl) window.open(safeUrl, '_blank', 'noopener,noreferrer');
             }
         }
 
@@ -1153,7 +1158,7 @@
             fotoAtualModal = indice;
             const modal = document.getElementById('modalVisualizacao');
             const img = document.getElementById('modalImg');
-            img.src = fotosExibidas[indice].arquivo_full;
+            img.src = MotaztSecurity.safeStorageUrl(fotosExibidas[indice].arquivo_full);
             const info = document.getElementById('modalInfo');
             info.textContent = `${indice + 1} de ${fotosExibidas.length}`;
             modal.classList.add('ativa');
@@ -1165,14 +1170,14 @@
 
         function proximaFoto() {
             fotoAtualModal = (fotoAtualModal + 1) % fotosExibidas.length;
-            document.getElementById('modalImg').src = fotosExibidas[fotoAtualModal].arquivo_full;
+            document.getElementById('modalImg').src = MotaztSecurity.safeStorageUrl(fotosExibidas[fotoAtualModal].arquivo_full);
             const info = document.getElementById('modalInfo');
             info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
         }
 
         function fotoAnterior() {
             fotoAtualModal = (fotoAtualModal - 1 + fotosExibidas.length) % fotosExibidas.length;
-            document.getElementById('modalImg').src = fotosExibidas[fotoAtualModal].arquivo_full;
+            document.getElementById('modalImg').src = MotaztSecurity.safeStorageUrl(fotosExibidas[fotoAtualModal].arquivo_full);
             const info = document.getElementById('modalInfo');
             info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
         }

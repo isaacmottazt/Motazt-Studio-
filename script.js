@@ -56,8 +56,9 @@ if (menuToggle) {
 // em vez da foto original (que pode ter vários MB). Se a URL não for
 // do Storage do Supabase, devolve a URL original sem alterações.
 function urlThumbnail(url, largura) {
-    if (!url || !url.includes('/storage/v1/object/public/')) return url;
-    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+    const safeUrl = window.MotaztSecurity?.safeStorageUrl(url) || '';
+    if (!safeUrl || !safeUrl.includes('/storage/v1/object/public/')) return safeUrl;
+    return safeUrl.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
         + `?width=${largura}&quality=70`;
 }
 
@@ -66,18 +67,20 @@ function urlThumbnail(url, largura) {
    do mosaico, diferente do atributo loading="lazy")
 ====================================== */
 
-const lazyObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const img = entry.target;
-        const src = img.dataset.src;
-        if (src) {
-            img.src = src;
-            img.removeAttribute('data-src');
-        }
-        lazyObserver.unobserve(img);
-    });
-}, { rootMargin: '600px 0px' }); // começa a carregar bem antes de entrar na tela
+const lazyObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const img = entry.target;
+            const src = img.dataset.src;
+            if (src) {
+                img.src = src;
+                img.removeAttribute('data-src');
+            }
+            lazyObserver.unobserve(img);
+        });
+    }, { rootMargin: '600px 0px' })
+    : null;
 
 
 /* ======================================
@@ -111,8 +114,11 @@ async function carregarGaleria() {
             const img = document.createElement('img');
             img.alt = 'Foto ' + (index + 1);
             img.decoding = 'async';
-            img.dataset.full = item.imagem_url; // usada no lightbox, em resolução alta
-            img.dataset.src = urlThumbnail(item.imagem_url, 700); // thumbnail leve pro grid
+            const imagemOriginal = window.MotaztSecurity?.safeStorageUrl(item.imagem_url) || '';
+            const imagemPreview = urlThumbnail(item.imagem_preview || item.imagem_url, 700);
+            if (!imagemOriginal && !imagemPreview) return;
+            img.dataset.full = imagemOriginal;
+            img.dataset.src = imagemPreview || imagemOriginal;
             // Nota: não usamos o atributo loading="lazy" aqui porque o mosaico
             // usa position:absolute — o navegador não calcula corretamente
             // quais fotos estão fora da tela nesse caso. Em vez disso, usamos
@@ -133,7 +139,12 @@ async function carregarGaleria() {
                 }
             });
 
-            lazyObserver.observe(img);
+            if (lazyObserver) {
+                lazyObserver.observe(img);
+            } else {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
         });
 
         ativarLightbox();

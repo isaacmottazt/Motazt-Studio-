@@ -310,7 +310,11 @@
         falar(texto) {
             const div = document.createElement('div');
             div.className = 'chatbot-msg bot';
-            div.innerHTML = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            if (window.MotaztSecurity) {
+                div.innerHTML = window.MotaztSecurity.textToSafeHtml(texto);
+            } else {
+                div.textContent = String(texto ?? '');
+            }
             this.elMsgs.appendChild(div);
             this.scroll();
         },
@@ -325,8 +329,11 @@
             
             fotos.forEach(foto => {
                 const img = document.createElement('img');
-                img.src = foto.arquivo_preview;
+                const urlPreview = window.MotaztSecurity?.safeStorageUrl(foto.arquivo_preview);
+                if (!urlPreview) return;
+                img.src = urlPreview;
                 img.alt = 'Foto do álbum';
+                img.referrerPolicy = 'no-referrer';
                 img.onclick = () => window.open(`/galeria-privada?id=${galeriaId}`, '_blank');
                 grid.appendChild(img);
             });
@@ -350,7 +357,9 @@
             opcoes.forEach(op => {
                 const btn = document.createElement('button');
                 btn.className = 'chatbot-chip';
-                btn.innerHTML = `<i data-lucide="${op.icon || 'chevron-right'}"></i> ${op.label}`;
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', String(op.icon || 'chevron-right'));
+                btn.append(icon, document.createTextNode(` ${String(op.label || '')}`));
                 btn.addEventListener('click', () => this.processar(op.valor));
                 this.elSugest.appendChild(btn);
             });
@@ -362,9 +371,12 @@
             links.forEach(op => {
                 const btn = document.createElement('button');
                 btn.className = 'chatbot-chip';
-                btn.innerHTML = `<i data-lucide="${op.icon || 'external-link'}"></i> ${op.label}`;
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', String(op.icon || 'external-link'));
+                btn.append(icon, document.createTextNode(` ${String(op.label || '')}`));
                 btn.addEventListener('click', () => {
-                    window.open(op.link, '_blank', 'noopener');
+                    const safeLink = window.MotaztSecurity?.safeUrl(op.link, { allowedHosts: ['wa.me', 'instagram.com', 'www.instagram.com'], allowSameOrigin: true });
+                    if (safeLink) window.open(safeLink, '_blank', 'noopener,noreferrer');
                 });
                 this.elSugest.appendChild(btn);
             });
