@@ -3,6 +3,10 @@
   "trailingSlash": false,
   "headers": [
     {
+      "source": "/js/sw.js",
+      "headers": [{ "key": "Service-Worker-Allowed", "value": "/" }]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://tbwmsgztpyyratambgqs.supabase.co; connect-src 'self' https://tbwmsgztpyyratambgqs.supabase.co; upgrade-insecure-requests" },
@@ -17,27 +21,27 @@
   "rewrites": [
     {
       "source": "/galeria-privada",
-      "destination": "/album.html"
+      "destination": "/html/album.html"
     },
     {
       "source": "/album",
-      "destination": "/album.html"
+      "destination": "/html/album.html"
     },
     {
       "source": "/albuns",
-      "destination": "/album.html"
+      "destination": "/html/album.html"
     },
     {
       "source": "/albums",
-      "destination": "/album.html"
+      "destination": "/html/album.html"
     },
     {
       "source": "/index",
-      "destination": "/index.html"
+      "destination": "/html/index.html"
     },
     {
       "source": "/",
-      "destination": "/index.html"
+      "destination": "/html/index.html"
     }
   ]
 }

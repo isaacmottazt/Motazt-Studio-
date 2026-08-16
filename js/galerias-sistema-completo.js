@@ -1,27 +1,27 @@
 /**
  * SISTEMA COMPLETO DE GALERIAS PRIVADAS
- * Motaz Studio
+ * Motazt Studio
  *
  * Funciona em 3 momentos:
- * 1. Admin cria uma galeria privada manualmente com nome, telefone e título
+ * 1. Admin cria um álbum privado com nome e telefone do cliente
  * 2. Admin faz upload de fotos → vincula à galeria específica
- * 3. Cliente acessa galeria-privada.html?id=xyz → vê só suas fotos
+ * 3. Cliente acessa a galeria privada pelo ID → vê só suas fotos
  *
  * Requer supabase-js via CDN:
  * <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  */
 
 const SUPABASE_URL = "https://tbwmsgztpyyratambgqs.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRid21zZ3p0cHl5cmF0YW1iZ3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTU3OTIsImV4cCI6MjA5Mzk3MTc5Mn0.Rnq4IxsvidlkyKM23CzVGcdTPo1xarEmkIbEVdrhFUQ";
+const SUPABASE_ANON_KEY = "sb_publishable_yqH30kXsSD7nmwdlgPj93Q_pw1QrcQd";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===== 1. CRIAR GALERIA PRIVADA MANUALMENTE =====
+// ===== 1. CRIAR ÁLBUM PRIVADO =====
 
 /**
- * Cria uma galeria privada manualmente pelo painel administrativo.
+ * Cria um álbum privado diretamente pelo painel administrativo.
  *
  * @param {string} clienteNome - Nome do cliente
- * @param {string} clienteTelefone - Telefone do cliente
+ * @param {string} clienteTelefone - Telefone do cliente (para enviar o link pelo WhatsApp)
  * @param {string} titulo - Título da galeria (nome do evento/ensaio), exibido para o cliente
  * @returns {Promise} { galeria_id, mensagem }
  */
@@ -31,6 +31,8 @@ async function criarGaleria(clienteNome, clienteTelefone, titulo = '') {
         const dataExpiracao = new Date(dataCriacao);
         dataExpiracao.setDate(dataExpiracao.getDate() + 30);
 
+        // A tabela privada real é public.galerias. A inserção direta evita
+        // dependência da função RPC antiga e do cache do PostgREST.
         const { data, error } = await supabaseClient
             .from('galerias')
             .insert({
@@ -64,7 +66,7 @@ async function criarGaleria(clienteNome, clienteTelefone, titulo = '') {
 
 /**
  * Valida se a galeria existe, está ativa e não expirou
- * Chamado quando o cliente acessa galeria-privada.html?id=xyz
+ * Chamado quando o cliente acessa album.html?id=xyz
  *
  * @param {string} galeriaId - ID da galeria (do ?id=xyz na URL)
  * @returns {Promise<object|null>} os dados da galeria se válida, ou null
@@ -79,19 +81,11 @@ async function criarGaleria(clienteNome, clienteTelefone, titulo = '') {
  */
 async function validarGaleria(galeriaId) {
     try {
-        const identificador = String(galeriaId || '').trim();
-        if (!identificador) return null;
-
-        let consulta = supabaseClient
+        const { data: galeria, error } = await supabaseClient
             .from('galerias')
-            .select('id, codigo_curto, cliente_nome, titulo, data_expiracao, status, total_fotos');
-
-        const pareceUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identificador);
-        consulta = pareceUuid
-            ? consulta.eq('id', identificador)
-            : consulta.ilike('codigo_curto', identificador);
-
-        const { data: galeria, error } = await consulta.maybeSingle();
+            .select('id, cliente_nome, titulo, data_expiracao, status, total_fotos')
+            .eq('id', galeriaId)
+            .single();
 
         if (error) {
             console.error('Galeria não encontrada:', error);

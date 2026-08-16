@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Galerias — Admin</title>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -682,14 +682,14 @@
         }
     </style>
     <!-- Tema final carregado por último para padronizar a página de álbuns -->
-    <link rel="stylesheet" href="admin.css">
-    <link rel="stylesheet" href="admin-galerias-site-theme.css?v=20260814-site-theme2">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/admin-galerias-site-theme.css?v=20260814-site-theme2">
 </head>
 <body>
     <!-- Cabeçalho com a mesma linguagem visual do Site principal -->
     <header class="admin-topo" id="adminTopo">
         <a class="admin-logo" href="index.html" aria-label="Motazt Studio — Galeria pública">
-            <img src="img/logo-branco.png" alt="Motazt Studio">
+            <img src="../img/logo-branco.png" alt="Motazt Studio">
             <h1>Motazt Studio</h1>
         </a>
 
@@ -709,7 +709,7 @@
 
         <!-- ===== FAIXA LATERAL PADRONIZADA ===== -->
         <aside class="faixa">
-            <div class="faixa-logo"><img src="img/logo.png" alt="Logo"></div>
+            <div class="faixa-logo"><img src="../img/logo.png" alt="Logo"></div>
             <div class="faixa-linha"></div>
             <a class="faixa-btn" href="index.html" title="Galeria pública"><i data-lucide="grid-3x3"></i></a>
             <a class="faixa-btn faixa-btn--ativo" href="admin-galerias.html" title="Álbuns privados"><i data-lucide="images"></i></a>
@@ -811,8 +811,8 @@
 
     <!-- Scripts necessários -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/security-utils.js"></script>
-    <script src="galerias-sistema-completo.js?v=20260814-galerias1"></script>
+    <script src="../js/security-utils.js"></script>
+    <script src="../js/galerias-sistema-completo.js?v=20260814-galerias1"></script>
 
     <script>
         // Inicializar cliente admin (ajustar conforme sua config)

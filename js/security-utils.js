@@ -147,7 +147,7 @@
     }
 
     if (global.navigator?.serviceWorker) {
-        global.navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+        global.navigator.serviceWorker.register('/js/sw.js', { scope: '/' }).catch(() => {});
     }
 
     global.MotaztSecurity = Object.freeze({
