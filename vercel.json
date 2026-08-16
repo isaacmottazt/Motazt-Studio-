@@ -1,5 +1,5 @@
 {
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "headers": [
     {
@@ -21,27 +21,27 @@
   "rewrites": [
     {
       "source": "/galeria-privada",
-      "destination": "/html/album"
+      "destination": "/html/album.html"
     },
     {
       "source": "/album",
-      "destination": "/html/album"
+      "destination": "/html/album.html"
     },
     {
       "source": "/albuns",
-      "destination": "/html/album"
+      "destination": "/html/album.html"
     },
     {
       "source": "/albums",
-      "destination": "/html/album"
+      "destination": "/html/album.html"
     },
     {
       "source": "/index",
-      "destination": "/html/index"
+      "destination": "/html/index.html"
     },
     {
       "source": "/",
-      "destination": "/html/index"
+      "destination": "/html/index.html"
     }
   ]
 }
