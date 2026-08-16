@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://tbwmsgztpyyratambgqs.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_yqH30kXsSD7nmwdlgPj93Q_pw1QrcQd';
+const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRid21zZ3p0cHl5cmF0YW1iZ3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTU3OTIsImV4cCI6MjA5Mzk3MTc5Mn0.Rnq4IxsvidlkyKM23CzVGcdTPo1xarEmkIbEVdrhFUQ';
 const loginClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 function mostrarStatusLogin(mensagem, tipo = 'erro') {
