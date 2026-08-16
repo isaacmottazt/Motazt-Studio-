@@ -110,12 +110,23 @@ async function carregarGaleria() {
         galeriaContainer.innerHTML = '';
         estadoMosaico = null; // reseta o estado a cada carregamento da galeria
 
+        const urlsImagem = data.flatMap(item => [item.imagem_url, item.imagem_preview]).filter(Boolean);
+        let signedUrls = new Map();
+        try {
+            signedUrls = await window.MotaztSecurity.getSignedStorageUrls(urlsImagem, { portfolio: true });
+        } catch (signError) {
+            console.warn('URLs assinadas indisponíveis; usando fallback seguro:', signError);
+        }
+
         data.forEach((item, index) => {
             const img = document.createElement('img');
             img.alt = 'Foto ' + (index + 1);
             img.decoding = 'async';
-            const imagemOriginal = window.MotaztSecurity?.safeStorageUrl(item.imagem_url) || '';
-            const imagemPreview = urlThumbnail(item.imagem_preview || item.imagem_url, 700);
+            const originalRaw = item.imagem_url || '';
+            const previewRaw = item.imagem_preview || originalRaw;
+            const imagemOriginal = signedUrls.get(originalRaw) || window.MotaztSecurity?.safeStorageUrl(originalRaw) || '';
+            const imagemPreviewRaw = signedUrls.get(previewRaw) || window.MotaztSecurity?.safeStorageUrl(previewRaw) || '';
+            const imagemPreview = urlThumbnail(imagemPreviewRaw, 700);
             if (!imagemOriginal && !imagemPreview) return;
             img.dataset.full = imagemOriginal;
             img.dataset.src = imagemPreview || imagemOriginal;

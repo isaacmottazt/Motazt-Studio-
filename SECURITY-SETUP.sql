@@ -97,5 +97,15 @@ for delete
 to authenticated
 using (bucket_id = 'fotos' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
--- IMPORTANTE: ao tornar o bucket privado, substitua getPublicUrl() no frontend
--- por createSignedUrl() e armazene o path do objeto, não uma URL pública.
+-- ETAPA FINAL — execute somente depois de publicar a rota /api/signed-images,
+-- configurar SUPABASE_SERVICE_ROLE_KEY na Vercel e validar os álbuns.
+-- O frontend já solicita URLs assinadas e mantém fallback temporário durante a transição.
+update storage.buckets
+set public = false
+where id = 'fotos';
+
+drop policy if exists "public_read_fotos_storage" on storage.objects;
+drop policy if exists "Liberar leitura 1m4ctr_1" on storage.objects;
+drop policy if exists "Permitir visualizar" on storage.objects;
+
+-- A partir daqui, imagens só devem ser entregues por URLs assinadas.

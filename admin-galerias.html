@@ -944,7 +944,7 @@
             try {
                 const { data: fotos, error } = await adminSupabaseClient
                     .from('fotos')
-                    .select('*')
+                    .select('id, arquivo_preview, arquivo_full, arquivo_original, posicao, favorita')
                     .eq('galeria_id', galeriaId)
                     .order('posicao', { ascending: true });
 
@@ -963,13 +963,18 @@
                     return;
                 }
 
+                const signedUrls = await MotaztSecurity.getSignedStorageUrls(fotos.flatMap(foto => [foto.arquivo_preview, foto.arquivo_full]).filter(Boolean), { galleryId: galeriaId }).catch(() => new Map());
                 // Mostrar apenas 4 primeiras fotos como preview
-                container.innerHTML = fotos.slice(0, 4).map(foto => `
+                container.innerHTML = fotos.slice(0, 4).map(foto => {
+                    const rawImage = foto.arquivo_preview || foto.arquivo_full;
+                    const imageUrl = signedUrls.get(rawImage) || MotaztSecurity.safeStorageUrl(rawImage);
+                    return `
                     <div class="foto-thumb">
-                        <img src="${MotaztSecurity.escapeHtml(MotaztSecurity.safeStorageUrl(foto.arquivo_preview))}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                        <img src="${MotaztSecurity.escapeHtml(imageUrl)}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
                         ${foto.favorita ? '<div class="foto-favorita">⭐</div>' : ''}
                     </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 if (fotos.length > 4) {
                     container.innerHTML += `<div style="grid-column: 1/-1; text-align: center; padding: 10px; color: var(--texto-mudo); font-size: 12px;">+${fotos.length - 4} mais</div>`;
@@ -997,7 +1002,7 @@
             try {
                 const { data: fotos, error } = await adminSupabaseClient
                     .from('fotos')
-                    .select('*')
+                    .select('id, arquivo_preview, arquivo_full, arquivo_original, posicao, favorita')
                     .eq('galeria_id', galeriaAbertaNoModal)
                     .order('posicao', { ascending: true });
 
@@ -1008,12 +1013,17 @@
                 if (!fotos || fotos.length === 0) {
                     grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--texto-mudo);">Nenhuma foto nesta galeria</div>';
                 } else {
-                    grid.innerHTML = fotos.map(foto => `
+                    const signedUrls = await MotaztSecurity.getSignedStorageUrls(fotos.flatMap(foto => [foto.arquivo_preview, foto.arquivo_full]).filter(Boolean), { galleryId: galeriaAbertaNoModal }).catch(() => new Map());
+                    grid.innerHTML = fotos.map(foto => {
+                        const rawImage = foto.arquivo_preview || foto.arquivo_full;
+                        const imageUrl = signedUrls.get(rawImage) || MotaztSecurity.safeStorageUrl(rawImage);
+                        return `
                         <div class="modal-foto-item">
-                            <img src="${MotaztSecurity.escapeHtml(MotaztSecurity.safeStorageUrl(foto.arquivo_preview))}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
+                            <img src="${MotaztSecurity.escapeHtml(imageUrl)}" alt="Foto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjwvc3ZnPg=='">
                             <button class="btn-excluir-foto" onclick="excluirFotoModal(${MotaztSecurity.escapeHtml(JSON.stringify(foto.id))}, ${MotaztSecurity.escapeHtml(JSON.stringify(foto.arquivo_original || ''))})" title="Excluir foto">Excluir</button>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
 
             } catch (erro) {

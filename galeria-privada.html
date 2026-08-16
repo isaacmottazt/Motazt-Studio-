@@ -815,7 +815,13 @@
         let filtroAtual = 'todas';
         let fotoAtualModal = 0;
         let modoSelecao = false;
-        const fotosSelecionadas = new Set();
+        let fotosSelecionadas = new Set();
+        let signedImageUrls = new Map();
+
+        function obterUrlFoto(foto) {
+            const raw = foto?.arquivo_full || foto?.arquivo_preview || '';
+            return signedImageUrls.get(raw) || MotaztSecurity.safeStorageUrl(raw);
+        }
 
         // ===== EXTRAIR ID DA URL =====
         function extrairIdDaUrl() {
@@ -933,6 +939,13 @@
                 if (error) throw error;
 
                 todasFotos = fotos || [];
+                const urlsImagem = todasFotos.flatMap(foto => [foto.arquivo_full, foto.arquivo_preview]).filter(Boolean);
+                try {
+                    signedImageUrls = await MotaztSecurity.getSignedStorageUrls(urlsImagem, { galleryId: galeriaId });
+                } catch (signError) {
+                    console.warn('URLs assinadas indisponíveis; usando fallback seguro:', signError);
+                    signedImageUrls = new Map();
+                }
                 
                 // Atualizar contadores
                 document.getElementById('totalFotos').textContent = todasFotos.length;
@@ -983,7 +996,7 @@
 
             grid.innerHTML = fotosExibidas.map((foto, idx) => {
                 // Usa o preview se existir, senão usa a foto full
-                const imgUrl = MotaztSecurity.safeStorageUrl(foto.arquivo_preview || foto.arquivo_full);
+                const imgUrl = signedImageUrls.get(foto.arquivo_preview || foto.arquivo_full) || MotaztSecurity.safeStorageUrl(foto.arquivo_preview || foto.arquivo_full);
                 if (!imgUrl) return '';
                 return `
                     <div class="foto-card carregando ${fotosSelecionadas.has(foto.id) ? 'selecionada' : ''}" onclick="cliqueNoCard(event, ${idx})">
@@ -1106,7 +1119,7 @@
 
         function baixarFotoAtual() {
             const foto = fotosExibidas[fotoAtualModal];
-            baixarImagem(foto.arquivo_full, `motaz-studio-foto-${fotoAtualModal + 1}.jpg`);
+            baixarImagem(obterUrlFoto(foto), `motaz-studio-foto-${fotoAtualModal + 1}.jpg`);
         }
 
         async function baixarSelecionadas() {
@@ -1121,7 +1134,7 @@
             contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''}...`;
 
             for (let i = 0; i < fotos.length; i++) {
-                await baixarImagem(fotos[i].arquivo_full, `motaz-studio-foto-${i + 1}.jpg`);
+                await baixarImagem(obterUrlFoto(fotos[i]), `motaz-studio-foto-${i + 1}.jpg`);
                 await new Promise(res => setTimeout(res, 400));
             }
 
@@ -1158,7 +1171,7 @@
             fotoAtualModal = indice;
             const modal = document.getElementById('modalVisualizacao');
             const img = document.getElementById('modalImg');
-            img.src = MotaztSecurity.safeStorageUrl(fotosExibidas[indice].arquivo_full);
+            img.src = obterUrlFoto(fotosExibidas[indice]);
             const info = document.getElementById('modalInfo');
             info.textContent = `${indice + 1} de ${fotosExibidas.length}`;
             modal.classList.add('ativa');
@@ -1170,14 +1183,14 @@
 
         function proximaFoto() {
             fotoAtualModal = (fotoAtualModal + 1) % fotosExibidas.length;
-            document.getElementById('modalImg').src = MotaztSecurity.safeStorageUrl(fotosExibidas[fotoAtualModal].arquivo_full);
+            document.getElementById('modalImg').src = obterUrlFoto(fotosExibidas[fotoAtualModal]);
             const info = document.getElementById('modalInfo');
             info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
         }
 
         function fotoAnterior() {
             fotoAtualModal = (fotoAtualModal - 1 + fotosExibidas.length) % fotosExibidas.length;
-            document.getElementById('modalImg').src = MotaztSecurity.safeStorageUrl(fotosExibidas[fotoAtualModal].arquivo_full);
+            document.getElementById('modalImg').src = obterUrlFoto(fotosExibidas[fotoAtualModal]);
             const info = document.getElementById('modalInfo');
             info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
         }

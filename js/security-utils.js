@@ -46,10 +46,33 @@
             .replace(/\n/g, '<br>');
     }
 
+    async function getSignedStorageUrls(values, scope = {}) {
+        const inputs = Array.isArray(values) ? values : [values];
+        const paths = inputs.map(value => String(value ?? '').trim()).filter(Boolean);
+        if (!paths.length) return new Map();
+        const response = await fetch('/api/signed-images', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ paths, galleryId: scope.galleryId || undefined, portfolio: scope.portfolio === true })
+        });
+        if (!response.ok) throw new Error('Não foi possível carregar as imagens com segurança.');
+        const payload = await response.json();
+        const result = new Map();
+        const entries = Array.isArray(payload.signed) ? payload.signed : [];
+        entries.forEach(entry => {
+            const path = entry?.path || entry?.name;
+            const signedUrl = entry?.signedURL || entry?.signedUrl || entry?.url;
+            if (path && signedUrl) result.set(path, safeStorageUrl(signedUrl));
+        });
+        return new Map(inputs.map(value => [value, result.get(value) || '']));
+    }
+
     global.MotaztSecurity = Object.freeze({
         escapeHtml,
         safeUrl,
         safeStorageUrl,
+        getSignedStorageUrls,
         textToSafeHtml
     });
 })(window);
