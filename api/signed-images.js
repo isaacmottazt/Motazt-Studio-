@@ -2,10 +2,23 @@ const BUCKET = 'fotos';
 const MAX_PATHS = 100;
 const EXPIRES_IN = 60 * 60;
 
+const ADMIN_ORIGIN = 'https://admin-luz-urbana.vercel.app';
+
 function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   return res.end(JSON.stringify(body));
+}
+
+function allowAdminCors(req, res) {
+  if (req.headers.origin === ADMIN_ORIGIN) {
+    res.setHeader('Access-Control-Allow-Origin', ADMIN_ORIGIN);
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Vary', 'Origin');
+    return true;
+  }
+  return false;
 }
 
 function normalizePath(value, supabaseUrl) {
@@ -42,6 +55,8 @@ function normalizeAllowedUrl(value, supabaseUrl) {
 }
 
 module.exports = async function signedImages(req, res) {
+  const adminCors = allowAdminCors(req, res);
+  if (req.method === 'OPTIONS' && adminCors) return res.status(204).end();
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return json(res, 405, { error: 'Método não permitido.' });
@@ -55,7 +70,7 @@ module.exports = async function signedImages(req, res) {
 
   const origin = req.headers.origin;
   const allowedOrigin = process.env.MOTAZT_SITE_ORIGIN;
-  if (allowedOrigin && origin && origin !== allowedOrigin) {
+  if (allowedOrigin && origin && origin !== allowedOrigin && origin !== ADMIN_ORIGIN) {
     return json(res, 403, { error: 'Origem não autorizada.' });
   }
 
@@ -66,8 +81,9 @@ module.exports = async function signedImages(req, res) {
   const rawPaths = Array.isArray(body?.paths) ? body.paths : [];
   const galleryId = typeof body?.galleryId === 'string' ? body.galleryId.trim() : '';
   const isPortfolio = body?.portfolio === true;
+  const isAdmin = body?.admin === true;
   const thumbnail = body?.thumbnail === true;
-  if (rawPaths.length === 0 || rawPaths.length > MAX_PATHS || (!galleryId && !isPortfolio)) {
+  if (rawPaths.length === 0 || rawPaths.length > MAX_PATHS || (!galleryId && !isPortfolio && !isAdmin)) {
     return json(res, 400, { error: 'Solicitação de imagens inválida.' });
   }
 
@@ -83,6 +99,17 @@ module.exports = async function signedImages(req, res) {
   }
 
   try {
+    if (isAdmin) {
+      if (!adminCors) return json(res, 403, { error: 'Origem administrativa não autorizada.' });
+      const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+      if (!token) return json(res, 401, { error: 'Autenticação administrativa necessária.' });
+      const userResponse = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1/user`, {
+        headers: { apikey: serviceRoleKey, Authorization: `Bearer ${token}` }
+      });
+      const user = await userResponse.json().catch(() => null);
+      if (!userResponse.ok || user?.app_metadata?.role !== 'admin') return json(res, 403, { error: 'Acesso administrativo necessário.' });
+    }
+
     const apiBase = `${supabaseUrl.replace(/\/$/, '')}/rest/v1`;
     if (galleryId) {
       const safeId = encodeURIComponent(galleryId);
@@ -95,7 +122,7 @@ module.exports = async function signedImages(req, res) {
       if (paths.some(path => !path.startsWith(prefix))) {
         return json(res, 403, { error: 'Imagem fora da galeria solicitada.' });
       }
-    } else {
+    } else if (!isAdmin) {
       const portfolioRows = await supabaseGet(`${apiBase}/galeria?select=imagem_url,imagem_preview&limit=1000`, serviceRoleKey);
       const allowed = new Set((Array.isArray(portfolioRows) ? portfolioRows : []).flatMap(row => [row.imagem_url, row.imagem_preview].map(value => normalizeAllowedUrl(value, supabaseUrl)).filter(Boolean)));
       if (paths.some(path => !allowed.has(path))) {
