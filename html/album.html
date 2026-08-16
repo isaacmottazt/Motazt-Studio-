@@ -791,15 +791,18 @@
             position: sticky;
             top: 12px;
             z-index: 20;
-            display: flex;
-            justify-content: flex-start;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-areas:
+                "todas favoritas modo"
+                "selecionar baixar contador";
             align-items: center;
             width: 100%;
             max-width: 100%;
             margin: 0 0 34px;
             padding: 6px;
             gap: 6px;
-            overflow-x: auto;
+            overflow: visible;
             border: 1px solid rgba(255,255,255,.08);
             border-radius: 16px;
             background: rgba(22,22,22,.86);
@@ -810,8 +813,8 @@
         .galeria-controles::-webkit-scrollbar { display: none; }
 
         .filtro-btn, .btn-acao {
-            flex: 0 0 auto;
-            min-width: 116px;
+            min-width: 0;
+            width: 100%;
             border-color: transparent;
             border-radius: 11px;
             padding: 11px 18px;
@@ -822,7 +825,23 @@
             background: transparent;
             white-space: nowrap;
         }
-        #btnModoSelecao { min-width: 166px; }
+        .galeria-controles > .filtro-btn:nth-child(1) { grid-area: todas; }
+        .galeria-controles > .filtro-btn:nth-child(2) { grid-area: favoritas; }
+        #btnModoSelecao { grid-area: modo; }
+        #btnSelecionarTodas { grid-area: selecionar; }
+        #btnBaixarSelecao { grid-area: baixar; }
+        .contador-selecao {
+            grid-area: contador;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .galeria-controles:not(.modo-selecao) {
+            grid-template-areas: "todas favoritas modo" "baixar baixar contador";
+        }
 
         .filtro-btn:hover, .btn-acao:hover { color: var(--ivory); border-color: var(--hairline); background: rgba(255,255,255,.04); }
         .filtro-btn.ativo { color: #050505; background: var(--gold); border-color: var(--gold); }
@@ -882,8 +901,8 @@
             .galeria-header-info { gap: 6px; font-size: 10px; }
             .galeria-header-info span { padding: 7px 10px; }
             .galeria-controles { top: 8px; margin-bottom: 22px; padding: 5px; gap: 4px; }
-            .filtro-btn, .btn-acao { min-width: 108px; padding: 10px 13px; font-size: 9px; }
-            #btnModoSelecao { min-width: 150px; }
+            .filtro-btn, .btn-acao { min-width: 0; padding: 10px 8px; font-size: 9px; }
+            .contador-selecao { font-size: 11px; padding: 0 4px; }
             .galeria-grid { column-gap: 9px; }
             .foto-card { margin-bottom: 9px; border-radius: 10px; }
             .btn-favoritar, .check-selecao { width: 32px; height: 32px; top: 8px; }
@@ -947,7 +966,7 @@
             </div>
         </div>
 
-        <div class="galeria-controles">
+        <div class="galeria-controles" id="barraControles">
             <button class="filtro-btn ativo" data-filtro="todas" onclick="filtrarFotos('todas', this)">
                 Todas
             </button>
@@ -1215,10 +1234,12 @@
             fotosSelecionadas.clear();
 
             const grid = document.getElementById('galeriaGrid');
+            const barraControles = document.getElementById('barraControles');
             const btn = document.getElementById('btnModoSelecao');
             const btnTodas = document.getElementById('btnSelecionarTodas');
 
             grid.classList.toggle('modo-selecao', modoSelecao);
+            barraControles?.classList.toggle('modo-selecao', modoSelecao);
             btn.classList.toggle('ativo', modoSelecao);
             btn.textContent = modoSelecao ? 'Cancelar seleção' : 'Selecionar fotos';
             btnTodas.style.display = modoSelecao ? 'inline-flex' : 'none';
