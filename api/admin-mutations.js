@@ -168,6 +168,24 @@ async function deleteGallery(req, res, base, key, body) {
   return json(res, 200, { sucesso: true, arquivos_removidos: objects.length });
 }
 
+async function reorderPhotos(req, res, base, key, body) {
+  const galeriaId = clean(body?.galeriaId, 80);
+  const photoIds = Array.isArray(body?.photoIds) ? body.photoIds.map(id => clean(id, 80)).filter(Boolean).slice(0, 200) : [];
+  if (!galeriaId || !photoIds.length) return json(res, 400, { error: 'Álbum ou ordem de fotos inválida.' });
+  for (const [index, photoId] of photoIds.entries()) {
+    const response = await supabaseFetch(base, key, `/rest/v1/fotos?id=eq.${encodeURIComponent(photoId)}&galeria_id=eq.${encodeURIComponent(galeriaId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ posicao: index + 1 })
+    });
+    if (!response.ok) {
+      console.error('Photo reorder failed:', response.status, photoId);
+      return json(res, 502, { error: 'Não foi possível salvar a ordem das fotos.' });
+    }
+  }
+  return json(res, 200, { sucesso: true, total: photoIds.length });
+}
+
 async function finalizePhoto(req, res, base, key, body) {
   const galeriaId = clean(body?.galeriaId, 80);
   const previewPath = safePath(body?.previewPath);
@@ -214,6 +232,7 @@ module.exports = async function adminMutations(req, res) {
     if (body.action === 'create-gallery') return await createGallery(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'resolve-gallery') return await resolveGallery(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'prepare-upload') return await prepareUpload(req, res, supabaseUrl, serviceRoleKey, body);
+    if (body.action === 'reorder-photos') return await reorderPhotos(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'finalize-photo') return await finalizePhoto(req, res, supabaseUrl, serviceRoleKey, body);
     if (body.action === 'delete-gallery') return await deleteGallery(req, res, supabaseUrl, serviceRoleKey, body);
     return json(res, 400, { error: 'Operação administrativa inválida.' });
