@@ -21,27 +21,27 @@
   "rewrites": [
     {
       "source": "/galeria-privada",
-      "destination": "/html/album.html"
+      "destination": "/html/album"
     },
     {
       "source": "/album",
-      "destination": "/html/album.html"
+      "destination": "/html/album"
     },
     {
       "source": "/albuns",
-      "destination": "/html/album.html"
+      "destination": "/html/album"
     },
     {
       "source": "/albums",
-      "destination": "/html/album.html"
+      "destination": "/html/album"
     },
     {
       "source": "/index",
-      "destination": "/html/index.html"
+      "destination": "/html/index"
     },
     {
       "source": "/",
-      "destination": "/html/index.html"
+      "destination": "/html/index"
     }
   ]
 }
