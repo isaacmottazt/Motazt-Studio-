@@ -1378,7 +1378,7 @@
             event.stopPropagation();
 
             const nova = !jEhFavorita;
-            const sucesso = await GaleriaPrivada.marcarFavorita(fotoId, nova);
+            const sucesso = await GaleriaPrivada.marcarFavorita(fotoId, nova, galeriaId);
 
             if (sucesso) {
                 const foto = todasFotos.find(f => f.id === fotoId);

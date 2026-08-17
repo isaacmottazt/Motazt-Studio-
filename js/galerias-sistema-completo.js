@@ -252,16 +252,20 @@ async function uploadFoto(galeriaId, arquivo, temMarcaDagua = true) {
  * await marcarFavorita('abc123', true);
  * // Depois pode filtrar só favoritas
  */
-async function marcarFavorita(fotoId, favorita = true) {
+async function marcarFavorita(fotoId, favorita = true, galeriaId = null) {
     try {
-        const { error } = await supabaseClient
-            .from('fotos')
-            .update({ favorita: favorita })
-            .eq('id', fotoId);
-
-        if (error) throw error;
+        const identificadorGaleria = String(galeriaId || window.galeriaId || '').trim();
+        if (!identificadorGaleria) throw new Error('Álbum não identificado.');
+        const resposta = await fetch('/api/public-favorite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            cache: 'no-store',
+            body: JSON.stringify({ galleryId: identificadorGaleria, photoId: fotoId, favorita: Boolean(favorita) })
+        });
+        const dados = await resposta.json().catch(() => null);
+        if (!resposta.ok || !dados?.sucesso) throw new Error(dados?.error || 'Não foi possível salvar o favorito.');
         return true;
-
     } catch (erro) {
         console.error('Erro ao marcar favorita:', erro);
         return false;
