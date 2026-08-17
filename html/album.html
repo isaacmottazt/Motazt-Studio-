@@ -886,7 +886,8 @@
         .btn-favoritar:hover svg, .btn-favoritar.favorita svg { stroke: #050505; }
 
         .modal-visualizacao { background: rgba(5,5,5,.94); backdrop-filter: blur(12px); }
-        .modal-img { max-width: 92%; max-height: 88%; border-radius: 12px; box-shadow: 0 25px 90px rgba(0,0,0,.62); }
+        .modal-img { max-width: 92%; max-height: 88%; border-radius: 12px; box-shadow: 0 25px 90px rgba(0,0,0,.62); transition: opacity .18s ease, filter .18s ease; background: #111; }
+        .modal-img.modal-carregando { opacity: .86; filter: blur(.25px); }
         .modal-botoes { bottom: 28px; padding: 7px; border: 1px solid var(--hairline); border-radius: 18px; background: rgba(22,22,22,.76); backdrop-filter: blur(16px); }
         .btn-modal, .btn-fechar-modal { background: var(--gold); color: #050505; }
         .btn-fechar-modal { top: 24px; right: 24px; }
@@ -1395,14 +1396,47 @@
         }
 
         // ===== MODAL =====
-        function abrirModal(indice) {
-            fotoAtualModal = indice;
-            const modal = document.getElementById('modalVisualizacao');
+        function carregarImagemModal(foto) {
             const img = document.getElementById('modalImg');
-            img.src = obterUrlFoto(fotosExibidas[indice]);
+            if (!foto || !img) return;
+            const previewUrl = signedImageUrls.get(foto.arquivo_preview) || MotaztSecurity.safeStorageUrl(foto.arquivo_preview) || obterUrlFoto(foto);
+            const originalUrl = obterUrlFoto(foto);
+            const indiceAtual = fotoAtualModal;
+
+            // Mostra imediatamente o preview leve, evitando o modal preto enquanto o original carrega.
+            if (previewUrl) {
+                img.classList.add('modal-carregando');
+                img.src = previewUrl;
+            }
+
+            if (!originalUrl || originalUrl === previewUrl) {
+                img.classList.remove('modal-carregando');
+                return;
+            }
+
+            const imagemOriginal = new Image();
+            imagemOriginal.decoding = 'async';
+            imagemOriginal.onload = () => {
+                if (indiceAtual === fotoAtualModal && document.getElementById('modalVisualizacao').classList.contains('ativa')) {
+                    img.src = originalUrl;
+                    img.classList.remove('modal-carregando');
+                }
+            };
+            imagemOriginal.onerror = () => img.classList.remove('modal-carregando');
+            imagemOriginal.src = originalUrl;
+        }
+
+        function atualizarModal(indice) {
+            fotoAtualModal = indice;
+            carregarImagemModal(fotosExibidas[indice]);
             const info = document.getElementById('modalInfo');
             info.textContent = `${indice + 1} de ${fotosExibidas.length}`;
+        }
+
+        function abrirModal(indice) {
+            const modal = document.getElementById('modalVisualizacao');
             modal.classList.add('ativa');
+            atualizarModal(indice);
         }
 
         function fecharModal() {
@@ -1410,17 +1444,11 @@
         }
 
         function proximaFoto() {
-            fotoAtualModal = (fotoAtualModal + 1) % fotosExibidas.length;
-            document.getElementById('modalImg').src = obterUrlFoto(fotosExibidas[fotoAtualModal]);
-            const info = document.getElementById('modalInfo');
-            info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
+            atualizarModal((fotoAtualModal + 1) % fotosExibidas.length);
         }
 
         function fotoAnterior() {
-            fotoAtualModal = (fotoAtualModal - 1 + fotosExibidas.length) % fotosExibidas.length;
-            document.getElementById('modalImg').src = obterUrlFoto(fotosExibidas[fotoAtualModal]);
-            const info = document.getElementById('modalInfo');
-            info.textContent = `${fotoAtualModal + 1} de ${fotosExibidas.length}`;
+            atualizarModal((fotoAtualModal - 1 + fotosExibidas.length) % fotosExibidas.length);
         }
 
         // Fechar modal com ESC
