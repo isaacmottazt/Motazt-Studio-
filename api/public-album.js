@@ -90,7 +90,8 @@ module.exports = async function publicAlbum(req, res) {
       posicao: photo.posicao,
       favorita: Boolean(photo.favorita),
       arquivo_preview: signedMap.get(previewPath) || '',
-      arquivo_full: signedMap.get(fullPath) || ''
+      arquivo_full: signedMap.get(fullPath) || '',
+      download_path: fullPath || previewPath || ''
     };
   });
 

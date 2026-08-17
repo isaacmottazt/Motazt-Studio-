@@ -1307,30 +1307,37 @@
         }
 
         // ===== DOWNLOAD =====
-        async function baixarImagem(url, nomeArquivo) {
-            const safeUrl = MotaztSecurity.safeStorageUrl(url);
-            if (!safeUrl) return;
-            try {
-                const resposta = await fetch(safeUrl);
-                const blob = await resposta.blob();
-                const urlBlob = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = urlBlob;
-                link.download = nomeArquivo;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                URL.revokeObjectURL(urlBlob);
-            } catch (erro) {
-                console.error('Erro ao baixar imagem:', erro);
-                const safeUrl = MotaztSecurity.safeStorageUrl(url);
-                if (safeUrl) window.open(safeUrl, '_blank', 'noopener,noreferrer');
+        async function baixarImagem(foto, nomeArquivo) {
+            const downloadPath = String(foto?.download_path || '').trim();
+            if (!downloadPath || !galeriaId) throw new Error('Caminho de download indisponível para esta foto.');
+            const params = new URLSearchParams({ galleryId: String(galeriaId), path: downloadPath });
+            const resposta = await fetch(`/api/download-image?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+            if (!resposta.ok) {
+                const dados = await resposta.json().catch(() => null);
+                throw new Error(dados?.error || `Falha no download (${resposta.status}).`);
             }
+            const blob = await resposta.blob();
+            const urlBlob = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = urlBlob;
+            link.download = nomeArquivo;
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(urlBlob), 1500);
         }
 
         function baixarFotoAtual() {
             const foto = fotosExibidas[fotoAtualModal];
-            baixarImagem(obterUrlFoto(foto), `motaz-studio-foto-${fotoAtualModal + 1}.jpg`);
+            baixarImagem(foto, `motaz-studio-foto-${fotoAtualModal + 1}.jpg`).catch(erro => {
+                console.error('Erro ao baixar imagem:', erro);
+                mostrarErro('Download não concluído', erro.message || 'Tente novamente.');
+            });
         }
 
         async function baixarSelecionadas() {
@@ -1340,16 +1347,26 @@
             const contador = document.getElementById('contadorSelecao');
             const btnBaixar = document.getElementById('btnBaixarSelecao');
             const total = fotos.length;
+            let concluídas = 0;
+            let falhas = 0;
 
             btnBaixar.disabled = true;
             contador.textContent = `Baixando ${total} foto${total > 1 ? 's' : ''}...`;
 
             for (let i = 0; i < fotos.length; i++) {
-                await baixarImagem(obterUrlFoto(fotos[i]), `motaz-studio-foto-${i + 1}.jpg`);
+                try {
+                    await baixarImagem(fotos[i], `motaz-studio-foto-${i + 1}.jpg`);
+                    concluídas++;
+                } catch (erro) {
+                    falhas++;
+                    console.error('Erro no download múltiplo:', erro);
+                }
                 await new Promise(res => setTimeout(res, 400));
             }
 
-            contador.textContent = `${total} foto${total > 1 ? 's' : ''} baixada${total > 1 ? 's' : ''}!`;
+            contador.textContent = falhas
+                ? `${concluídas} baixada${concluídas !== 1 ? 's' : ''}; ${falhas} falha${falhas !== 1 ? 's' : ''}.`
+                : `${total} foto${total > 1 ? 's' : ''} baixada${total > 1 ? 's' : ''}!`;
             btnBaixar.disabled = false;
 
             setTimeout(() => atualizarBarraSelecao(), 2500);
